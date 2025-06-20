@@ -1,0 +1,11 @@
+version: "0.1"
+
+services:
+  directory-service:
+    image: directory-service
+    container_name: directory-service
+    build:
+      context: ./directory-service
+      dockerfile: Dockerfile
+    ports:
+      - 127.0.0.1:3000:3000
