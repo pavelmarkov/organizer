@@ -9,3 +9,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - 127.0.0.1:3000:3000
+  media-service:
+    image: media-service
+    container_name: media-service
+    build:
+      context: ./media-service
+      dockerfile: Dockerfile
+    ports:
+      - 127.0.0.1:8080:8080
