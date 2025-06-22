@@ -1,44 +1,117 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 
-import { AgGridAngular } from 'ag-grid-angular';
-import type { ColDef } from 'ag-grid-community';
+import { TreeTableModule } from 'primeng/treetable';
+import { TreeNode } from 'primeng/api';
+import { CommonModule } from '@angular/common';
 
-// Row Data Interface
-interface IRow {
-  make: string;
-  model: string;
-  price: number;
-  electric: boolean;
+interface IDummyData {
+  name: string;
+  size: string;
+  type: string;
 }
+
+interface Column {
+  field: string;
+  header: string;
+}
+
+const dummyData: TreeNode<IDummyData>[] = [
+  {
+    data: {
+      name: '1',
+      size: '1',
+      type: 'type',
+    },
+    children: [
+      {
+        data: {
+          name: '1',
+          size: '1',
+          type: 'type',
+        },
+      },
+    ],
+  },
+];
 
 @Component({
   selector: 'app-directory-layout',
-  imports: [AgGridAngular],
+  imports: [TreeTableModule, CommonModule],
   templateUrl: './directory-layout.component.html',
   styleUrl: './directory-layout.component.css',
 })
-export class DirectoryLayoutComponent {
-  // Row Data: The data to be displayed.
-  rowData: IRow[] = [
-    { make: 'Tesla', model: 'Model Y', price: 64950, electric: true },
-    { make: 'Ford', model: 'F-Series', price: 33850, electric: false },
-    { make: 'Toyota', model: 'Corolla', price: 29600, electric: false },
-    { make: 'Mercedes', model: 'EQA', price: 48890, electric: true },
-    { make: 'Fiat', model: '500', price: 15774, electric: false },
-    { make: 'Nissan', model: 'Juke', price: 20675, electric: false },
-  ];
+export class DirectoryLayoutComponent implements OnInit {
+  files!: TreeNode[];
 
-  // Column Definitions: Defines & controls grid columns.
-  colDefs: ColDef<IRow>[] = [
-    { field: 'make' },
-    { field: 'model' },
-    { field: 'price' },
-    { field: 'electric' },
-  ];
+  cols!: Column[];
 
-  defaultColDef: ColDef = {
-    flex: 1,
-  };
+  totalRecords!: number;
 
-  restoreColumns() {}
+  loading: boolean = false;
+
+  constructor(private cd: ChangeDetectorRef) {}
+
+  ngOnInit() {
+    this.cols = [
+      { field: 'name', header: 'Name' },
+      { field: 'size', header: 'Size' },
+      { field: 'type', header: 'Type' },
+    ];
+
+    this.totalRecords = 1000;
+
+    this.loading = true;
+  }
+
+  loadNodes(event: any) {
+    this.loading = true;
+
+    setTimeout(() => {
+      this.files = [];
+
+      for (let i = 0; i < event.rows; i++) {
+        let node = {
+          data: {
+            name: 'Item ' + (event.first + i),
+            size: Math.floor(Math.random() * 1000) + 1 + 'kb',
+            type: 'Type ' + (event.first + i),
+          },
+          leaf: false,
+        };
+
+        this.files.push(node);
+      }
+      this.loading = false;
+      this.cd.markForCheck();
+    }, 1000);
+  }
+
+  onNodeExpand(event: any) {
+    this.loading = true;
+
+    setTimeout(() => {
+      this.loading = false;
+      const node = event.node;
+
+      node.children = [
+        {
+          data: {
+            name: node.data.name + ' - 0',
+            size: Math.floor(Math.random() * 1000) + 1 + 'kb',
+            type: 'File',
+          },
+        },
+        {
+          data: {
+            name: node.data.name + ' - 1',
+            size: Math.floor(Math.random() * 1000) + 1 + 'kb',
+            type: 'File',
+          },
+        },
+      ];
+
+      this.files = [...this.files];
+      this.cd.markForCheck();
+    }, 250);
+  }
 }
