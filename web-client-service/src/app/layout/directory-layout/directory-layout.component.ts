@@ -1,38 +1,15 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 
 import { TreeTableModule } from 'primeng/treetable';
 import { TreeNode } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-
-interface IDummyData {
-  name: string;
-  size: string;
-  type: string;
-}
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../config/environment';
 
 interface Column {
   field: string;
   header: string;
 }
-
-const dummyData: TreeNode<IDummyData>[] = [
-  {
-    data: {
-      name: '1',
-      size: '1',
-      type: 'type',
-    },
-    children: [
-      {
-        data: {
-          name: '1',
-          size: '1',
-          type: 'type',
-        },
-      },
-    ],
-  },
-];
 
 @Component({
   selector: 'app-directory-layout',
@@ -41,6 +18,9 @@ const dummyData: TreeNode<IDummyData>[] = [
   styleUrl: './directory-layout.component.css',
 })
 export class DirectoryLayoutComponent implements OnInit {
+  private baseUrl: string = environment.apiUrl;
+  private http: HttpClient = inject(HttpClient);
+
   files!: TreeNode[];
 
   cols!: Column[];
@@ -93,6 +73,11 @@ export class DirectoryLayoutComponent implements OnInit {
       this.loading = false;
       const node = event.node;
 
+      this.http
+        .get<TreeNode[]>(`${this.baseUrl}/directory`)
+        .subscribe((something) => {
+          console.log(something);
+        });
       node.children = [
         {
           data: {
