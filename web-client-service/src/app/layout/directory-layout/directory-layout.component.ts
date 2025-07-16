@@ -11,6 +11,22 @@ interface Column {
   header: string;
 }
 
+interface DirectoryNodeDataDto {
+  name: string;
+  size: string;
+  type: string;
+}
+
+interface DirectoryNodeDto {
+  data: DirectoryNodeDataDto;
+  leaf: boolean;
+  children: DirectoryNodeDto[];
+}
+
+interface GetDirectoryResponseDto {
+  directory: DirectoryNodeDto[];
+}
+
 @Component({
   selector: 'app-directory-layout',
   imports: [TreeTableModule, CommonModule],
@@ -69,34 +85,16 @@ export class DirectoryLayoutComponent implements OnInit {
   onNodeExpand(event: any) {
     this.loading = true;
 
-    setTimeout(() => {
-      this.loading = false;
-      const node = event.node;
+    this.loading = false;
+    const node = event.node;
 
-      this.http
-        .get<TreeNode[]>(`${this.baseUrl}/directory`)
-        .subscribe((something) => {
-          console.log(something);
-        });
-      node.children = [
-        {
-          data: {
-            name: node.data.name + ' - 0',
-            size: Math.floor(Math.random() * 1000) + 1 + 'kb',
-            type: 'File',
-          },
-        },
-        {
-          data: {
-            name: node.data.name + ' - 1',
-            size: Math.floor(Math.random() * 1000) + 1 + 'kb',
-            type: 'File',
-          },
-        },
-      ];
-
-      this.files = [...this.files];
-      this.cd.markForCheck();
-    }, 250);
+    this.http
+      .get<GetDirectoryResponseDto>(`${this.baseUrl}/directory`)
+      .subscribe((nodeChildren) => {
+        console.log(nodeChildren);
+        node.children = nodeChildren.directory;
+        this.files = [...this.files];
+        this.cd.markForCheck();
+      });
   }
 }
