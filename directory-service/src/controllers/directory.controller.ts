@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Query } from "@nestjs/common";
 import { GetDirectoryResponseDto } from "../dtos";
 import { DirectoryService } from "../services";
 
@@ -7,7 +7,7 @@ export class DirectoryController {
   constructor(private readonly directoryService: DirectoryService) {}
 
   @Get("directory")
-  getDirectory(): GetDirectoryResponseDto {
-    return this.directoryService.getDirectory();
+  getDirectory(@Query("parentId") parentId: number): GetDirectoryResponseDto {
+    return this.directoryService.getDirectory({ parentId });
   }
 }

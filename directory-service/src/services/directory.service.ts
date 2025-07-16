@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { GetDirectoryResponseDto } from "../dtos";
+import { GetDirectoryRequestDto, GetDirectoryResponseDto } from "../dtos";
 
 @Injectable()
 export class DirectoryService {
-  getDirectory(): GetDirectoryResponseDto {
+  getDirectory(params: GetDirectoryRequestDto): GetDirectoryResponseDto {
     const directory: GetDirectoryResponseDto["directory"] = [];
 
     for (let i = 0; i < Math.floor(Math.random() * 5) + 1; i++) {

@@ -1,1 +1,1 @@
-export * from "./get-directory-response";
+export * from "./directory";
