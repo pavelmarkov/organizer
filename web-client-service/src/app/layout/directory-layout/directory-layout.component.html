@@ -1,6 +1,6 @@
 <div class="card">
   <p-treetable [value]="files" [columns]="cols" [paginator]="true" [rows]="10" [lazy]="true"
-    (onLazyLoad)="loadNodes($event)" [totalRecords]="1000" [loading]="loading" (onNodeExpand)="onNodeExpand($event)"
+    (onLazyLoad)="loadNodes($event)" [totalRecords]="totalRecords" [loading]="loading" (onNodeExpand)="onNodeExpand($event)"
     [scrollable]="true" [tableStyle]="{ 'min-width': '50rem' }">
     <ng-template #header let-columns>
       <tr>

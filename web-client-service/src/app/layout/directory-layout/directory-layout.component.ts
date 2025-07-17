@@ -54,7 +54,7 @@ export class DirectoryLayoutComponent implements OnInit {
       { field: 'type', header: 'Type' },
     ];
 
-    this.totalRecords = 1000;
+    this.totalRecords = 0;
 
     this.loading = true;
   }
@@ -62,30 +62,20 @@ export class DirectoryLayoutComponent implements OnInit {
   loadNodes(event: any) {
     this.loading = true;
 
-    setTimeout(() => {
-      this.files = [];
-
-      for (let i = 0; i < event.rows; i++) {
-        let node = {
-          data: {
-            name: 'Item ' + (event.first + i),
-            size: Math.floor(Math.random() * 1000) + 1 + 'kb',
-            type: 'Type ' + (event.first + i),
-          },
-          leaf: false,
-        };
-
-        this.files.push(node);
-      }
-      this.loading = false;
-      this.cd.markForCheck();
-    }, 1000);
+    this.http
+      .get<GetDirectoryResponseDto>(`${this.baseUrl}/directory`)
+      .subscribe((nodes) => {
+        console.log(nodes);
+        this.files = [...nodes.directory];
+        this.loading = false;
+        this.totalRecords = nodes.directory.length;
+        this.cd.markForCheck();
+      });
   }
 
   onNodeExpand(event: any) {
     this.loading = true;
 
-    this.loading = false;
     const node = event.node;
 
     this.http
@@ -94,6 +84,7 @@ export class DirectoryLayoutComponent implements OnInit {
         console.log(nodeChildren);
         node.children = nodeChildren.directory;
         this.files = [...this.files];
+        this.loading = false;
         this.cd.markForCheck();
       });
   }
