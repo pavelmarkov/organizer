@@ -1,3 +1,3 @@
 export class GetDirectoryRequestDto {
-  parentId: number;
+  parentId: string;
 }

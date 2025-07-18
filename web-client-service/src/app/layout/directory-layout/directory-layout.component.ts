@@ -3,18 +3,21 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { TreeTableModule } from 'primeng/treetable';
 import { TreeNode } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../config/environment';
 
-interface Column {
-  field: string;
-  header: string;
+interface DirectoryNodeDataDto {
+  directoryId: string;
+  parentId: string;
+  name: string;
+  isFolder: boolean;
+  fileType: string;
+  size: number;
 }
 
-interface DirectoryNodeDataDto {
-  name: string;
-  size: string;
-  type: string;
+interface Column {
+  field: keyof DirectoryNodeDataDto;
+  header: string;
 }
 
 interface DirectoryNodeDto {
@@ -51,7 +54,7 @@ export class DirectoryLayoutComponent implements OnInit {
     this.cols = [
       { field: 'name', header: 'Name' },
       { field: 'size', header: 'Size' },
-      { field: 'type', header: 'Type' },
+      { field: 'fileType', header: 'Type' },
     ];
 
     this.totalRecords = 0;
@@ -77,9 +80,15 @@ export class DirectoryLayoutComponent implements OnInit {
     this.loading = true;
 
     const node = event.node;
+    const nodeId = node.data.directoryId;
+
+    let params = new HttpParams();
+    params = params.set('parentId', nodeId);
 
     this.http
-      .get<GetDirectoryResponseDto>(`${this.baseUrl}/directory`)
+      .get<GetDirectoryResponseDto>(`${this.baseUrl}/directory`, {
+        params,
+      })
       .subscribe((nodeChildren) => {
         console.log(nodeChildren);
         node.children = nodeChildren.directory;

@@ -1,11 +1,7 @@
-class DirectoryNodeDataDto {
-  name: string;
-  size: string;
-  type: string;
-}
+import { DirectoryEntity } from "../../entities";
 
-class DirectoryNodeDto {
-  data: DirectoryNodeDataDto;
+export class DirectoryNodeDto {
+  data: DirectoryEntity;
   leaf: boolean;
   children: DirectoryNodeDto[];
 }
