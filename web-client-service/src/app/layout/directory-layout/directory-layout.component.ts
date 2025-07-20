@@ -1,33 +1,14 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 
 import { TreeTableModule } from 'primeng/treetable';
 import { TreeNode } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from '../../../config/environment';
-
-interface DirectoryNodeDataDto {
-  directoryId: string;
-  parentId: string;
-  name: string;
-  isFolder: boolean;
-  fileType: string;
-  size: number;
-}
+import { DirectoryService } from '../../core/services';
+import { DirectoryModel } from '../../core/domain';
 
 interface Column {
-  field: keyof DirectoryNodeDataDto;
+  field: keyof DirectoryModel;
   header: string;
-}
-
-interface DirectoryNodeDto {
-  data: DirectoryNodeDataDto;
-  leaf: boolean;
-  children: DirectoryNodeDto[];
-}
-
-interface GetDirectoryResponseDto {
-  directory: DirectoryNodeDto[];
 }
 
 @Component({
@@ -37,9 +18,6 @@ interface GetDirectoryResponseDto {
   styleUrl: './directory-layout.component.css',
 })
 export class DirectoryLayoutComponent implements OnInit {
-  private baseUrl: string = environment.apiUrl;
-  private http: HttpClient = inject(HttpClient);
-
   files!: TreeNode[];
 
   cols!: Column[];
@@ -48,7 +26,10 @@ export class DirectoryLayoutComponent implements OnInit {
 
   loading: boolean = false;
 
-  constructor(private cd: ChangeDetectorRef) {}
+  constructor(
+    private cd: ChangeDetectorRef,
+    private directoryService: DirectoryService
+  ) {}
 
   ngOnInit() {
     this.cols = [
@@ -65,15 +46,13 @@ export class DirectoryLayoutComponent implements OnInit {
   loadNodes(event: any) {
     this.loading = true;
 
-    this.http
-      .get<GetDirectoryResponseDto>(`${this.baseUrl}/directory`)
-      .subscribe((nodes) => {
-        console.log(nodes);
-        this.files = [...nodes.directory];
-        this.loading = false;
-        this.totalRecords = nodes.directory.length;
-        this.cd.markForCheck();
-      });
+    this.directoryService.getDirectory({}).subscribe((nodes) => {
+      console.log(nodes);
+      this.files = [...nodes.directory];
+      this.loading = false;
+      this.totalRecords = nodes.directory.length;
+      this.cd.markForCheck();
+    });
   }
 
   onNodeExpand(event: any) {
@@ -82,13 +61,8 @@ export class DirectoryLayoutComponent implements OnInit {
     const node = event.node;
     const nodeId = node.data.directoryId;
 
-    let params = new HttpParams();
-    params = params.set('parentId', nodeId);
-
-    this.http
-      .get<GetDirectoryResponseDto>(`${this.baseUrl}/directory`, {
-        params,
-      })
+    this.directoryService
+      .getDirectory({ parentId: nodeId })
       .subscribe((nodeChildren) => {
         console.log(nodeChildren);
         node.children = nodeChildren.directory;

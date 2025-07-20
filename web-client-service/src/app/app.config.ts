@@ -7,6 +7,9 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 import { provideHttpClient } from '@angular/common/http';
+import { DirectoryRepository } from './core/repositories';
+import { DirectoryRepositoryImpl } from './data/repositories/directory.repository.impl';
+import { DirectoryService } from './core/services';
 // import Lara from '@primeng/themes/lara';
 // import Nora from '@primeng/themes/nora';
 // import Material from '@primeng/themes/material';
@@ -24,5 +27,8 @@ export const appConfig: ApplicationConfig = {
     }),
 
     provideHttpClient(),
+
+    { provide: DirectoryRepository, useClass: DirectoryRepositoryImpl },
+    { provide: DirectoryService, useClass: DirectoryRepositoryImpl },
   ],
 };
