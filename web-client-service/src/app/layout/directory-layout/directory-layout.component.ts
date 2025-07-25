@@ -5,6 +5,8 @@ import { TreeNode } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { DirectoryService } from '../../core/services';
 import { DirectoryModel } from '../../core/domain';
+import { DataService } from '../../shared/services/data.service';
+import { SelectedNodesType } from '../../core/types';
 
 interface Column {
   field: keyof DirectoryModel;
@@ -26,9 +28,14 @@ export class DirectoryLayoutComponent implements OnInit {
 
   loading: boolean = false;
 
+  selectionKeys: SelectedNodesType = {};
+
+  selected: string[] = [];
+
   constructor(
     private cd: ChangeDetectorRef,
-    private directoryService: DirectoryService
+    private directoryService: DirectoryService,
+    private dataService: DataService
   ) {}
 
   ngOnInit() {
@@ -70,5 +77,9 @@ export class DirectoryLayoutComponent implements OnInit {
         this.loading = false;
         this.cd.markForCheck();
       });
+  }
+
+  nodeSelect(event: any) {
+    this.dataService.changeData(this.selectionKeys);
   }
 }

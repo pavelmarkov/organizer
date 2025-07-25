@@ -2,6 +2,7 @@ import { Observable } from 'rxjs';
 import { GetDirectoryRequestDto, GetDirectoryResponseDto } from '../core/dtos';
 import { DirectoryService } from '../core/services/';
 import { DirectoryRepository } from '../core/repositories';
+import { DataService } from '../shared/services/data.service';
 
 export class DirectoryServiceImpl implements DirectoryService {
   constructor(private directoryRepository: DirectoryRepository) {}

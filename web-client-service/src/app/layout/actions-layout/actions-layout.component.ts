@@ -8,6 +8,8 @@ import { SplitButton } from 'primeng/splitbutton';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { DataService } from '../../shared/services/data.service';
+import { SelectedNodesType } from '../../core/types';
 
 @Component({
   selector: 'app-actions-layout',
@@ -26,8 +28,9 @@ import { InputIcon } from 'primeng/inputicon';
 })
 export class ActionsLayoutComponent implements OnInit {
   items: MenuItem[] | undefined;
+  selectedNodes: SelectedNodesType = {};
 
-  constructor() {}
+  constructor(private dataService: DataService) {}
 
   ngOnInit() {
     this.items = [
@@ -40,5 +43,12 @@ export class ActionsLayoutComponent implements OnInit {
         icon: 'pi pi-times',
       },
     ];
+    this.dataService.currentSelectedNodes.subscribe((data) => {
+      this.selectedNodes = data;
+    });
+  }
+
+  processNodes(event: any) {
+    console.log('Nodes to process: ', this.selectedNodes);
   }
 }
