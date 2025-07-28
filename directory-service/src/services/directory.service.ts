@@ -123,4 +123,28 @@ export class DirectoryService {
       directory,
     };
   }
+
+  processDirectory(directoryGuids: string[]): GetDirectoryResponseDto {
+    const directory: GetDirectoryResponseDto["directory"] = [];
+
+    dummyDirectory.forEach((directoryElement) => {
+      if (!directoryGuids.includes(directoryElement.directoryId)) {
+        return;
+      }
+
+      let node: DirectoryNodeDto = {
+        data: directoryElement,
+        leaf: !directoryElement.isFolder,
+        children: [],
+      };
+
+      directory.push(node);
+    });
+
+    console.log(directory);
+
+    return {
+      directory,
+    };
+  }
 }

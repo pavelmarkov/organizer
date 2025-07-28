@@ -10,6 +10,7 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { DataService } from '../../shared/services/data.service';
 import { SelectedNodesType } from '../../core/types';
+import { DirectoryService } from '../../core/services';
 
 @Component({
   selector: 'app-actions-layout',
@@ -30,7 +31,10 @@ export class ActionsLayoutComponent implements OnInit {
   items: MenuItem[] | undefined;
   selectedNodes: SelectedNodesType = {};
 
-  constructor(private dataService: DataService) {}
+  constructor(
+    private dataService: DataService,
+    private directoryService: DirectoryService
+  ) {}
 
   ngOnInit() {
     this.items = [
@@ -50,5 +54,15 @@ export class ActionsLayoutComponent implements OnInit {
 
   processNodes(event: any) {
     console.log('Nodes to process: ', this.selectedNodes);
+    const directoryGuids = Object.keys(this.selectedNodes)
+      .filter((directoryGuid) => this.selectedNodes[directoryGuid].checked)
+      .map((directoryGuid) => directoryGuid);
+    this.directoryService;
+
+    this.directoryService
+      .processDirectory(directoryGuids)
+      .subscribe((processingNodes) => {
+        console.log(processingNodes);
+      });
   }
 }

@@ -24,4 +24,15 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
       params: queryParams,
     });
   }
+
+  processDirectory(
+    directoryGuids: string[]
+  ): Observable<GetDirectoryResponseDto> {
+    return this.http.post<GetDirectoryResponseDto>(
+      `${this.baseUrl}/directory/process`,
+      {
+        directoryGuids,
+      }
+    );
+  }
 }

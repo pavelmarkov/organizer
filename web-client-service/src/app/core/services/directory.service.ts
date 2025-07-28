@@ -5,4 +5,7 @@ export abstract class DirectoryService {
   abstract getDirectory(
     params: GetDirectoryRequestDto
   ): Observable<GetDirectoryResponseDto>;
+  abstract processDirectory(
+    directoryGuids: string[]
+  ): Observable<GetDirectoryResponseDto>;
 }

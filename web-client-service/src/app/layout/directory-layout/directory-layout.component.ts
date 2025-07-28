@@ -8,14 +8,16 @@ import { DirectoryModel } from '../../core/domain';
 import { DataService } from '../../shared/services/data.service';
 import { SelectedNodesType } from '../../core/types';
 
+import { ButtonModule } from 'primeng/button';
+
 interface Column {
-  field: keyof DirectoryModel;
+  field: keyof DirectoryModel | '';
   header: string;
 }
 
 @Component({
   selector: 'app-directory-layout',
-  imports: [TreeTableModule, CommonModule],
+  imports: [TreeTableModule, CommonModule, ButtonModule],
   templateUrl: './directory-layout.component.html',
   styleUrl: './directory-layout.component.css',
 })
@@ -43,6 +45,7 @@ export class DirectoryLayoutComponent implements OnInit {
       { field: 'name', header: 'Name' },
       { field: 'size', header: 'Size' },
       { field: 'fileType', header: 'Type' },
+      { field: '', header: '' },
     ];
 
     this.totalRecords = 0;
