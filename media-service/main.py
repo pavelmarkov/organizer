@@ -10,21 +10,18 @@ def read_root():
     return {"message": "Hello, World!"}
 
 def main():
-    try:# Establish a connection to RabbitMQ
+    try:
         connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
         channel = connection.channel()
 
-        # Declare the queue 'hello' (it needs to exist)
         channel.queue_declare(queue='media_queue')
 
-        # Tell RabbitMQ to consume messages from the 'hello' queue
         channel.basic_consume(queue='media_queue',
                             on_message_callback=on_message_received,
                             auto_ack=False)
 
         print(' [*] Waiting for messages. To exit press CTRL+C')
 
-        # Start consuming messages (this will block until a message is received)
         channel.start_consuming()
 
     except pika.exceptions.AMQPConnectionError as e:
