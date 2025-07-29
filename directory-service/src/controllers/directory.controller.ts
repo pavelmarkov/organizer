@@ -14,7 +14,7 @@ export class DirectoryController {
   @Post("directory/process")
   processDirectory(
     @Body() params: { directoryGuids: string[] }
-  ): GetDirectoryResponseDto {
+  ): Promise<GetDirectoryResponseDto> {
     return this.directoryService.processDirectory(params.directoryGuids);
   }
 }
