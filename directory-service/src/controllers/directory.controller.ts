@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { GetDirectoryResponseDto } from "../dtos";
-import { DirectoryService } from "../services";
+import { DirectoryService } from "../services/directory";
 
 @Controller()
 export class DirectoryController {

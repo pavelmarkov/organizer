@@ -3,10 +3,9 @@ import {
   DirectoryNodeDto,
   GetDirectoryRequestDto,
   GetDirectoryResponseDto,
-} from "../dtos";
-import { DirectoryEntity } from "../entities";
-import { ClientProxy } from "@nestjs/microservices";
-import { firstValueFrom } from "rxjs";
+} from "../../dtos";
+import { DirectoryEntity } from "../../entities";
+import { MediaService } from "src/infrastructure/media/media.service";
 
 const dummyDirectory: DirectoryEntity[] = [
   {
@@ -101,7 +100,9 @@ const dummyDirectory: DirectoryEntity[] = [
 
 @Injectable()
 export class DirectoryService {
-  constructor(@Inject("MEDIA_CLIENT") private readonly client: ClientProxy) {}
+  constructor(
+    @Inject(MediaService) private readonly mediaClient: MediaService
+  ) {}
 
   getDirectory(params: GetDirectoryRequestDto): GetDirectoryResponseDto {
     const directory: GetDirectoryResponseDto["directory"] = [];
@@ -149,11 +150,8 @@ export class DirectoryService {
 
     console.log(directory);
 
-    const mediaServiceAnswer = await firstValueFrom(
-      this.client.send("media_queue", {
-        directoryGuids,
-        random: Math.random(),
-      })
+    const mediaServiceAnswer = await this.mediaClient.processDirectory(
+      directoryGuids
     );
 
     console.log("mediaServiceAnswer: ", mediaServiceAnswer);

@@ -1,0 +1,1 @@
+export const MEDIA_SERVICE_CLIENT = "MEDIA_CLIENT";
