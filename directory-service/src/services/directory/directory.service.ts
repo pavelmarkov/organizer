@@ -154,7 +154,7 @@ export class DirectoryService {
       directoryGuids
     );
 
-    console.log("mediaServiceAnswer: ", mediaServiceAnswer);
+    console.log("mediaServiceAnswer 2: ", mediaServiceAnswer);
 
     return {
       directory,

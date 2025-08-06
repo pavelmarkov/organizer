@@ -12,9 +12,7 @@ export class MediaService {
 
   async processDirectory(
     directoryGuids: string[]
-  ): Promise<GetDirectoryResponseDto> {
-    const directory: GetDirectoryResponseDto["directory"] = [];
-
+  ): Promise<{ directoryGuids: string[] }> {
     const mediaServiceAnswer = await firstValueFrom(
       this.client.send("media_queue", {
         directoryGuids,
@@ -22,10 +20,8 @@ export class MediaService {
       })
     );
 
-    console.log("mediaServiceAnswer: ", mediaServiceAnswer);
+    console.log("mediaServiceAnswer 1: ", mediaServiceAnswer);
 
-    return {
-      directory,
-    };
+    return mediaServiceAnswer.data.directoryGuids;
   }
 }

@@ -1,6 +1,8 @@
 
 import pika
 import json
+from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
+from pika.spec import BasicProperties, Basic
 
 def send_message():
   # Establish a connection
@@ -26,12 +28,19 @@ def send_message():
   # Close the connection
   connection.close()
 
-def on_message_received(ch, method, props, body):
+def on_message_received(
+    ch: BlockingChannel,
+    method: Basic.Deliver,
+    props: BasicProperties,
+    body: bytes
+  ):
   """
   Callback function executed when a message is received.
   """
 
   message = json.loads(body.decode())
+
+  print('\n')
   print(f" [x] Received {message}")
 
   print(f" [x] Properties {props}")
