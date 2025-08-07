@@ -4,31 +4,7 @@ import json
 from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
 from pika.spec import BasicProperties, Basic
 
-def send_message():
-  # Establish a connection
-  credentials = pika.PlainCredentials('guest', 'guest')
-  parameters = pika.ConnectionParameters(
-      'rabbitmq-server',
-      5672,
-      '/',
-      credentials
-  )
-  connection = pika.BlockingConnection(parameters)
-  channel = connection.channel()
-
-  # Declare a queue
-  channel.queue_declare(queue='hello')
-
-  # Publish a message
-  channel.basic_publish(exchange='',
-                        routing_key='hello',
-                        body='Hello RabbitMQ!')
-  print(" [x] Sent 'Hello RabbitMQ!'")
-
-  # Close the connection
-  connection.close()
-
-def on_message_received(
+def on_process_media_message_received(
     ch: BlockingChannel,
     method: Basic.Deliver,
     props: BasicProperties,

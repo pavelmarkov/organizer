@@ -1,13 +1,14 @@
 from fastapi import FastAPI
 import asyncio
-from event_handler import send_message, on_message_received
 from messaging.rabbitmq_consumer import RabbitMQConsumer
+from messaging.rabbitmq_producer import RabbitMQProducer
 
 app = FastAPI()
 
 @app.get("/")
 def read_root():
-    send_message()
+    producer = RabbitMQProducer()
+    producer.send_message()
     return {"message": "Hello, World!"}
 
 async def main():
