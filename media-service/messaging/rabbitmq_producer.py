@@ -1,6 +1,7 @@
 import pika
 from config.rabbitmq import get_settings
 
+
 class RabbitMQProducer():
     def __init__(self):
         self.config = get_settings()
@@ -9,33 +10,32 @@ class RabbitMQProducer():
         self._should_reconnect = False
         self._consuming = False
 
-
     def send_message(self, message):
         if not self.connection:
             self.connect()
         # Publish a message
         self.channel.basic_publish(exchange='',
-                                routing_key=self.config.queue,
-                                body=message)
+                                   routing_key=self.config.queue,
+                                   body=message)
         print(" [x] Sent RabbitMQ message!'")
 
     async def connect(self):
         """Establish connection to RabbitMQ"""
         try:
-          connection_parameters = pika.ConnectionParameters(
-            host=self.config.host,
-            port=self.config.port
-          )
-          connection = pika.BlockingConnection(
-            connection_parameters
-          )
+            connection_parameters = pika.ConnectionParameters(
+                host=self.config.host,
+                port=self.config.port
+            )
+            connection = pika.BlockingConnection(
+                connection_parameters
+            )
 
-          channel = connection.channel()
+            channel = connection.channel()
 
-          channel.queue_declare(queue=self.config.queue)
-          print(' [*] Waiting for messages. To exit press CTRL+C')
+            channel.queue_declare(queue=self.config.queue)
+            print(' [*] Waiting for messages. To exit press CTRL+C')
 
-          channel.start_consuming()
+            channel.start_consuming()
         except pika.exceptions.AMQPConnectionError as e:
             print(f"Error connecting to RabbitMQ: {e}")
         except KeyboardInterrupt:

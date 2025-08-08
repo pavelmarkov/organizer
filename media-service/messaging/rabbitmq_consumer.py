@@ -2,6 +2,7 @@ import pika
 from config.rabbitmq import get_settings
 from event_handlers.process_media import on_process_media_message_received
 
+
 class RabbitMQConsumer():
     def __init__(self):
         self.config = get_settings()
@@ -13,25 +14,25 @@ class RabbitMQConsumer():
     async def connect(self):
         """Establish connection to RabbitMQ"""
         try:
-          connection_parameters = pika.ConnectionParameters(
-            host=self.config.host,
-            port=self.config.port
-          )
-          connection = pika.BlockingConnection(
-            connection_parameters
-          )
+            connection_parameters = pika.ConnectionParameters(
+                host=self.config.host,
+                port=self.config.port
+            )
+            connection = pika.BlockingConnection(
+                connection_parameters
+            )
 
-          channel = connection.channel()
+            channel = connection.channel()
 
-          channel.queue_declare(queue=self.config.queue)
-  
-          channel.basic_consume(queue=self.config.queue,
-                              on_message_callback=on_process_media_message_received,
-                              auto_ack=False)
+            channel.queue_declare(queue=self.config.queue)
 
-          print(' [*] Waiting for messages. To exit press CTRL+C')
+            channel.basic_consume(queue=self.config.queue,
+                                  on_message_callback=on_process_media_message_received,
+                                  auto_ack=False)
 
-          channel.start_consuming()
+            print(' [*] Waiting for messages. To exit press CTRL+C')
+
+            channel.start_consuming()
         except pika.exceptions.AMQPConnectionError as e:
             print(f"Error connecting to RabbitMQ: {e}")
         except KeyboardInterrupt:

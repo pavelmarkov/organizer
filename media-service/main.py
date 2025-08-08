@@ -5,11 +5,13 @@ from messaging.rabbitmq_producer import RabbitMQProducer
 
 app = FastAPI()
 
+
 @app.get("/")
 def read_root():
     producer = RabbitMQProducer()
     producer.send_message()
     return {"message": "Hello, World!"}
+
 
 async def main():
     consumer = RabbitMQConsumer()
