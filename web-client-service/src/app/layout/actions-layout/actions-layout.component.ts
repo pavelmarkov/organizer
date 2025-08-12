@@ -12,6 +12,14 @@ import { DataService } from '../../shared/services/data.service';
 import { SelectedNodesType } from '../../core/types';
 import { DirectoryService } from '../../core/services';
 
+import {
+  FileSelectEvent,
+  FileUpload,
+  FileUploadEvent,
+  FileUploadHandlerEvent,
+} from 'primeng/fileupload';
+import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
+
 @Component({
   selector: 'app-actions-layout',
   imports: [
@@ -23,9 +31,12 @@ import { DirectoryService } from '../../core/services';
     InputTextModule,
     IconField,
     InputIcon,
+
+    FileUpload,
   ],
   templateUrl: './actions-layout.component.html',
   styleUrl: './actions-layout.component.css',
+  providers: [],
 })
 export class ActionsLayoutComponent implements OnInit {
   items: MenuItem[] | undefined;
@@ -64,5 +75,26 @@ export class ActionsLayoutComponent implements OnInit {
       .subscribe((processingNodes) => {
         console.log(processingNodes);
       });
+  }
+
+  importDirectory(event: FileUploadHandlerEvent) {
+    event.files.forEach((file) => {
+      const reader: FileReader = new FileReader();
+
+      reader.onload = () => {
+        const fileContent = reader.result;
+        if (typeof fileContent === 'string') {
+          const directoryStructure: ImportDirectoryStructureRequestDto =
+            JSON.parse(fileContent);
+          this.directoryService
+            .importDirectory(directoryStructure)
+            .subscribe((importResult) => {
+              console.log('import result ', importResult);
+            });
+        }
+      };
+
+      reader.readAsText(file);
+    });
   }
 }

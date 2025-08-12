@@ -2,6 +2,8 @@ import { Observable } from 'rxjs';
 import {
   GetDirectoryRequestDto,
   GetDirectoryResponseDto,
+  ImportDirectoryStructureRequestDto,
+  ImportDirectoryStructureResponseDto,
 } from '../../core/dtos';
 import { DirectoryRepository } from '../../core/repositories';
 import { environment } from '../../../config/environment';
@@ -33,6 +35,15 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
       {
         directoryGuids,
       }
+    );
+  }
+
+  importDirectory(
+    directoryStructure: ImportDirectoryStructureRequestDto
+  ): Observable<ImportDirectoryStructureResponseDto> {
+    return this.http.post<ImportDirectoryStructureResponseDto>(
+      `${this.baseUrl}/directory/import`,
+      directoryStructure
     );
   }
 }

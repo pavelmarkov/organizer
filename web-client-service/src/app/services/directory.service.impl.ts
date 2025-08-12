@@ -1,5 +1,10 @@
 import { Observable } from 'rxjs';
-import { GetDirectoryRequestDto, GetDirectoryResponseDto } from '../core/dtos';
+import {
+  GetDirectoryRequestDto,
+  GetDirectoryResponseDto,
+  ImportDirectoryStructureRequestDto,
+  ImportDirectoryStructureResponseDto,
+} from '../core/dtos';
 import { DirectoryService } from '../core/services/';
 import { DirectoryRepository } from '../core/repositories';
 
@@ -16,5 +21,11 @@ export class DirectoryServiceImpl implements DirectoryService {
     directoryGuids: string[]
   ): Observable<GetDirectoryResponseDto> {
     return this.directoryRepository.processDirectory(directoryGuids);
+  }
+
+  importDirectory(
+    directoryStructure: ImportDirectoryStructureRequestDto
+  ): Observable<ImportDirectoryStructureResponseDto> {
+    return this.directoryRepository.importDirectory(directoryStructure);
   }
 }

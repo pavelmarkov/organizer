@@ -3,6 +3,8 @@ import {
   DirectoryNodeDto,
   GetDirectoryRequestDto,
   GetDirectoryResponseDto,
+  ImportDirectoryStructureRequestDto,
+  ImportDirectoryStructureResponseDto,
 } from "../../dtos";
 import { DirectoryEntity } from "../../entities";
 import { MediaService } from "src/infrastructure/media/media.service";
@@ -158,6 +160,16 @@ export class DirectoryService {
 
     return {
       directory,
+    };
+  }
+
+  async importDirectory(
+    directoryStructure: ImportDirectoryStructureRequestDto
+  ): Promise<ImportDirectoryStructureResponseDto> {
+    console.log("directoryStructure: ", directoryStructure);
+
+    return {
+      message: "ok",
     };
   }
 }

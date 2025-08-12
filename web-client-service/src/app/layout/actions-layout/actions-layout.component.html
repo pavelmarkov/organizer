@@ -5,6 +5,8 @@
     <p-button icon="pi pi-plus" class="mr-2" text severity="secondary" />
     <p-button icon="pi pi-print" class="mr-2" text severity="secondary" />
     <p-button icon="pi pi-upload" text severity="secondary" />
+    <p-fileupload mode="basic" chooseIcon="pi pi-upload" chooseLabel="Import" name="demo[]"
+      accept=".json" maxFileSize="1000000" customUpload="true" (uploadHandler)="importDirectory($event)" [auto]="true" />
   </ng-template>
   <ng-template #center>
     <p-iconfield iconPosition="left">
