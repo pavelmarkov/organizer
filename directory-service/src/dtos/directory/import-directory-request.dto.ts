@@ -1,6 +1,7 @@
 interface ImportDirectoryStructureDtoData {
   path: string;
   isFolder: boolean;
+  size: number;
 }
 
 interface ImportDirectoryStructureDtoMeta {}

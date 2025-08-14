@@ -7,7 +7,9 @@ import {
   ImportDirectoryStructureResponseDto,
 } from "../../dtos";
 import { DirectoryEntity } from "../../entities";
-import { MediaService } from "src/infrastructure/media/media.service";
+import { MediaService } from "../../infrastructure/media/media.service";
+import { v4 as uuidv4 } from "uuid";
+import { parse } from "path";
 
 const dummyDirectory: DirectoryEntity[] = [
   {
@@ -167,6 +169,44 @@ export class DirectoryService {
     directoryStructure: ImportDirectoryStructureRequestDto
   ): Promise<ImportDirectoryStructureResponseDto> {
     console.log("directoryStructure: ", directoryStructure);
+
+    const nodes: {
+      [path: string]: DirectoryEntity;
+    } = {};
+
+    for (const directory of directoryStructure.data) {
+      for (let charIndex = 0; charIndex < directory.path.length; charIndex++) {
+        const char = directory.path[charIndex];
+
+        let pathPart = null;
+
+        if (char === "/") {
+          pathPart = directory.path.substring(0, charIndex);
+        }
+        if (charIndex === directory.path.length - 1) {
+          pathPart = directory.path.substring(0, charIndex + 1);
+        }
+
+        if (!pathPart || nodes[pathPart]) {
+          continue;
+        }
+
+        const parsedPath = parse(pathPart);
+        const parentId = nodes[parsedPath.dir]?.directoryId ?? null;
+        const directoryId = uuidv4();
+
+        nodes[pathPart] = {
+          directoryId,
+          parentId,
+          name: parsedPath.base,
+          isFolder: directory.isFolder,
+          fileType: parsedPath.ext,
+          size: directory.size,
+        };
+      }
+    }
+
+    console.log(nodes);
 
     return {
       message: "ok",
