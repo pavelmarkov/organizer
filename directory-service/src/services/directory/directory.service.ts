@@ -11,7 +11,7 @@ import { MediaService } from "../../infrastructure/media/media.service";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "path";
 
-const dummyDirectory: DirectoryEntity[] = [
+let dummyDirectory: DirectoryEntity[] = [
   {
     directoryId: "a8dde4ff-0d4d-4996-a18b-75614bf67e93",
     parentId: null,
@@ -205,6 +205,11 @@ export class DirectoryService {
         };
       }
     }
+
+    dummyDirectory = [];
+    Object.keys(nodes).forEach((path) => {
+      dummyDirectory.push(nodes[path]);
+    });
 
     console.log(nodes);
 

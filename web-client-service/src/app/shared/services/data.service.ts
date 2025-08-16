@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { SelectedNodesType } from '../../core/types';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { ComponentMessageType, SelectedNodesType } from '../../core/types';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
@@ -8,9 +8,16 @@ export class DataService {
     new BehaviorSubject<SelectedNodesType>({});
   currentSelectedNodes = this.selectedNodes.asObservable();
 
+  private importedDirectory = new Subject<ComponentMessageType>();
+  currentImportedDirectory = this.importedDirectory.asObservable();
+
   constructor() {}
 
   changeData(data: SelectedNodesType) {
     this.selectedNodes.next(data);
+  }
+
+  importDirectoryFinished(data: ComponentMessageType) {
+    this.importedDirectory.next(data);
   }
 }

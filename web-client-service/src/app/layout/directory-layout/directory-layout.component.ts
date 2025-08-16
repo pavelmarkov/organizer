@@ -51,6 +51,11 @@ export class DirectoryLayoutComponent implements OnInit {
     this.totalRecords = 0;
 
     this.loading = true;
+
+    this.dataService.currentImportedDirectory.subscribe((data) => {
+      console.log(data.message);
+      this.loadNodes(null);
+    });
   }
 
   loadNodes(event: any) {

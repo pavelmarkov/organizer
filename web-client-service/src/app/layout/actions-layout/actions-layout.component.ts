@@ -90,6 +90,9 @@ export class ActionsLayoutComponent implements OnInit {
             .importDirectory(directoryStructure)
             .subscribe((importResult) => {
               console.log('import result ', importResult);
+              this.dataService.importDirectoryFinished({
+                message: 'directory imported',
+              });
             });
         }
       };
