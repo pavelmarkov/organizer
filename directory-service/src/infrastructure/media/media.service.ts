@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { GetDirectoryResponseDto } from "../../dtos";
+import { ProcessMediaMessageRequestDto } from "../../dtos";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
 import { MEDIA_SERVICE_CLIENT } from "../../consts/infrastructure";
@@ -11,17 +11,15 @@ export class MediaService {
   ) {}
 
   async processDirectory(
-    directoryGuids: string[]
-  ): Promise<{ directoryGuids: string[] }> {
+    params: ProcessMediaMessageRequestDto
+  ): Promise<ProcessMediaMessageRequestDto> {
+    console.log("params to media service 1: ", params);
     const mediaServiceAnswer = await firstValueFrom(
-      this.client.send("media_queue", {
-        directoryGuids,
-        random: Math.random(),
-      })
+      this.client.send("media_queue", params)
     );
 
     console.log("mediaServiceAnswer 1: ", mediaServiceAnswer);
 
-    return mediaServiceAnswer.data.directoryGuids;
+    return mediaServiceAnswer.data;
   }
 }

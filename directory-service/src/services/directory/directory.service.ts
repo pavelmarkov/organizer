@@ -5,6 +5,7 @@ import {
   GetDirectoryResponseDto,
   ImportDirectoryStructureRequestDto,
   ImportDirectoryStructureResponseDto,
+  ProcessMediaMessageRequestDto,
 } from "../../dtos";
 import { DirectoryEntity } from "../../entities";
 import { MediaService } from "../../infrastructure/media/media.service";
@@ -19,6 +20,7 @@ let dummyDirectory: DirectoryEntity[] = [
     isFolder: true,
     fileType: null,
     size: 4096,
+    path: null,
   },
   {
     directoryId: "b5c2e8f1-3a7b-492e-9c45-d8e3f9a12b41",
@@ -27,6 +29,7 @@ let dummyDirectory: DirectoryEntity[] = [
     isFolder: true,
     fileType: null,
     size: 8192,
+    path: null,
   },
   {
     directoryId: "c3d9f7a2-1e4b-48f9-8c6d-2b5e1f3a9c74",
@@ -35,6 +38,7 @@ let dummyDirectory: DirectoryEntity[] = [
     isFolder: true,
     fileType: null,
     size: 12288,
+    path: null,
   },
   {
     directoryId: "d7e4f8a9-2b6c-431d-9e3f-5a1b8c2d4e7f",
@@ -43,6 +47,7 @@ let dummyDirectory: DirectoryEntity[] = [
     isFolder: true,
     fileType: null,
     size: 4096,
+    path: null,
   },
   {
     directoryId: "e2f9c6d1-4a8b-4973-8c5e-1d7f3a9b2e4c",
@@ -51,6 +56,7 @@ let dummyDirectory: DirectoryEntity[] = [
     isFolder: true,
     fileType: null,
     size: 6144,
+    path: null,
   },
   {
     directoryId: "f4a7e9b2-5d3c-4861-9f8e-2b6c1d3a5e4f",
@@ -59,6 +65,7 @@ let dummyDirectory: DirectoryEntity[] = [
     isFolder: true,
     fileType: null,
     size: 20480,
+    path: null,
   },
   {
     directoryId: "1a2b3c4d-5e6f-7890-1234-5678f9a0b1c2",
@@ -67,6 +74,7 @@ let dummyDirectory: DirectoryEntity[] = [
     isFolder: false,
     fileType: "docx",
     size: 245760,
+    path: null,
   },
   {
     directoryId: "3d4e5f6a-7b8c-9d0e-1f2a-3b4c5d6e7f8g",
@@ -75,6 +83,7 @@ let dummyDirectory: DirectoryEntity[] = [
     isFolder: false,
     fileType: "pdf",
     size: 512000,
+    path: null,
   },
   {
     directoryId: "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
@@ -83,6 +92,7 @@ let dummyDirectory: DirectoryEntity[] = [
     isFolder: false,
     fileType: "jpg",
     size: 3145728,
+    path: null,
   },
   {
     directoryId: "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
@@ -91,6 +101,7 @@ let dummyDirectory: DirectoryEntity[] = [
     isFolder: true,
     fileType: null,
     size: 4096,
+    path: null,
   },
   {
     directoryId: "9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d",
@@ -99,6 +110,7 @@ let dummyDirectory: DirectoryEntity[] = [
     isFolder: false,
     fileType: "png",
     size: 1048576,
+    path: null,
   },
 ];
 
@@ -137,11 +149,23 @@ export class DirectoryService {
     directoryGuids: string[]
   ): Promise<GetDirectoryResponseDto> {
     const directory: GetDirectoryResponseDto["directory"] = [];
+    const directoryToProcess: ProcessMediaMessageRequestDto = {
+      directory: [],
+    };
 
     dummyDirectory.forEach((directoryElement) => {
       if (!directoryGuids.includes(directoryElement.directoryId)) {
         return;
       }
+
+      if (directoryElement.isFolder) {
+        return;
+      }
+
+      directoryToProcess.directory.push({
+        directoryId: directoryElement.directoryId,
+        path: directoryElement.path,
+      });
 
       let node: DirectoryNodeDto = {
         data: directoryElement,
@@ -154,8 +178,14 @@ export class DirectoryService {
 
     console.log(directory);
 
+    if (!directoryToProcess.directory.length) {
+      return {
+        directory,
+      };
+    }
+
     const mediaServiceAnswer = await this.mediaClient.processDirectory(
-      directoryGuids
+      directoryToProcess
     );
 
     console.log("mediaServiceAnswer 2: ", mediaServiceAnswer);
@@ -180,10 +210,13 @@ export class DirectoryService {
 
         let pathPart = null;
 
-        if (char === "/") {
+        const isDelimiterChar = char === "/";
+        const isLastChar = charIndex === directory.path.length - 1;
+
+        if (isDelimiterChar) {
           pathPart = directory.path.substring(0, charIndex);
         }
-        if (charIndex === directory.path.length - 1) {
+        if (isLastChar) {
           pathPart = directory.path.substring(0, charIndex + 1);
         }
 
@@ -195,18 +228,21 @@ export class DirectoryService {
         const parentId = nodes[parsedPath.dir]?.directoryId ?? null;
         const directoryId = uuidv4();
 
+        const isFolder =
+          !parsedPath.ext?.length || !isLastChar || directory.isFolder;
+
         nodes[pathPart] = {
           directoryId,
           parentId,
           name: parsedPath.base,
-          isFolder: directory.isFolder,
+          isFolder,
           fileType: parsedPath.ext,
           size: directory.size,
+          path: pathPart,
         };
       }
     }
 
-    dummyDirectory = [];
     Object.keys(nodes).forEach((path) => {
       dummyDirectory.push(nodes[path]);
     });

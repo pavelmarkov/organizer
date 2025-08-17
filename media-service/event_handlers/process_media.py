@@ -23,9 +23,9 @@ def on_process_media_message_received(
 
     print(f" [x] Properties {props}")
     print(message['data'])
-    print(message['data']['directoryGuids'])
+    print(message['data']['directory'])
 
-    videoProcessor = VideoProcessor(None)
+    videoProcessor = VideoProcessor(message['data']['directory'][0]['path'])
     videoProcessor.process_video_file()
 
     ch.basic_publish(exchange='',
@@ -35,7 +35,7 @@ def on_process_media_message_received(
                      body=json.dumps({
                          "message": "ok",
                          "data": {
-                             "directoryGuids": message['data']['directoryGuids']
+                             "data": message['data']
                          }
                      })
                      )

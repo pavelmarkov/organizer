@@ -5,4 +5,5 @@ export class DirectoryEntity {
   isFolder: boolean;
   fileType: string;
   size: number;
+  path: string;
 }
