@@ -11,7 +11,9 @@ export class DirectoryController {
   constructor(private readonly directoryService: DirectoryService) {}
 
   @Get("directory")
-  getDirectory(@Query("parentId") parentId: string): GetDirectoryResponseDto {
+  getDirectory(
+    @Query("parentId") parentId: string
+  ): Promise<GetDirectoryResponseDto> {
     return this.directoryService.getDirectory({ parentId });
   }
 
