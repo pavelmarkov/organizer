@@ -9,5 +9,6 @@ node_modules
 __pycache__
 
 *.png
+!notes/media/*.png
 
 *.sqlite3
