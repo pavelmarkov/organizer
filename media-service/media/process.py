@@ -1,25 +1,40 @@
 
 import av
-from config.files import get_settings
 import os
+from config.files import get_settings
 
 
 class VideoProcessor():
     def __init__(self, path):
-        self.save_to_path = "./processed_media"
-        print(self.save_to_path)
+        config = get_settings()
+        self.save_to_path = config.save_to_path
         self.path = path
         if not os.path.exists(self.save_to_path):
             os.makedirs(self.save_to_path)
 
     def process_video_file(self):
         if not self.path:
+            print('path is not provided')
             return
+        if not os.path.isfile(self.path):
+            print('directory element is not file')
+            return
+        filename = os.path.basename(self.path)
+        saveSubdirectory = os.path.join(self.save_to_path, filename)
+        isDirectoryExists = os.path.exists(saveSubdirectory)
+
+        if isDirectoryExists:
+            print('directory exists, returning')
+            return
+
         percentiles = [10, 20, 30, 40, 50, 60, 70, 80, 90]
         frames = self.__extract_frames(percentiles)
+
+        os.makedirs(saveSubdirectory)
+
         for i, frame in enumerate(frames):
-            print(f"{self.save_to_path}/frame_{i}.png")
-            frame.save(f"{self.save_to_path}/frame_{i}.png")
+            print(f"{saveSubdirectory}/frame_{i}.png")
+            frame.save(f"{saveSubdirectory}/frame_{i}.png")
 
     def __findPercentileValues(self, value, percentiles):
         percentileValues = []

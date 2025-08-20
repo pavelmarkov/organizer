@@ -29,8 +29,6 @@ export class DirectoryService {
 
     const directories = await this.directoryRepository.findAll();
 
-    console.log(directories);
-
     directories
       .filter((directoryElement) => {
         if (params.parentId) {
@@ -53,6 +51,32 @@ export class DirectoryService {
     };
   }
 
+  private scanFolder(
+    directoryStructure: DirectoryEntity[],
+    folderId: string
+  ): DirectoryEntity[] {
+    const result: DirectoryEntity[] = [];
+
+    const children = directoryStructure.filter(
+      (directoryNode) => directoryNode.parentId === folderId
+    );
+
+    for (const directoryNode of children) {
+      if (directoryNode.isFolder) {
+        const filesInSubfolder = this.scanFolder(
+          directoryStructure,
+          directoryNode.directoryId
+        );
+        for (const subfile of filesInSubfolder) {
+          result.push(subfile);
+        }
+      } else {
+        result.push(directoryNode);
+      }
+    }
+    return result;
+  }
+
   async processDirectory(
     directoryGuids: string[]
   ): Promise<GetDirectoryResponseDto> {
@@ -63,19 +87,41 @@ export class DirectoryService {
 
     const directories = await this.directoryRepository.findAll();
 
+    console.log(directoryGuids);
+
+    const chosenFiles: DirectoryEntity[] = [];
+
     directories.forEach((directoryElement) => {
       if (!directoryGuids.includes(directoryElement.directoryId)) {
         return;
       }
 
       if (directoryElement.isFolder) {
-        return;
+        const filesInFolder = this.scanFolder(
+          directories,
+          directoryElement.directoryId
+        );
+        filesInFolder.forEach((file) => {
+          chosenFiles.push(file);
+        });
       }
 
-      directoryToProcess.directory.push({
-        directoryId: directoryElement.directoryId,
-        path: directoryElement.path,
-      });
+      chosenFiles.push(directoryElement);
+    });
+
+    if (!chosenFiles.length) {
+      return {
+        directory,
+      };
+    }
+
+    chosenFiles.forEach((directoryElement) => {
+      if (!directoryElement.isFolder) {
+        directoryToProcess.directory.push({
+          directoryId: directoryElement.directoryId,
+          path: directoryElement.path,
+        });
+      }
 
       let node: DirectoryNodeDto = {
         data: directoryElement,
@@ -86,19 +132,22 @@ export class DirectoryService {
       directory.push(node);
     });
 
-    console.log(directory);
+    console.log("processing");
 
-    if (!directoryToProcess.directory.length) {
-      return {
-        directory,
-      };
-    }
+    const mediaServiceResponses: ProcessMediaMessageRequestDto[] = [];
 
-    const mediaServiceAnswer = await this.mediaClient.processDirectory(
-      directoryToProcess
-    );
+    const processing = directoryToProcess.directory.map(async (file) => {
+      const response = await this.mediaClient.processDirectory({
+        directory: [file],
+      });
+      console.log(response);
+      mediaServiceResponses.push(response);
+      return response;
+    });
 
-    console.log("mediaServiceAnswer 2: ", mediaServiceAnswer);
+    Promise.all(processing).then((responses) => {
+      console.log("mediaServiceAnswer 2: ", responses);
+    });
 
     return {
       directory,

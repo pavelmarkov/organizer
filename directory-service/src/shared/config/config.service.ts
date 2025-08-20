@@ -17,7 +17,7 @@ export class ConfigService {
           queueOptions: {
             durable: false,
           },
-          noAck: false,
+          noAck: true,
         },
       },
     };
