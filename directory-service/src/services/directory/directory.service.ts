@@ -163,6 +163,18 @@ export class DirectoryService {
       [path: string]: DirectoryEntity;
     } = {};
 
+    const existingFolders = await this.directoryRepository.findAll({
+      where: {
+        isFolder: true,
+      },
+    });
+
+    const existingFoldersMap: { [path: string]: DirectoryEntity } = {};
+
+    existingFolders.forEach(
+      (folder) => (existingFoldersMap[folder.path] = folder)
+    );
+
     for (const directory of directoryStructure.data) {
       for (let charIndex = 0; charIndex < directory.path.length; charIndex++) {
         const char = directory.path[charIndex];
@@ -184,7 +196,10 @@ export class DirectoryService {
         }
 
         const parsedPath = parse(pathPart);
-        const parentId = nodes[parsedPath.dir]?.directoryId ?? null;
+        const parentId =
+          existingFoldersMap[parsedPath.dir]?.directoryId ??
+          nodes[parsedPath.dir]?.directoryId ??
+          null;
         const directoryId = uuidv4();
 
         const isFolder =
