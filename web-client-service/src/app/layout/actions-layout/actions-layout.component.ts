@@ -12,6 +12,8 @@ import { DataService } from '../../shared/services/data.service';
 import { SelectedNodesType } from '../../core/types';
 import { DirectoryService } from '../../core/services';
 
+import { TooltipModule } from 'primeng/tooltip';
+
 import {
   FileSelectEvent,
   FileUpload,
@@ -33,6 +35,8 @@ import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
     InputIcon,
 
     FileUpload,
+
+    TooltipModule,
   ],
   templateUrl: './actions-layout.component.html',
   styleUrl: './actions-layout.component.css',
@@ -63,7 +67,11 @@ export class ActionsLayoutComponent implements OnInit {
     });
   }
 
-  processNodes(event: any) {
+  choose(event: MouseEvent, callback: VoidFunction) {
+    callback();
+  }
+
+  processNodes(event: MouseEvent) {
     console.log('Nodes to process: ', this.selectedNodes);
     const directoryGuids = Object.keys(this.selectedNodes)
       .filter((directoryGuid) => this.selectedNodes[directoryGuid].checked)

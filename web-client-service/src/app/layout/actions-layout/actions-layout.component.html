@@ -3,10 +3,30 @@
 <p-toolbar>
   <ng-template #start>
     <p-button icon="pi pi-plus" class="mr-2" text severity="secondary" />
-    <p-button icon="pi pi-print" class="mr-2" text severity="secondary" />
-    <p-button icon="pi pi-upload" text severity="secondary" />
-    <p-fileupload mode="basic" chooseIcon="pi pi-upload" chooseLabel="Import" name="demo[]"
-      accept=".json" maxFileSize="1000000" customUpload="true" (uploadHandler)="importDirectory($event)" [auto]="true" />
+    <!-- <p-button icon="pi pi-print" class="mr-2" text severity="secondary" />
+    <p-button icon="pi pi-upload" text severity="secondary" /> -->
+    <p-fileupload mode="basic" class="file-upload" chooseIcon="pi pi-upload" chooseLabel="Import" name="demo[]"
+      accept=".json" maxFileSize="1000000" customUpload="true" (uploadHandler)="importDirectory($event)" [auto]="true">
+    </p-fileupload>
+    <p-fileupload
+        mode="advanced"
+        class="file-upload-advanced"
+        accept=".json"
+        maxFileSize="1000000"
+        [customUpload]="true"
+        (uploadHandler)="importDirectory($event)"
+        (onUpload)="importDirectory($event)" [auto]="true"
+      >
+      <ng-template #header let-chooseCallback="chooseCallback">
+        <p-button
+          icon="pi pi-upload"
+          text
+          severity="secondary"
+          (onClick)="choose($event, chooseCallback)"
+          pTooltip="Import from JSON" tooltipPosition="bottom" showDelay="1000" hideDelay="300"
+        />
+      </ng-template>
+    </p-fileupload>
   </ng-template>
   <ng-template #center>
     <p-iconfield iconPosition="left">
