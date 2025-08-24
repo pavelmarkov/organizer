@@ -17,3 +17,7 @@ There are two options remaining:
 
 - import directory structure from file
 - use different client (mobile app or Electron.js)
+
+## Links
+
+- [icons](https://www.primefaces.org/diamond/icons.xhtml)
