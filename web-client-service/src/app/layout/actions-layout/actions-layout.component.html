@@ -30,7 +30,8 @@
     </p-iconfield>
   </ng-template>
   <ng-template #end>
-    <p-splitbutton label="Process" (click)="processNodes($event)" [model]="items" />
+    <p-button icon="pi pi-refresh" text severity="secondary" (click)="processNodes($event)"
+      pTooltip="Process file" tooltipPosition="bottom" showDelay="1000" hideDelay="300" />
   </ng-template>
 </p-toolbar>
 

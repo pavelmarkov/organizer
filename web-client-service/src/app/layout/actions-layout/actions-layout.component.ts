@@ -4,7 +4,6 @@ import { DividerModule } from 'primeng/divider';
 
 import { ToolbarModule } from 'primeng/toolbar';
 import { MenuItem } from 'primeng/api';
-import { SplitButton } from 'primeng/splitbutton';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -29,7 +28,6 @@ import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
     DividerModule,
 
     ToolbarModule,
-    SplitButton,
     InputTextModule,
     IconField,
     InputIcon,
@@ -43,7 +41,6 @@ import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
   providers: [],
 })
 export class ActionsLayoutComponent implements OnInit {
-  items: MenuItem[] | undefined;
   selectedNodes: SelectedNodesType = {};
 
   constructor(
@@ -52,16 +49,6 @@ export class ActionsLayoutComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.items = [
-      {
-        label: 'Update',
-        icon: 'pi pi-refresh',
-      },
-      {
-        label: 'Delete',
-        icon: 'pi pi-times',
-      },
-    ];
     this.dataService.currentSelectedNodes.subscribe((data) => {
       this.selectedNodes = data;
     });
