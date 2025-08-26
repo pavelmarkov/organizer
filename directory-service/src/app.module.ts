@@ -4,6 +4,8 @@ import { MikroORM, SqliteDriver } from "@mikro-orm/sqlite";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { SeedManager } from "@mikro-orm/seeder";
 import { DirectorySeeder } from "./persistence";
+import { DirectoryController, NoteController } from "./controllers";
+import { NoteModule } from "./services/notes";
 
 @Module({
   imports: [
@@ -15,9 +17,10 @@ import { DirectorySeeder } from "./persistence";
       extensions: [SeedManager],
     }),
     DirectoryModule,
+    NoteModule,
   ],
-  controllers: [],
-  providers: [],
+  providers: [DirectoryModule, NoteModule],
+  controllers: [DirectoryController, NoteController],
 })
 export class AppModule implements OnModuleInit {
   constructor(private readonly orm: MikroORM) {}

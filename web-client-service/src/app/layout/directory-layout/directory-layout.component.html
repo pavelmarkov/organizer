@@ -1,44 +1,48 @@
-<div class="card">
-  <p-treetable
-    [value]="files"
-    [columns]="cols"
-    selectionMode="checkbox"
-    [(selectionKeys)]="selectionKeys"
-    dataKey="directoryId"
-    [paginator]="true"
-    [rows]="10"
-    [lazy]="true"
-    (onLazyLoad)="loadNodes($event)"
-    [totalRecords]="totalRecords" [loading]="loading" (onNodeExpand)="onNodeExpand($event)" [scrollable]="true"
-    [tableStyle]="{ 'min-width': '50rem' }"
-    [(selection)]="selected"
-    >
-    <ng-template #header let-columns>
-      <tr>
-        <th *ngFor="let col of columns">
-          {{ col.header }}
-        </th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-rowNode let-rowData="rowData" let-columns="columns">
-      <tr [ttRow]="rowNode">
-        <td *ngFor="let col of columns; let i = index; let last = last;">
+<app-actions-layout>
 
-          <p-treetable-toggler [rowNode]="rowNode" *ngIf="i === 0" />
-          <p-treetable-checkbox [value]="rowNode" *ngIf="i === 0" (click)="nodeSelect($event)" />
-          <ng-container *ngIf="(col.field === 'name' && !rowData.isFolder)">
-            <span class="pi pi-file" [style]="{ 'margin-left': '.5em' }"></span>
-          </ng-container>
-          <ng-container *ngIf="(col.field === 'name' && rowData.isFolder)">
-            <span class="pi pi-folder" [style]="{ 'margin-left': '.5em' }"></span>
-          </ng-container>
-          {{ rowData[col.field] }}
-          <ng-container *ngIf="last">
-            <p-button icon="pi pi-search" severity="secondary" [style]="{ 'margin-right': '.5em' }" />
-            <p-button icon="pi pi-pencil" severity="secondary" />
-          </ng-container>
-        </td>
-      </tr>
-    </ng-template>
-  </p-treetable>
-</div>
+</app-actions-layout>
+
+<!-- <div class="card"> -->
+<p-treetable
+  [value]="files"
+  [columns]="cols"
+  selectionMode="checkbox"
+  [(selectionKeys)]="selectionKeys"
+  dataKey="directoryId"
+  [paginator]="true"
+  [rows]="10"
+  [lazy]="true"
+  (onLazyLoad)="loadNodes($event)"
+  [totalRecords]="totalRecords" [loading]="loading" (onNodeExpand)="onNodeExpand($event)" [scrollable]="true"
+  [tableStyle]="{ 'min-width': '50rem' }"
+  [(selection)]="selected"
+  >
+  <ng-template #header let-columns>
+    <tr>
+      <th *ngFor="let col of columns">
+        {{ col.header }}
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-rowNode let-rowData="rowData" let-columns="columns">
+    <tr [ttRow]="rowNode">
+      <td *ngFor="let col of columns; let i = index; let last = last;">
+
+        <p-treetable-toggler [rowNode]="rowNode" *ngIf="i === 0" />
+        <p-treetable-checkbox [value]="rowNode" *ngIf="i === 0" (click)="nodeSelect($event)" />
+        <ng-container *ngIf="(col.field === 'name' && !rowData.isFolder)">
+          <span class="pi pi-file" [style]="{ 'margin-left': '.5em' }"></span>
+        </ng-container>
+        <ng-container *ngIf="(col.field === 'name' && rowData.isFolder)">
+          <span class="pi pi-folder" [style]="{ 'margin-left': '.5em' }"></span>
+        </ng-container>
+        {{ rowData[col.field] }}
+        <ng-container *ngIf="last">
+          <p-button icon="pi pi-search" severity="secondary" [style]="{ 'margin-right': '.5em' }" />
+          <p-button icon="pi pi-pencil" severity="secondary" />
+        </ng-container>
+      </td>
+    </tr>
+  </ng-template>
+</p-treetable>
+<!-- </div> -->

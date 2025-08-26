@@ -9,6 +9,7 @@ import { DataService } from '../../shared/services/data.service';
 import { SelectedNodesType } from '../../core/types';
 
 import { ButtonModule } from 'primeng/button';
+import { ActionsLayoutComponent } from '../actions-layout/actions-layout.component';
 
 interface Column {
   field: keyof DirectoryModel | '';
@@ -17,7 +18,12 @@ interface Column {
 
 @Component({
   selector: 'app-directory-layout',
-  imports: [TreeTableModule, CommonModule, ButtonModule],
+  imports: [
+    ActionsLayoutComponent,
+    TreeTableModule,
+    CommonModule,
+    ButtonModule,
+  ],
   templateUrl: './directory-layout.component.html',
   styleUrl: './directory-layout.component.css',
 })
