@@ -26,6 +26,7 @@ def on_process_media_message_received(
     print(message['data']['directory'])
 
     videoProcessor = VideoProcessor(message['data']['directory'][0]['path'])
+    videoProcessor.prepare()
     videoProcessor.process_video_file()
 
     ch.basic_publish(exchange='',
