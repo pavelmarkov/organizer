@@ -19,6 +19,7 @@ class VideoProcessor():
         self.height = None
 
         self.unique_name = None
+        self.full_preview_path = None
 
     def prepare(self):
         if not os.path.exists(self.save_to_path):
@@ -42,12 +43,30 @@ class VideoProcessor():
               duration_in_seconds, minutes, seconds)
 
         self.unique_name = f"{self.filename}_{minutes}m{seconds}s_{self.width}x{self.height}"
+        self.full_preview_path = os.path.join(
+            self.save_to_path, self.unique_name + ".png"
+        )
 
-    def getUniqueDirectoryName(self):
+    def process_video_file(self):
+        if not self.path:
+            print('Path is not provided')
+            return
+        if not os.path.isfile(self.path):
+            print('Directory element is not file')
+            return
         if not self.unique_name:
-            raise Exception("No unique name provided. Run prepare.")
-        saveSubdirectory = os.path.join(self.save_to_path, self.unique_name)
-        return saveSubdirectory
+            print('No unique name provided. Run prepare.')
+            return
+        if os.path.isfile(self.full_preview_path):
+            print('File exists, skipping.')
+            return
+
+        percentiles = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+        frames = self.__extract_frames(percentiles)
+
+        preview = self.makeSummary(frames)
+
+        preview.save(self.full_preview_path)
 
     def makeSummary(self, frames):
 
@@ -60,45 +79,15 @@ class VideoProcessor():
         new_im = Image.new('RGB', (self.width, self.height))
 
         index = 0
-        for i in range(0, self.width, x_size):
-            for j in range(0, self.height, y_size):
+        for i in range(0, x_size * columns, x_size):
+            for j in range(0, y_size * rows, y_size):
                 frame = frames[index]
                 im = frame["image"]
                 im.thumbnail((x_size, y_size))
                 new_im.paste(im, (i, j))
                 index += 1
 
-        save_to_dir = os.path.join(
-            self.save_to_path, self.unique_name, self.unique_name + ".png")
-
-        new_im.save(save_to_dir)
-
-    def process_video_file(self):
-        if not self.path:
-            print('path is not provided')
-            return
-        if not os.path.isfile(self.path):
-            print('directory element is not file')
-            return
-
-        saveSubdirectory = self.getUniqueDirectoryName()
-        isDirectoryExists = os.path.exists(saveSubdirectory)
-
-        if isDirectoryExists:
-            print('directory exists, returning')
-            return
-
-        percentiles = [10, 20, 30, 40, 50, 60, 70, 80, 90]
-        frames = self.__extract_frames(percentiles)
-
-        os.makedirs(saveSubdirectory)
-
-        self.makeSummary(frames)
-
-        for i, frame in enumerate(frames):
-            filename = f"{saveSubdirectory}/{frame["minutes"]}m{frame["seconds"]}s{frame["index"]}i.png"
-            print(filename)
-            frame["image"].save(filename)
+        return new_im
 
     def __findPercentileValues(self, value, percentiles):
         percentileValues = []
