@@ -62,6 +62,10 @@ export class DirectoryLayoutComponent implements OnInit {
       console.log(data.message);
       this.loadNodes(null);
     });
+
+    this.dataService.currentProject.subscribe((data) => {
+      this.loadNodes(null);
+    });
   }
 
   loadNodes(event: any) {

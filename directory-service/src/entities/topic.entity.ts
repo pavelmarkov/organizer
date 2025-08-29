@@ -1,8 +1,8 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/sqlite";
-import { v4 as uuidv4 } from "uuid";
+import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { WithProjectIdBaseEntity } from "./base";
 
 @Entity({ tableName: "notes" })
-export class NoteEntity {
+export class NoteEntity extends WithProjectIdBaseEntity {
   @PrimaryKey({ type: "uuid" })
   noteId: string;
 

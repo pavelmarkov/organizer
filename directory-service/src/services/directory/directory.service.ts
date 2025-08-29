@@ -13,21 +13,30 @@ import { v4 as uuidv4 } from "uuid";
 import { parse } from "path";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { EntityRepository } from "@mikro-orm/sqlite";
+import { AsyncLocalStorage } from "async_hooks";
 
 @Injectable()
 export class DirectoryService {
   constructor(
     @Inject(MediaService) private readonly mediaClient: MediaService,
     @InjectRepository(DirectoryEntity)
-    private readonly directoryRepository: EntityRepository<DirectoryEntity>
+    private readonly directoryRepository: EntityRepository<DirectoryEntity>,
+    private readonly asyncLocalStorage: AsyncLocalStorage<any>
   ) {}
 
   async getDirectory(
     params: GetDirectoryRequestDto
   ): Promise<GetDirectoryResponseDto> {
+    const projectId = this.asyncLocalStorage.getStore()["projectId"];
+    console.log("projectId: ", projectId);
     const directory: GetDirectoryResponseDto["directory"] = [];
 
-    const directories = await this.directoryRepository.findAll();
+    const directories = await this.directoryRepository.findAll({
+      where: {
+        parentId: params.parentId ?? null,
+        projectId: projectId ?? null,
+      },
+    });
 
     directories
       .filter((directoryElement) => {
@@ -213,6 +222,7 @@ export class DirectoryService {
           fileType: parsedPath.ext,
           size: directory.size,
           path: pathPart,
+          projectId: null,
         };
       }
     }

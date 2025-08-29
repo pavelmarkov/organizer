@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MenuItem, MenuItemCommandEvent } from 'primeng/api';
 import { Menubar } from 'primeng/menubar';
+import { ProjectsService } from '../../core/services';
+import { DataService } from '../../shared/services/data.service';
 
 @Component({
   selector: 'app-menu-layout',
@@ -9,7 +11,13 @@ import { Menubar } from 'primeng/menubar';
   styleUrl: './menu-layout.component.css',
 })
 export class MenuLayoutComponent implements OnInit {
-  items: MenuItem[] | undefined;
+  items: MenuItem[] = [];
+
+  constructor(
+    private projectsService: ProjectsService,
+    private dataService: DataService,
+    private cd: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.items = [
@@ -23,32 +31,34 @@ export class MenuLayoutComponent implements OnInit {
         icon: 'pi pi-star',
         routerLink: 'notes',
       },
-      {
-        label: 'Projects',
-        icon: 'pi pi-search',
-        items: [
-          {
-            label: 'Project 1',
-            icon: 'pi pi-bolt',
-            command: this.chooseProject,
-            state: {
-              some: 'state',
-            },
-          },
-          {
-            label: 'Project 2',
-            icon: 'pi pi-bolt',
-          },
-          {
-            label: 'Project 3',
-            icon: 'pi pi-bolt',
-          },
-        ],
-      },
     ];
-  }
 
-  chooseProject(event: MenuItemCommandEvent) {
-    console.log(event);
+    this.projectsService.getProjects().subscribe((data) => {
+      const projectItems: MenuItem[] = [];
+      data?.forEach((project) => {
+        projectItems.push({
+          label: project.name,
+          icon: 'pi pi-bolt',
+          command: (event: MenuItemCommandEvent) => {
+            console.log(event.item?.state);
+            this.dataService.setProject(project.projectId);
+          },
+          state: {
+            projectId: project.projectId,
+          },
+        });
+      });
+
+      this.items = [
+        ...this.items,
+        {
+          label: 'Projects',
+          icon: 'pi pi-search',
+          items: projectItems,
+        },
+      ];
+
+      this.cd.markForCheck();
+    });
   }
 }

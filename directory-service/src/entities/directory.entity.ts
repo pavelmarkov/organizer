@@ -1,7 +1,8 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/sqlite";
+import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { WithProjectIdBaseEntity } from "./base";
 
 @Entity({ tableName: "directory" })
-export class DirectoryEntity {
+export class DirectoryEntity extends WithProjectIdBaseEntity {
   @PrimaryKey({ type: "uuid" })
   directoryId: string;
 

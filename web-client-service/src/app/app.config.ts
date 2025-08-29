@@ -7,10 +7,22 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 import { provideHttpClient } from '@angular/common/http';
-import { DirectoryRepository, NotesRepository } from './core/repositories';
-import { DirectoryRepositoryImpl } from './data/repositories/directory.repository.impl';
-import { DirectoryService, NotesService } from './core/services';
-import { NotesRepositoryImpl } from './data/repositories/notes.repository.impl';
+import {
+  DirectoryRepository,
+  NotesRepository,
+  ProjectsRepository,
+} from './core/repositories';
+import {
+  DirectoryRepositoryImpl,
+  NotesRepositoryImpl,
+  ProjectsRepositoryImpl,
+} from './data/repositories';
+import {
+  DirectoryService,
+  NotesService,
+  ProjectsService,
+} from './core/services';
+
 // import Lara from '@primeng/themes/lara';
 // import Nora from '@primeng/themes/nora';
 // import Material from '@primeng/themes/material';
@@ -34,5 +46,8 @@ export const appConfig: ApplicationConfig = {
 
     { provide: NotesRepository, useClass: NotesRepositoryImpl },
     { provide: NotesService, useClass: NotesRepositoryImpl },
+
+    { provide: ProjectsRepository, useClass: ProjectsRepositoryImpl },
+    { provide: ProjectsService, useClass: ProjectsRepositoryImpl },
   ],
 };

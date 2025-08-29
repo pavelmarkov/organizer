@@ -11,6 +11,9 @@ export class DataService {
   private importedDirectory = new Subject<ComponentMessageType>();
   currentImportedDirectory = this.importedDirectory.asObservable();
 
+  private project = new Subject<string>();
+  currentProject = this.project.asObservable();
+
   constructor() {}
 
   changeData(data: SelectedNodesType) {
@@ -19,5 +22,9 @@ export class DataService {
 
   importDirectoryFinished(data: ComponentMessageType) {
     this.importedDirectory.next(data);
+  }
+
+  setProject(data: string) {
+    this.project.next(data);
   }
 }

@@ -1,14 +1,20 @@
-import { Module, OnModuleInit } from "@nestjs/common";
-import { DirectoryModule } from "./services/directory";
+import { MiddlewareConsumer, Module, OnModuleInit } from "@nestjs/common";
+import { DirectoryModule, NoteModule, ProjectsModule } from "./services";
 import { MikroORM, SqliteDriver } from "@mikro-orm/sqlite";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { SeedManager } from "@mikro-orm/seeder";
 import { DirectorySeeder } from "./persistence";
-import { DirectoryController, NoteController } from "./controllers";
-import { NoteModule } from "./services/notes";
+import {
+  DirectoryController,
+  NoteController,
+  ProjectsController,
+} from "./controllers";
+import { AsyncLocalStorageModule } from "./storage/async-local-storage.module";
+import { AsyncLocalStorage } from "node:async_hooks";
 
 @Module({
   imports: [
+    AsyncLocalStorageModule,
     MikroOrmModule.forRoot({
       entities: ["./dist/entities"],
       entitiesTs: ["./src/entities"],
@@ -18,12 +24,32 @@ import { NoteModule } from "./services/notes";
     }),
     DirectoryModule,
     NoteModule,
+    ProjectsModule,
   ],
-  providers: [DirectoryModule, NoteModule],
-  controllers: [DirectoryController, NoteController],
+  providers: [DirectoryModule, NoteModule, ProjectsModule],
+  controllers: [DirectoryController, NoteController, ProjectsController],
 })
 export class AppModule implements OnModuleInit {
-  constructor(private readonly orm: MikroORM) {}
+  constructor(
+    private readonly orm: MikroORM,
+    private readonly asyncLocalStorage: AsyncLocalStorage<any>
+  ) {}
+
+  configure(consumer: MiddlewareConsumer) {
+    // bind the middleware,
+    consumer
+      .apply((req, res, next) => {
+        // populate the store with some default values
+        // based on the request,
+        const store = {
+          projectId: req.headers["projectid"],
+        };
+        // and pass the "next" function as callback
+        // to the "als.run" method together with the store.
+        this.asyncLocalStorage.run(store, () => next());
+      })
+      .forRoutes("*");
+  }
 
   async onModuleInit(): Promise<void> {
     await this.orm.schema.updateSchema();

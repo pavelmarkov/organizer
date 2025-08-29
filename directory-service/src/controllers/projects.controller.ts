@@ -1,0 +1,18 @@
+import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { ProjectsService } from "../services/";
+import { ProjectEntity } from "../entities";
+
+@Controller("projects")
+export class ProjectsController {
+  constructor(private readonly projectsService: ProjectsService) {}
+
+  @Get()
+  getDirectory(): Promise<ProjectEntity[]> {
+    return this.projectsService.getProjects();
+  }
+
+  @Post()
+  processDirectory(@Body() params: ProjectEntity[]): Promise<ProjectEntity[]> {
+    return this.projectsService.createProjects(params);
+  }
+}
