@@ -1,3 +1,12 @@
 <div class="card">
-  <p-menubar [model]="items" />
+  <p-menubar [model]="items" [autoDisplay]="'true'">
+    <ng-template #start></ng-template>
+    <ng-template #end>
+      <span>{{section}}</span>
+      @if(section && projectId) {
+        <span> / </span>
+      }
+      <span>{{projectId}}</span>
+    </ng-template>
+  </p-menubar>
 </div>

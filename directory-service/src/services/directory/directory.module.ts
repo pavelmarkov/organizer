@@ -3,7 +3,7 @@ import { DirectoryService } from "./directory.service";
 import { MediaModule } from "../../infrastructure/media";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { DirectoryEntity } from "../../entities";
-import { AsyncLocalStorageModule } from "src/storage/async-local-storage.module";
+import { AsyncLocalStorageModule } from "../../storage/async-local-storage.module";
 
 @Module({
   imports: [

@@ -1,0 +1,4 @@
+:host ::ng-deep .p-menubar-item-link-active {
+    /* background-color: var(--p-navigation-item-active-background); */
+    background-color: var(--p-paginator-nav-button-selected-background);
+}

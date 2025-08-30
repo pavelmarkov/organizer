@@ -3,16 +3,23 @@ import { NoteEntity } from "../../entities";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { EntityRepository } from "@mikro-orm/sqlite";
 import { v4 as uuidv4 } from "uuid";
+import { AsyncLocalStorage } from "node:async_hooks";
 
 @Injectable()
 export class NoteService {
   constructor(
     @InjectRepository(NoteEntity)
-    private readonly noteRepository: EntityRepository<NoteEntity>
+    private readonly noteRepository: EntityRepository<NoteEntity>,
+    private readonly asyncLocalStorage: AsyncLocalStorage<any>
   ) {}
 
   async getNotes(): Promise<NoteEntity[]> {
-    return await this.noteRepository.findAll();
+    const projectId = this.asyncLocalStorage.getStore()["projectId"];
+    return await this.noteRepository.findAll({
+      where: {
+        projectId: projectId ?? null,
+      },
+    });
   }
 
   async createNotes(notes: Partial<NoteEntity[]>): Promise<NoteEntity[]> {

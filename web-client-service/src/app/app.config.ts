@@ -6,7 +6,12 @@ import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
-import { provideHttpClient } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  provideHttpClient,
+  withInterceptors,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 import {
   DirectoryRepository,
   NotesRepository,
@@ -22,6 +27,7 @@ import {
   NotesService,
   ProjectsService,
 } from './core/services';
+import { ProjectInterceptor } from './shared/interceptors';
 
 // import Lara from '@primeng/themes/lara';
 // import Nora from '@primeng/themes/nora';
@@ -39,7 +45,9 @@ export const appConfig: ApplicationConfig = {
       },
     }),
 
-    provideHttpClient(),
+    provideHttpClient(withInterceptorsFromDi()),
+
+    { provide: HTTP_INTERCEPTORS, useClass: ProjectInterceptor, multi: true },
 
     { provide: DirectoryRepository, useClass: DirectoryRepositoryImpl },
     { provide: DirectoryService, useClass: DirectoryRepositoryImpl },

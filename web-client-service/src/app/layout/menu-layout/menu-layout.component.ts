@@ -12,6 +12,8 @@ import { DataService } from '../../shared/services/data.service';
 })
 export class MenuLayoutComponent implements OnInit {
   items: MenuItem[] = [];
+  projectId: string | null = null;
+  section: string | undefined;
 
   constructor(
     private projectsService: ProjectsService,
@@ -24,12 +26,18 @@ export class MenuLayoutComponent implements OnInit {
       {
         label: 'Home',
         icon: 'pi pi-home',
-        routerLink: 'directory',
+        routerLink: './directory',
+        command: (event: MenuItemCommandEvent) => {
+          this.section = event.item?.label;
+        },
       },
       {
         label: 'Notes',
         icon: 'pi pi-star',
         routerLink: 'notes',
+        command: (event: MenuItemCommandEvent) => {
+          this.section = event.item?.label;
+        },
       },
     ];
 
@@ -40,7 +48,7 @@ export class MenuLayoutComponent implements OnInit {
           label: project.name,
           icon: 'pi pi-bolt',
           command: (event: MenuItemCommandEvent) => {
-            console.log(event.item?.state);
+            this.projectId = project.name;
             this.dataService.setProject(project.projectId);
           },
           state: {
