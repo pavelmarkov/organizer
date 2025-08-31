@@ -44,7 +44,7 @@ class VideoProcessor():
 
         self.unique_name = f"{self.filename}_{minutes}m{seconds}s_{self.width}x{self.height}"
         self.full_preview_path = os.path.join(
-            self.save_to_path, self.unique_name + ".png"
+            self.save_to_path, self.unique_name + ".jpeg"
         )
 
     def process_video_file(self):
@@ -66,7 +66,7 @@ class VideoProcessor():
 
         preview = self.makeSummary(frames)
 
-        preview.save(self.full_preview_path)
+        preview.save(self.full_preview_path, format="JPEG")
 
     def makeSummary(self, frames):
 
