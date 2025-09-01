@@ -7,12 +7,12 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Get()
-  getDirectory(): Promise<ProjectEntity[]> {
+  getProjects(): Promise<ProjectEntity[]> {
     return this.projectsService.getProjects();
   }
 
   @Post()
-  processDirectory(@Body() params: ProjectEntity[]): Promise<ProjectEntity[]> {
+  createProjects(@Body() params: ProjectEntity[]): Promise<ProjectEntity[]> {
     return this.projectsService.createProjects(params);
   }
 }

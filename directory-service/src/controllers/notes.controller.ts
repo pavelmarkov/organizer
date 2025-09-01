@@ -7,12 +7,12 @@ export class NoteController {
   constructor(private readonly noteService: NoteService) {}
 
   @Get("notes")
-  getDirectory(): Promise<NoteEntity[]> {
+  getNotes(): Promise<NoteEntity[]> {
     return this.noteService.getNotes();
   }
 
   @Post("notes")
-  processDirectory(@Body() params: NoteEntity[]): Promise<NoteEntity[]> {
+  createNotes(@Body() params: NoteEntity[]): Promise<NoteEntity[]> {
     return this.noteService.createNotes(params);
   }
 }

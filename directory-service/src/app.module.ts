@@ -1,5 +1,10 @@
 import { MiddlewareConsumer, Module, OnModuleInit } from "@nestjs/common";
-import { DirectoryModule, NoteModule, ProjectsModule } from "./services";
+import {
+  DirectoryModule,
+  NoteModule,
+  ProjectsModule,
+  TagsModule,
+} from "./services";
 import { MikroORM, SqliteDriver } from "@mikro-orm/sqlite";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { SeedManager } from "@mikro-orm/seeder";
@@ -8,9 +13,17 @@ import {
   DirectoryController,
   NoteController,
   ProjectsController,
+  TagsController,
 } from "./controllers";
 import { AsyncLocalStorageModule } from "./storage/async-local-storage.module";
 import { AsyncLocalStorage } from "node:async_hooks";
+
+const CONTROLLERS = [
+  DirectoryController,
+  NoteController,
+  ProjectsController,
+  TagsController,
+];
 
 @Module({
   imports: [
@@ -25,9 +38,10 @@ import { AsyncLocalStorage } from "node:async_hooks";
     DirectoryModule,
     NoteModule,
     ProjectsModule,
+    TagsModule,
   ],
   providers: [DirectoryModule, NoteModule, ProjectsModule],
-  controllers: [DirectoryController, NoteController, ProjectsController],
+  controllers: CONTROLLERS,
 })
 export class AppModule implements OnModuleInit {
   constructor(
