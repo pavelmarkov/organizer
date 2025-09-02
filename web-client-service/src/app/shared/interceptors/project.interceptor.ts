@@ -21,8 +21,6 @@ export class ProjectInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     handler: HttpHandler
   ): Observable<HttpEvent<any>> {
-    console.log('this.currentProjectId URL: ' + this.currentProjectId);
-    console.log('Request URL: ' + req.url);
     if (this.currentProjectId) {
       const requestWithPorject = req.clone({
         headers: req.headers.append(PROJECT_HEADER, this.currentProjectId),

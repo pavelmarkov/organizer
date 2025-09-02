@@ -50,16 +50,11 @@ export class AppModule implements OnModuleInit {
   ) {}
 
   configure(consumer: MiddlewareConsumer) {
-    // bind the middleware,
     consumer
       .apply((req, res, next) => {
-        // populate the store with some default values
-        // based on the request,
         const store = {
           projectId: req.headers["projectid"],
         };
-        // and pass the "next" function as callback
-        // to the "als.run" method together with the store.
         this.asyncLocalStorage.run(store, () => next());
       })
       .forRoutes("*");
