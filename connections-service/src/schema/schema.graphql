@@ -1,0 +1,13 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Author {
+  id: Int!
+  firstName: String
+  lastName: String
+}
+
+type Query {
+  getAuthor(id: Int!): Author!
+}
