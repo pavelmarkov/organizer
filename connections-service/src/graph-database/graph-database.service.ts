@@ -5,31 +5,62 @@ import {
   auth as neo4jAuth,
   Driver,
   ServerInfo,
+  Neo4jError,
 } from "neo4j-driver";
 import { format as formatUrl } from "node:url";
+import { ConfigurationType } from "src/config/configuration.type";
+import { DATABASE_CONNECTION_RETRY_DELAY } from "src/const";
 
 @Injectable()
 export class GraphDatabaseService implements OnModuleInit, OnModuleDestroy {
   private driver: Driver;
-  constructor(private configService: ConfigService) {}
+  private databaseConfig: ConfigurationType["database"] | undefined;
+  constructor(private configService: ConfigService) {
+    this.databaseConfig = this.configService.get("database");
+  }
 
-  async onModuleInit() {
-    const config = this.configService.get("database");
+  async connectToDatabase(): Promise<void> {
+    if (!this.databaseConfig) {
+      console.error("No database config provided");
+      return;
+    }
     const neo4jUrl = formatUrl({
-      protocol: config.schema,
+      protocol: this.databaseConfig.schema,
       slashes: true,
-      hostname: config.host,
-      port: config.port,
+      hostname: this.databaseConfig.host,
+      port: this.databaseConfig.port,
     });
 
     this.driver = neo4jDriver(
       neo4jUrl,
-      neo4jAuth.basic(config.username, config.password)
+      neo4jAuth.basic(
+        this.databaseConfig.username,
+        this.databaseConfig.password
+      )
     );
+
+    try {
+      await this.driver.verifyAuthentication();
+    } catch (error: unknown) {
+      const errorMessages: string[] = ["Error connection to graph database"];
+      if (error instanceof Neo4jError) {
+        errorMessages.push(error.cause?.message ?? "");
+      }
+      console.error(errorMessages.join("; "));
+      setTimeout(
+        () => this.connectToDatabase(),
+        DATABASE_CONNECTION_RETRY_DELAY
+      );
+      return;
+    }
 
     const serverInfo = await this.driver.getServerInfo();
     console.log("Connection with graph db established");
     console.log(serverInfo);
+  }
+
+  async onModuleInit(): Promise<void> {
+    await this.connectToDatabase();
   }
 
   async onModuleDestroy() {
