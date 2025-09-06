@@ -4,6 +4,7 @@ import json
 from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
 from pika.spec import BasicProperties, Basic
 from media.process import VideoProcessor
+import time
 
 
 def on_process_media_message_received(
@@ -25,19 +26,28 @@ def on_process_media_message_received(
     print(message['data'])
     print(message['data']['directory'])
 
+    start_time = time.process_time()
     videoProcessor = VideoProcessor(message['data']['directory'][0]['path'])
     videoProcessor.prepare()
     videoProcessor.process_video_file()
+    elapsed_time = time.process_time() - start_time
+    print('toral time processing video: ', elapsed_time)
+    if (elapsed_time > 60):
+        print('processing time too large')
 
-    ch.basic_publish(exchange='',
-                     routing_key=props.reply_to,
-                     properties=pika.BasicProperties(correlation_id=props.correlation_id,
-                                                     reply_to=props.reply_to),
-                     body=json.dumps({
-                         "message": "ok",
-                         "data": {
-                             "data": message['data']
-                         }
-                     })
-                     )
+    # print('sending publish')
+    # ch.basic_publish(exchange='',
+    #                  routing_key=props.reply_to,
+    #                  properties=pika.BasicProperties(correlation_id=props.correlation_id,
+    #                                                  reply_to=props.reply_to),
+    #                  body=json.dumps({
+    #                      "message": "ok",
+    #                      "data": {
+    #                          "data": message['data']
+    #                      }
+    #                  })
+    #                  )
+    print('sending ack')
+    print('delivery tag: ', method.delivery_tag)
     ch.basic_ack(delivery_tag=method.delivery_tag)
+    print('ack send')
