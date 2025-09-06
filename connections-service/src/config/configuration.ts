@@ -1,4 +1,6 @@
-export default () => ({
+import { ConfigurationType } from "./configuration.type";
+
+const configuration: ConfigurationType = {
   database: {
     schema: "neo4j",
     host: process.env.DATABASE_HOST || "localhost",
@@ -6,4 +8,6 @@ export default () => ({
     username: "neo4j",
     password: "neo4jneo4j",
   },
-});
+};
+
+export default () => configuration;

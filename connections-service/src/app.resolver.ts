@@ -1,11 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { Args, Query, Resolver } from "@nestjs/graphql";
 
 import { Field, Int, ObjectType } from "@nestjs/graphql";
-import { driver as neo4jDriver, auth as neo4jAuth } from "neo4j-driver";
-
-import { format as formatUrl } from "node:url";
 import { GraphDatabaseService } from "./graph-database/graph-database.service";
 
 @ObjectType()
