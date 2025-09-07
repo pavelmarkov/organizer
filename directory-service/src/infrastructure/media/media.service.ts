@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ProcessMediaMessageRequestDto } from "../../dtos";
 import { ClientProxy } from "@nestjs/microservices";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, lastValueFrom } from "rxjs";
 import { MEDIA_SERVICE_CLIENT } from "../../consts/infrastructure";
 
 @Injectable()
@@ -14,7 +14,7 @@ export class MediaService {
     params: ProcessMediaMessageRequestDto
   ): Promise<ProcessMediaMessageRequestDto> {
     console.log("params to media service 1: ", params);
-    const mediaServiceAnswer = await firstValueFrom(
+    const mediaServiceAnswer = await lastValueFrom(
       this.client.send("media_queue", params)
     );
 

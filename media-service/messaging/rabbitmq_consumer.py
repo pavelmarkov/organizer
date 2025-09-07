@@ -26,7 +26,7 @@ class RabbitMQConsumer():
 
             channel.queue_declare(queue=self.config.queue)
 
-            # channel.basic_qos(prefetch_count=1)
+            channel.basic_qos(prefetch_count=1)
 
             channel.basic_consume(queue=self.config.queue,
                                   on_message_callback=on_process_media_message_received,

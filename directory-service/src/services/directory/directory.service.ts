@@ -168,6 +168,9 @@ export class DirectoryService {
   ): Promise<ImportDirectoryStructureResponseDto> {
     console.log("directoryStructure: ", directoryStructure);
 
+    const projectId = this.asyncLocalStorage.getStore()["projectId"];
+    console.log("projectId: ", projectId);
+
     const nodes: {
       [path: string]: DirectoryEntity;
     } = {};
@@ -175,6 +178,7 @@ export class DirectoryService {
     const existingFolders = await this.directoryRepository.findAll({
       where: {
         isFolder: true,
+        projectId,
       },
     });
 
@@ -222,7 +226,7 @@ export class DirectoryService {
           fileType: parsedPath.ext,
           size: directory.size,
           path: pathPart,
-          projectId: null,
+          projectId: projectId,
         };
       }
     }
