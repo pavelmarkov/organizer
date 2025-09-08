@@ -39,6 +39,14 @@ export class MenuLayoutComponent implements OnInit {
           this.section = event.item?.label;
         },
       },
+      {
+        label: 'Tags',
+        icon: 'pi pi-star',
+        routerLink: 'tags',
+        command: (event: MenuItemCommandEvent) => {
+          this.section = event.item?.label;
+        },
+      },
     ];
 
     this.projectsService.getProjects().subscribe((data) => {

@@ -16,16 +16,19 @@ import {
   DirectoryRepository,
   NotesRepository,
   ProjectsRepository,
+  TagsRepository,
 } from './core/repositories';
 import {
   DirectoryRepositoryImpl,
   NotesRepositoryImpl,
   ProjectsRepositoryImpl,
+  TagsRepositoryImpl,
 } from './data/repositories';
 import {
   DirectoryService,
   NotesService,
   ProjectsService,
+  TagsService,
 } from './core/services';
 import { ProjectInterceptor } from './shared/interceptors';
 
@@ -57,5 +60,8 @@ export const appConfig: ApplicationConfig = {
 
     { provide: ProjectsRepository, useClass: ProjectsRepositoryImpl },
     { provide: ProjectsService, useClass: ProjectsRepositoryImpl },
+
+    { provide: TagsRepository, useClass: TagsRepositoryImpl },
+    { provide: TagsService, useClass: TagsRepositoryImpl },
   ],
 };
