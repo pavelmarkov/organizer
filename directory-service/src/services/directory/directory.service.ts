@@ -213,6 +213,7 @@ export class DirectoryService {
           existingFoldersMap[parsedPath.dir]?.directoryId ??
           nodes[parsedPath.dir]?.directoryId ??
           null;
+
         const directoryId = uuidv4();
 
         const isFolder =

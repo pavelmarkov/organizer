@@ -23,8 +23,10 @@ export class NoteService {
   }
 
   async createNotes(notes: Partial<NoteEntity[]>): Promise<NoteEntity[]> {
+    const projectId = this.asyncLocalStorage.getStore()["projectId"];
     notes.forEach((note) => {
       note.noteId = uuidv4();
+      note.projectId = projectId;
     });
     return await this.noteRepository.upsertMany(notes, {
       onConflictFields: ["name"],

@@ -24,8 +24,8 @@ export class MenuLayoutComponent implements OnInit {
   ngOnInit() {
     this.items = [
       {
-        label: 'Home',
-        icon: 'pi pi-home',
+        label: 'Directory',
+        icon: 'pi pi-briefcase',
         routerLink: './directory',
         command: (event: MenuItemCommandEvent) => {
           this.section = event.item?.label;
@@ -33,7 +33,7 @@ export class MenuLayoutComponent implements OnInit {
       },
       {
         label: 'Notes',
-        icon: 'pi pi-star',
+        icon: 'pi pi-book',
         routerLink: 'notes',
         command: (event: MenuItemCommandEvent) => {
           this.section = event.item?.label;
@@ -41,7 +41,7 @@ export class MenuLayoutComponent implements OnInit {
       },
       {
         label: 'Tags',
-        icon: 'pi pi-star',
+        icon: 'pi pi-hashtag',
         routerLink: 'tags',
         command: (event: MenuItemCommandEvent) => {
           this.section = event.item?.label;
@@ -69,7 +69,7 @@ export class MenuLayoutComponent implements OnInit {
         ...this.items,
         {
           label: 'Projects',
-          icon: 'pi pi-search',
+          icon: 'pi pi-key',
           items: projectItems,
         },
       ];
