@@ -6,25 +6,25 @@ import {
 } from "../dtos";
 import { DirectoryService } from "../services/directory";
 
-@Controller()
+@Controller("directory")
 export class DirectoryController {
   constructor(private readonly directoryService: DirectoryService) {}
 
-  @Get("directory")
+  @Get()
   getDirectory(
     @Query("parentId") parentId: string
   ): Promise<GetDirectoryResponseDto> {
     return this.directoryService.getDirectory({ parentId });
   }
 
-  @Post("directory/process")
+  @Post("process")
   processDirectory(
     @Body() params: { directoryGuids: string[] }
   ): Promise<GetDirectoryResponseDto> {
     return this.directoryService.processDirectory(params.directoryGuids);
   }
 
-  @Post("directory/import")
+  @Post("import")
   importDirectory(
     @Body() directoryStructure: ImportDirectoryStructureRequestDto
   ): Promise<ImportDirectoryStructureResponseDto> {

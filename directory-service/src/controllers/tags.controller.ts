@@ -8,11 +8,11 @@ export class TagsController {
 
   @Get()
   getTags(): Promise<TagEntity[]> {
-    return this.tagsService.getTags();
+    return this.tagsService.get();
   }
 
   @Post()
   createTags(@Body() params: TagEntity[]): Promise<TagEntity[]> {
-    return this.tagsService.createTags(params);
+    return this.tagsService.create(params);
   }
 }
