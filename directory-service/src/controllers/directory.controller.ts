@@ -1,10 +1,6 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
-import {
-  GetDirectoryResponseDto,
-  ImportDirectoryStructureRequestDto,
-  ImportDirectoryStructureResponseDto,
-} from "../dtos";
 import { DirectoryService } from "../services/directory";
+import { DirectoryEntity } from "src/entities";
 
 @Controller("directory")
 export class DirectoryController {
@@ -13,21 +9,21 @@ export class DirectoryController {
   @Get()
   getDirectory(
     @Query("parentId") parentId: string
-  ): Promise<GetDirectoryResponseDto> {
-    return this.directoryService.getDirectory({ parentId });
+  ): Promise<Partial<DirectoryEntity[]>> {
+    return this.directoryService.get({ parentId });
   }
 
   @Post("process")
   processDirectory(
     @Body() params: { directoryGuids: string[] }
-  ): Promise<GetDirectoryResponseDto> {
-    return this.directoryService.processDirectory(params.directoryGuids);
+  ): Promise<{ message: string }> {
+    return this.directoryService.process(params.directoryGuids);
   }
 
-  @Post("import")
+  @Post()
   importDirectory(
-    @Body() directoryStructure: ImportDirectoryStructureRequestDto
-  ): Promise<ImportDirectoryStructureResponseDto> {
-    return this.directoryService.importDirectory(directoryStructure);
+    @Body() directories: DirectoryEntity[]
+  ): Promise<Partial<DirectoryEntity>[]> {
+    return this.directoryService.create(directories);
   }
 }

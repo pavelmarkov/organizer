@@ -11,6 +11,9 @@ import { SelectedNodesType } from '../../core/types';
 import { ButtonModule } from 'primeng/button';
 import { ActionsLayoutComponent } from '../actions-layout/actions-layout.component';
 
+import { DialogModule } from 'primeng/dialog';
+import { CardModule } from 'primeng/card';
+
 interface Column {
   field: keyof DirectoryModel | '';
   header: string;
@@ -23,6 +26,8 @@ interface Column {
     TreeTableModule,
     CommonModule,
     ButtonModule,
+    DialogModule,
+    CardModule,
   ],
   templateUrl: './directory-layout.component.html',
   styleUrl: './directory-layout.component.css',
@@ -39,6 +44,12 @@ export class DirectoryLayoutComponent implements OnInit {
   selectionKeys: SelectedNodesType = {};
 
   selected: string[] = [];
+
+  dialogPanelVisible: boolean = false;
+
+  cardData: any = {
+    text: `Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque quas!`,
+  };
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -68,14 +79,31 @@ export class DirectoryLayoutComponent implements OnInit {
     });
   }
 
+  private mapDirectoriesToNodes(directories: DirectoryModel[]): TreeNode[] {
+    const nodes: TreeNode[] = [];
+
+    directories.forEach((directoryElement) => {
+      let node: TreeNode = {
+        data: directoryElement,
+        leaf: !directoryElement.isFolder,
+        children: [],
+      };
+
+      nodes.push(node);
+    });
+
+    return nodes;
+  }
+
   loadNodes(event: any) {
     this.loading = true;
 
-    this.directoryService.getDirectory({}).subscribe((nodes) => {
+    this.directoryService.getDirectory({}).subscribe((directories) => {
+      const nodes = this.mapDirectoriesToNodes(directories);
       console.log(nodes);
-      this.files = [...nodes.directory];
+      this.files = [...nodes];
       this.loading = false;
-      this.totalRecords = nodes.directory.length;
+      this.totalRecords = nodes.length;
       this.cd.markForCheck();
     });
   }
@@ -90,7 +118,7 @@ export class DirectoryLayoutComponent implements OnInit {
       .getDirectory({ parentId: nodeId })
       .subscribe((nodeChildren) => {
         console.log(nodeChildren);
-        node.children = nodeChildren.directory;
+        node.children = this.mapDirectoriesToNodes(nodeChildren);
         this.files = [...this.files];
         this.loading = false;
         this.cd.markForCheck();
@@ -99,5 +127,11 @@ export class DirectoryLayoutComponent implements OnInit {
 
   nodeSelect(event: any) {
     this.dataService.changeData(this.selectionKeys);
+  }
+
+  showDialog(directory: DirectoryModel) {
+    console.log(directory);
+    this.cardData.subtitle = directory.directoryId;
+    this.dialogPanelVisible = true;
   }
 }

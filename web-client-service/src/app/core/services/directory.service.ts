@@ -1,21 +1,16 @@
 import { Observable } from 'rxjs';
-import {
-  GetDirectoryRequestDto,
-  GetDirectoryResponseDto,
-  ImportDirectoryStructureRequestDto,
-  ImportDirectoryStructureResponseDto,
-} from '../dtos';
+import { DirectoryModel } from '../domain';
 
 export abstract class DirectoryService {
   abstract getDirectory(
-    params: GetDirectoryRequestDto
-  ): Observable<GetDirectoryResponseDto>;
+    params: Partial<DirectoryModel>
+  ): Observable<DirectoryModel[]>;
 
   abstract processDirectory(
     directoryGuids: string[]
-  ): Observable<GetDirectoryResponseDto>;
+  ): Observable<{ message: string }>;
 
   abstract importDirectory(
-    directoryStructure: ImportDirectoryStructureRequestDto
-  ): Observable<ImportDirectoryStructureResponseDto>;
+    directories: Partial<DirectoryModel>[]
+  ): Observable<Partial<DirectoryModel>[]>;
 }

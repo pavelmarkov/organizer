@@ -38,7 +38,7 @@
         </ng-container>
         {{ rowData[col.field] }}
         <ng-container *ngIf="last">
-          <p-button icon="pi pi-search" severity="secondary" [style]="{ 'margin-right': '.5em' }" />
+          <p-button icon="pi pi-search" (click)="showDialog(rowData)"  severity="secondary" [style]="{ 'margin-right': '.5em' }" />
           <p-button icon="pi pi-pencil" severity="secondary" />
         </ng-container>
       </td>
@@ -46,3 +46,20 @@
   </ng-template>
 </p-treetable>
 <!-- </div> -->
+
+<p-dialog header="Edit Profile" [modal]="true" [(visible)]="dialogPanelVisible" [style]="{ width: '50rem' }">
+  <p-card [style]="{  overflow: 'hidden' }">
+    <ng-template #header>
+      <img alt="Card" class="w-full" src="https://primefaces.org/cdn/primeng/images/card-ng.jpg" />
+    </ng-template>
+    <ng-template #title> Advanced Card </ng-template>
+    <ng-template #subtitle>{{cardData.subtitle}}</ng-template>
+    <p>{{cardData.text}}</p>
+    <ng-template #footer>
+      <div class="flex gap-4 mt-1">
+        <p-button label="Cancel" severity="secondary" (click)="dialogPanelVisible = false" />
+        <p-button label="Save" (click)="dialogPanelVisible = false" />
+      </div>
+    </ng-template>
+  </p-card>
+</p-dialog>

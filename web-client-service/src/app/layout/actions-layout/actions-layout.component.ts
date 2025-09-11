@@ -3,7 +3,6 @@ import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 
 import { ToolbarModule } from 'primeng/toolbar';
-import { MenuItem } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -13,12 +12,7 @@ import { DirectoryService } from '../../core/services';
 
 import { TooltipModule } from 'primeng/tooltip';
 
-import {
-  FileSelectEvent,
-  FileUpload,
-  FileUploadEvent,
-  FileUploadHandlerEvent,
-} from 'primeng/fileupload';
+import { FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
 import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
 
 @Component({
@@ -82,7 +76,7 @@ export class ActionsLayoutComponent implements OnInit {
           const directoryStructure: ImportDirectoryStructureRequestDto =
             JSON.parse(fileContent);
           this.directoryService
-            .importDirectory(directoryStructure)
+            .importDirectory(directoryStructure.data)
             .subscribe((importResult) => {
               console.log('import result ', importResult);
               this.dataService.importDirectoryFinished({

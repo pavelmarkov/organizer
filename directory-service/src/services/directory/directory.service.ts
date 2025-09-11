@@ -1,12 +1,4 @@
 import { Inject, Injectable } from "@nestjs/common";
-import {
-  DirectoryNodeDto,
-  GetDirectoryRequestDto,
-  GetDirectoryResponseDto,
-  ImportDirectoryStructureRequestDto,
-  ImportDirectoryStructureResponseDto,
-  ProcessMediaMessageRequestDto,
-} from "../../dtos";
 import { DirectoryEntity } from "../../entities";
 import { MediaService } from "../../infrastructure/media/media.service";
 import { v4 as uuidv4 } from "uuid";
@@ -14,9 +6,10 @@ import { parse } from "path";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { EntityRepository } from "@mikro-orm/sqlite";
 import { AsyncLocalStorage } from "async_hooks";
+import { BaseAbstractService } from "../../domain/services";
 
 @Injectable()
-export class DirectoryService {
+export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
   constructor(
     @Inject(MediaService) private readonly mediaClient: MediaService,
     @InjectRepository(DirectoryEntity)
@@ -24,40 +17,16 @@ export class DirectoryService {
     private readonly asyncLocalStorage: AsyncLocalStorage<any>
   ) {}
 
-  async getDirectory(
-    params: GetDirectoryRequestDto
-  ): Promise<GetDirectoryResponseDto> {
+  async get(params: Partial<DirectoryEntity>): Promise<DirectoryEntity[]> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
     console.log("projectId: ", projectId);
-    const directory: GetDirectoryResponseDto["directory"] = [];
 
-    const directories = await this.directoryRepository.findAll({
+    return await this.directoryRepository.findAll({
       where: {
         parentId: params.parentId ?? null,
         projectId: projectId ?? null,
       },
     });
-
-    directories
-      .filter((directoryElement) => {
-        if (params.parentId) {
-          return directoryElement.parentId === params.parentId;
-        }
-        return !directoryElement.parentId;
-      })
-      .forEach((directoryElement) => {
-        let node: DirectoryNodeDto = {
-          data: directoryElement,
-          leaf: !directoryElement.isFolder,
-          children: [],
-        };
-
-        directory.push(node);
-      });
-
-    return {
-      directory,
-    };
   }
 
   private scanFolder(
@@ -86,26 +55,26 @@ export class DirectoryService {
     return result;
   }
 
-  async processDirectory(
-    directoryGuids: string[]
-  ): Promise<GetDirectoryResponseDto> {
-    const directory: GetDirectoryResponseDto["directory"] = [];
-    const directoryToProcess: ProcessMediaMessageRequestDto = {
-      directory: [],
-    };
-
-    const directories = await this.directoryRepository.findAll();
+  async process(directoryGuids: string[]): Promise<{ message: string }> {
+    const directories = await this.directoryRepository.findAll({
+      // where: {
+      //   directoryId: { $in: directoryGuids },
+      // },
+    });
 
     console.log(directoryGuids);
 
     const chosenFiles: DirectoryEntity[] = [];
 
-    directories.forEach((directoryElement) => {
-      if (!directoryGuids.includes(directoryElement.directoryId)) {
-        return;
-      }
-
-      if (directoryElement.isFolder) {
+    directories
+      .filter((directoryElement) =>
+        directoryGuids.includes(directoryElement.directoryId)
+      )
+      .forEach((directoryElement) => {
+        if (!directoryElement.isFolder) {
+          chosenFiles.push(directoryElement);
+          return;
+        }
         const filesInFolder = this.scanFolder(
           directories,
           directoryElement.directoryId
@@ -113,44 +82,21 @@ export class DirectoryService {
         filesInFolder.forEach((file) => {
           chosenFiles.push(file);
         });
-      }
-
-      chosenFiles.push(directoryElement);
-    });
+      });
 
     if (!chosenFiles.length) {
       return {
-        directory,
+        message: "nothing to process",
       };
     }
 
-    chosenFiles.forEach((directoryElement) => {
-      if (!directoryElement.isFolder) {
-        directoryToProcess.directory.push({
-          directoryId: directoryElement.directoryId,
-          path: directoryElement.path,
-        });
-      }
-
-      let node: DirectoryNodeDto = {
-        data: directoryElement,
-        leaf: !directoryElement.isFolder,
-        children: [],
-      };
-
-      directory.push(node);
-    });
-
     console.log("processing");
 
-    const mediaServiceResponses: ProcessMediaMessageRequestDto[] = [];
-
-    const processing = directoryToProcess.directory.map(async (file) => {
+    const processing = chosenFiles.map(async (file) => {
       const response = await this.mediaClient.processDirectory({
-        directory: [file],
+        directory: [{ directoryId: file.directoryId, path: file.path }],
       });
       console.log(response);
-      mediaServiceResponses.push(response);
       return response;
     });
 
@@ -159,14 +105,14 @@ export class DirectoryService {
     });
 
     return {
-      directory,
+      message: "ok",
     };
   }
 
-  async importDirectory(
-    directoryStructure: ImportDirectoryStructureRequestDto
-  ): Promise<ImportDirectoryStructureResponseDto> {
-    console.log("directoryStructure: ", directoryStructure);
+  async create(
+    directories: Partial<DirectoryEntity>[]
+  ): Promise<Partial<DirectoryEntity>[]> {
+    console.log("newDirectories: ", directories);
 
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
     console.log("projectId: ", projectId);
@@ -188,7 +134,7 @@ export class DirectoryService {
       (folder) => (existingFoldersMap[folder.path] = folder)
     );
 
-    for (const directory of directoryStructure.data) {
+    for (const directory of directories) {
       for (let charIndex = 0; charIndex < directory.path.length; charIndex++) {
         const char = directory.path[charIndex];
 
@@ -239,15 +185,9 @@ export class DirectoryService {
 
     console.log(nodes);
 
-    const savedDirectory = await this.directoryRepository.upsertMany(
-      newDirectories,
-      { onConflictFields: ["path"], onConflictAction: "ignore" }
-    );
-
-    console.log(savedDirectory);
-
-    return {
-      message: "ok",
-    };
+    return await this.directoryRepository.upsertMany(newDirectories, {
+      onConflictFields: ["path"],
+      onConflictAction: "ignore",
+    });
   }
 }
