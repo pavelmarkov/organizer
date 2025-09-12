@@ -38,16 +38,18 @@
         </ng-container>
         {{ rowData[col.field] }}
         <ng-container *ngIf="last">
-          <p-button icon="pi pi-search" (click)="showDialog(rowData)"  severity="secondary" [style]="{ 'margin-right': '.5em' }" />
-          <p-button icon="pi pi-pencil" severity="secondary" />
+          <p-button icon="pi pi-window-maximize" (mouseover)="showDialog(rowData)" severity="secondary" [style]="{ 'margin-right': '.5em' }" />
+          <!-- <p-button icon="pi pi-pencil" severity="secondary" /> -->
         </ng-container>
       </td>
     </tr>
   </ng-template>
 </p-treetable>
 <!-- </div> -->
+<app-card-layout (dialogPanelCloseEvent)="closeDialog()" [cardData]="cardData" [visible]="dialogPanelVisible">
 
-<p-dialog header="Edit Profile" [modal]="true" [(visible)]="dialogPanelVisible" [style]="{ width: '50rem' }">
+</app-card-layout>
+<!-- <p-dialog header="Edit Profile" [modal]="true" [(visible)]="dialogPanelVisible" [style]="{ width: '50rem' }">
   <p-card [style]="{  overflow: 'hidden' }">
     <ng-template #header>
       <img alt="Card" class="w-full" src="https://primefaces.org/cdn/primeng/images/card-ng.jpg" />
@@ -62,4 +64,4 @@
       </div>
     </ng-template>
   </p-card>
-</p-dialog>
+</p-dialog> -->

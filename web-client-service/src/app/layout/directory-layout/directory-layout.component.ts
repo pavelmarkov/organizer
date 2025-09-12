@@ -11,8 +11,7 @@ import { SelectedNodesType } from '../../core/types';
 import { ButtonModule } from 'primeng/button';
 import { ActionsLayoutComponent } from '../actions-layout/actions-layout.component';
 
-import { DialogModule } from 'primeng/dialog';
-import { CardModule } from 'primeng/card';
+import { CardLayoutComponent } from '../card-layout/card-layout.component';
 
 interface Column {
   field: keyof DirectoryModel | '';
@@ -26,8 +25,7 @@ interface Column {
     TreeTableModule,
     CommonModule,
     ButtonModule,
-    DialogModule,
-    CardModule,
+    CardLayoutComponent,
   ],
   templateUrl: './directory-layout.component.html',
   styleUrl: './directory-layout.component.css',
@@ -131,7 +129,12 @@ export class DirectoryLayoutComponent implements OnInit {
 
   showDialog(directory: DirectoryModel) {
     console.log(directory);
+    this.cardData.title = directory.name;
     this.cardData.subtitle = directory.directoryId;
     this.dialogPanelVisible = true;
+  }
+
+  closeDialog() {
+    this.dialogPanelVisible = false;
   }
 }
