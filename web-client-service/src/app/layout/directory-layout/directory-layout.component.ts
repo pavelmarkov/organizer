@@ -137,4 +137,8 @@ export class DirectoryLayoutComponent implements OnInit {
   closeDialog() {
     this.dialogPanelVisible = false;
   }
+
+  tagChanged() {
+    console.log('tag changed');
+  }
 }

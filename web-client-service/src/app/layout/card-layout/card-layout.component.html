@@ -13,4 +13,10 @@
       </div>
     </ng-template>
   </p-card>
+  <div class="card flex justify-center">
+    <p-listbox [options]="items" [(ngModel)]="selectedItems" [checkbox]="true" [filter]="true" [selectAll]="selectAll"
+      optionLabel="label" [virtualScroll]="true" [virtualScrollItemSize]="40" [multiple]="true" [metaKeySelection]="false"
+      (onSelectAllChange)="onSelectAllChange($event)" (onChange)="onChange($event)" scrollHeight="250px" [striped]="true"
+      class="w-full md:w-56" />
+  </div>
 </p-dialog>

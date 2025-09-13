@@ -46,7 +46,7 @@
   </ng-template>
 </p-treetable>
 <!-- </div> -->
-<app-card-layout (dialogPanelCloseEvent)="closeDialog()" [cardData]="cardData" [visible]="dialogPanelVisible">
+<app-card-layout (dialogPanelCloseEvent)="closeDialog()" (tagChangedEvent)="tagChanged()" [cardData]="cardData" [visible]="dialogPanelVisible">
 
 </app-card-layout>
 <!-- <p-dialog header="Edit Profile" [modal]="true" [(visible)]="dialogPanelVisible" [style]="{ width: '50rem' }">
