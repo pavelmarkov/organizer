@@ -65,6 +65,11 @@ export class MenuLayoutComponent implements OnInit {
         });
       });
 
+      const defaultProject = data.find((project) => project.default);
+      if (defaultProject) {
+        this.dataService.setProject(defaultProject.projectId);
+      }
+
       this.items = [
         ...this.items,
         {

@@ -1,10 +1,4 @@
 import { Observable } from 'rxjs';
-import {
-  GetDirectoryRequestDto,
-  GetDirectoryResponseDto,
-  ImportDirectoryStructureRequestDto,
-  ImportDirectoryStructureResponseDto,
-} from '../dtos';
 import { DirectoryModel } from '../domain';
 
 export abstract class DirectoryRepository {

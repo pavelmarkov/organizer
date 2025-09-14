@@ -8,6 +8,9 @@ export class ProjectEntity {
   @Property()
   name: string;
 
+  @Property({ default: false })
+  default: boolean;
+
   @Property({ type: "array" })
   participants: string[];
 }

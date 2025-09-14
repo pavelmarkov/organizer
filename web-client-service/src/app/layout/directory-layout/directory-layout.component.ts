@@ -3,8 +3,8 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { TreeTableModule } from 'primeng/treetable';
 import { TreeNode } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { DirectoryService } from '../../core/services';
-import { DirectoryModel } from '../../core/domain';
+import { ConnectionsService, DirectoryService } from '../../core/services';
+import { CardModel, ConnectionModel, DirectoryModel } from '../../core/domain';
 import { DataService } from '../../shared/services/data.service';
 import { SelectedNodesType } from '../../core/types';
 
@@ -45,13 +45,14 @@ export class DirectoryLayoutComponent implements OnInit {
 
   dialogPanelVisible: boolean = false;
 
-  cardData: any = {
-    text: `Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque quas!`,
+  cardData: CardModel = {
+    rowIdentifier: null,
   };
 
   constructor(
     private cd: ChangeDetectorRef,
     private directoryService: DirectoryService,
+    private connectionsService: ConnectionsService,
     private dataService: DataService
   ) {}
 
@@ -131,6 +132,7 @@ export class DirectoryLayoutComponent implements OnInit {
     console.log(directory);
     this.cardData.title = directory.name;
     this.cardData.subtitle = directory.directoryId;
+    this.cardData.rowIdentifier = directory.directoryId;
     this.dialogPanelVisible = true;
   }
 
@@ -138,7 +140,18 @@ export class DirectoryLayoutComponent implements OnInit {
     this.dialogPanelVisible = false;
   }
 
-  tagChanged() {
-    console.log('tag changed');
+  tagChanged(selectedTags: string[]) {
+    const connections: Partial<ConnectionModel>[] = selectedTags.map(
+      (tagId) => {
+        return {
+          tagId,
+          directoryId: this.cardData.rowIdentifier,
+        };
+      }
+    );
+    console.log('tag changed ', selectedTags);
+    this.connectionsService.createConnections(connections).subscribe((data) => {
+      console.log(data);
+    });
   }
 }

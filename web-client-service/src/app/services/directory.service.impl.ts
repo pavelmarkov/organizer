@@ -2,9 +2,12 @@ import { Observable } from 'rxjs';
 import { DirectoryService } from '../core/services/';
 import { DirectoryRepository } from '../core/repositories';
 import { DirectoryModel } from '../core/domain';
+import { inject } from '@angular/core';
 
 export class DirectoryServiceImpl implements DirectoryService {
-  constructor(private directoryRepository: DirectoryRepository) {}
+  private directoryRepository = inject(DirectoryRepository);
+
+  constructor() {}
 
   getDirectory(params: Partial<DirectoryModel>): Observable<DirectoryModel[]> {
     return this.directoryRepository.getDirectory(params);

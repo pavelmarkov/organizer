@@ -2,9 +2,12 @@ import { Observable } from 'rxjs';
 import { NotesService } from '../core/services/';
 import { NotesRepository } from '../core/repositories';
 import { NoteModel } from '../core/domain';
+import { inject } from '@angular/core';
 
 export class NotesServiceImpl implements NotesService {
-  constructor(private notesRepository: NotesRepository) {}
+  private notesRepository = inject(NotesRepository);
+
+  constructor() {}
 
   getNotes(): Observable<NoteModel[]> {
     return this.notesRepository.getNotes();

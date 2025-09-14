@@ -9,28 +9,37 @@ import Aura from '@primeng/themes/aura';
 import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
-  withInterceptors,
   withInterceptorsFromDi,
 } from '@angular/common/http';
 import {
+  ConnectionsRepository,
   DirectoryRepository,
   NotesRepository,
   ProjectsRepository,
   TagsRepository,
 } from './core/repositories';
 import {
+  ConnectionsRepositoryImpl,
   DirectoryRepositoryImpl,
   NotesRepositoryImpl,
   ProjectsRepositoryImpl,
   TagsRepositoryImpl,
 } from './data/repositories';
 import {
+  ConnectionsService,
   DirectoryService,
   NotesService,
   ProjectsService,
   TagsService,
 } from './core/services';
 import { ProjectInterceptor } from './shared/interceptors';
+import {
+  DirectoryServiceImpl,
+  NotesServiceImpl,
+  ProjectsServiceImpl,
+  TagsServiceImpl,
+  ConnectionsServiceImpl,
+} from './services';
 
 // import Lara from '@primeng/themes/lara';
 // import Nora from '@primeng/themes/nora';
@@ -53,15 +62,18 @@ export const appConfig: ApplicationConfig = {
     { provide: HTTP_INTERCEPTORS, useClass: ProjectInterceptor, multi: true },
 
     { provide: DirectoryRepository, useClass: DirectoryRepositoryImpl },
-    { provide: DirectoryService, useClass: DirectoryRepositoryImpl },
+    { provide: DirectoryService, useClass: DirectoryServiceImpl },
 
     { provide: NotesRepository, useClass: NotesRepositoryImpl },
-    { provide: NotesService, useClass: NotesRepositoryImpl },
+    { provide: NotesService, useClass: NotesServiceImpl },
 
     { provide: ProjectsRepository, useClass: ProjectsRepositoryImpl },
-    { provide: ProjectsService, useClass: ProjectsRepositoryImpl },
+    { provide: ProjectsService, useClass: ProjectsServiceImpl },
 
     { provide: TagsRepository, useClass: TagsRepositoryImpl },
-    { provide: TagsService, useClass: TagsRepositoryImpl },
+    { provide: TagsService, useClass: TagsServiceImpl },
+
+    { provide: ConnectionsRepository, useClass: ConnectionsRepositoryImpl },
+    { provide: ConnectionsService, useClass: ConnectionsServiceImpl },
   ],
 };

@@ -1,5 +1,6 @@
 import { MiddlewareConsumer, Module, OnModuleInit } from "@nestjs/common";
 import {
+  ConnectionsModule,
   DirectoryModule,
   NoteModule,
   ProjectsModule,
@@ -10,6 +11,7 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { SeedManager } from "@mikro-orm/seeder";
 import { DirectorySeeder } from "./persistence";
 import {
+  ConnectionsController,
   DirectoryController,
   NoteController,
   ProjectsController,
@@ -23,6 +25,7 @@ const CONTROLLERS = [
   NoteController,
   ProjectsController,
   TagsController,
+  ConnectionsController,
 ];
 
 @Module({
@@ -39,6 +42,7 @@ const CONTROLLERS = [
     NoteModule,
     ProjectsModule,
     TagsModule,
+    ConnectionsModule,
   ],
   providers: [DirectoryModule, NoteModule, ProjectsModule],
   controllers: CONTROLLERS,

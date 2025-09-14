@@ -1,7 +1,8 @@
-<p-dialog transitionOptions="250ms cubic-bezier(0, 0, 0.2, 1)" header="Card" (onHide)="dialogClosed()" [modal]="true" dismissableMask="true" [(visible)]="visible" [style]="{ width: '50rem' }">
+<p-dialog transitionOptions="250ms cubic-bezier(0, 0, 0.2, 1)" header="Card" (onHide)="dialogClosed()" [modal]="true"
+  dismissableMask="true" [(visible)]="visible" [style]="{ width: '50rem' }">
   <p-card [style]="{  overflow: 'hidden' }">
     <ng-template #header>
-      <img alt="Card" class="w-full" src="https://primefaces.org/cdn/primeng/images/card-ng.jpg" />
+      <img alt="Card" [style]="{ height: '25rem' }" class="w-full" src="https://primefaces.org/cdn/primeng/images/card-ng.jpg" />
     </ng-template>
     <ng-template #title>{{cardData.title}}</ng-template>
     <ng-template #subtitle>{{cardData.subtitle}}</ng-template>
@@ -14,9 +15,11 @@
     </ng-template>
   </p-card>
   <div class="card flex justify-center">
-    <p-listbox [options]="items" [(ngModel)]="selectedItems" [checkbox]="true" [filter]="true" [selectAll]="selectAll"
-      optionLabel="label" [virtualScroll]="true" [virtualScrollItemSize]="40" [multiple]="true" [metaKeySelection]="false"
-      (onSelectAllChange)="onSelectAllChange($event)" (onChange)="onChange($event)" scrollHeight="250px" [striped]="true"
-      class="w-full md:w-56" />
+    <p-listbox focusOnHover="true"
+      optionLabel="name" optionValue="tagId"
+      [options]="tags" [(ngModel)]="selectedTags"
+      [checkbox]="true" [filter]="true" 
+      [multiple]="true" [metaKeySelection]="false"
+      (onChange)="onTagSelectionChange($event)" scrollHeight="250px" [striped]="true" class="w-full md:w-56" />
   </div>
 </p-dialog>
