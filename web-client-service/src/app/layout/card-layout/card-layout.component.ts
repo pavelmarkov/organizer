@@ -28,17 +28,18 @@ import { CardModel, TagModel } from '../../core/domain';
 export class CardLayoutComponent implements OnInit {
   @Input() cardData: CardModel = {
     rowIdentifier: null,
+    tags: [],
   };
 
   @Input() visible: boolean = false;
+
+  @Input() selectedTags!: string[];
 
   @Output() dialogPanelCloseEvent = new EventEmitter();
 
   @Output() tagChangedEvent = new EventEmitter<string[]>();
 
   tags: TagModel[] = [];
-
-  selectedTags!: any[];
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -56,6 +57,7 @@ export class CardLayoutComponent implements OnInit {
   loadTags(event?: ScrollerLazyLoadEvent) {
     this.tagsService.getTags().subscribe((data) => {
       this.tags = data;
+      this.selectedTags = this.cardData.tags;
     });
   }
 

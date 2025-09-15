@@ -22,4 +22,10 @@ export class DirectoryServiceImpl implements DirectoryService {
   ): Observable<Partial<DirectoryModel>[]> {
     return this.directoryRepository.importDirectory(directories);
   }
+
+  update(
+    directories: Partial<DirectoryModel>[]
+  ): Observable<Partial<DirectoryModel>[]> {
+    return this.directoryRepository.update(directories);
+  }
 }

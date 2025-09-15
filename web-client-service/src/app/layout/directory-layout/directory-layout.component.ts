@@ -47,6 +47,7 @@ export class DirectoryLayoutComponent implements OnInit {
 
   cardData: CardModel = {
     rowIdentifier: null,
+    tags: [],
   };
 
   constructor(
@@ -133,6 +134,7 @@ export class DirectoryLayoutComponent implements OnInit {
     this.cardData.title = directory.name;
     this.cardData.subtitle = directory.directoryId;
     this.cardData.rowIdentifier = directory.directoryId;
+    this.cardData.tags = directory.tags;
     this.dialogPanelVisible = true;
   }
 
@@ -141,17 +143,19 @@ export class DirectoryLayoutComponent implements OnInit {
   }
 
   tagChanged(selectedTags: string[]) {
-    const connections: Partial<ConnectionModel>[] = selectedTags.map(
-      (tagId) => {
-        return {
-          tagId,
+    if (!this.cardData.rowIdentifier) {
+      return;
+    }
+
+    this.directoryService
+      .update([
+        {
           directoryId: this.cardData.rowIdentifier,
-        };
-      }
-    );
-    console.log('tag changed ', selectedTags);
-    this.connectionsService.createConnections(connections).subscribe((data) => {
-      console.log(data);
-    });
+          tags: selectedTags,
+        },
+      ])
+      .subscribe((data) => {
+        console.log(data);
+      });
   }
 }

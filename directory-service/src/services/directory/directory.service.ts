@@ -29,6 +29,30 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     });
   }
 
+  async update(
+    directories: Partial<DirectoryEntity>[]
+  ): Promise<DirectoryEntity[]> {
+    const updateData = await this.directoryRepository.findAll({
+      where: {
+        directoryId: { $in: directories.map((row) => row.directoryId) },
+      },
+    });
+
+    updateData.forEach((row) => {
+      const newValues = directories.find(
+        (directory) => directory.directoryId === row.directoryId
+      );
+      Object.keys(newValues).forEach(
+        (property) => (row[property] = newValues[property])
+      );
+    });
+
+    return await this.directoryRepository.upsertMany(updateData, {
+      onConflictFields: ["directoryId"],
+      onConflictAction: "merge",
+    });
+  }
+
   private scanFolder(
     directoryStructure: DirectoryEntity[],
     folderId: string
@@ -174,6 +198,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
           size: directory.size,
           path: pathPart,
           projectId: projectId,
+          tags: [],
         };
       }
     }

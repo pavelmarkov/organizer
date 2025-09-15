@@ -13,4 +13,8 @@ export abstract class DirectoryRepository {
   abstract importDirectory(
     directories: Partial<DirectoryModel>[]
   ): Observable<Partial<DirectoryModel>[]>;
+
+  abstract update(
+    directories: Partial<DirectoryModel>[]
+  ): Observable<Partial<DirectoryModel>[]>;
 }

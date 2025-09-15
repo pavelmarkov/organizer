@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, Put, Query } from "@nestjs/common";
 import { DirectoryService } from "../services/directory";
 import { DirectoryEntity } from "src/entities";
 
@@ -25,5 +25,12 @@ export class DirectoryController {
     @Body() directories: DirectoryEntity[]
   ): Promise<Partial<DirectoryEntity>[]> {
     return this.directoryService.create(directories);
+  }
+
+  @Put()
+  update(
+    @Body() directories: DirectoryEntity[]
+  ): Promise<Partial<DirectoryEntity>[]> {
+    return this.directoryService.update(directories);
   }
 }

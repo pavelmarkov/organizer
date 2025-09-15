@@ -23,4 +23,7 @@ export class DirectoryEntity extends WithProjectIdBaseEntity {
 
   @Property({ unique: true })
   path: string;
+
+  @Property({ type: "array", default: [] })
+  tags: string[];
 }

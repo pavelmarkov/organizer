@@ -4,4 +4,5 @@ export interface CardModel {
   text?: string;
   imageUrl?: string;
   rowIdentifier: string | null;
+  tags: string[];
 }

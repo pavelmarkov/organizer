@@ -39,4 +39,13 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
       directoryStructure
     );
   }
+
+  update(
+    directories: Partial<DirectoryModel>[]
+  ): Observable<Partial<DirectoryModel>[]> {
+    return this.http.put<Partial<DirectoryModel>[]>(
+      `${this.baseUrl}/directory`,
+      directories
+    );
+  }
 }

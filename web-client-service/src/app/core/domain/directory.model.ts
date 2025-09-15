@@ -5,4 +5,5 @@ export interface DirectoryModel {
   isFolder: boolean;
   fileType: string;
   size: number;
+  tags: string[];
 }
