@@ -13,8 +13,13 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
 
   getDirectory(params: Partial<DirectoryModel>): Observable<DirectoryModel[]> {
     let queryParams = new HttpParams();
+
     if (params.parentId) {
       queryParams = queryParams.set('parentId', params.parentId);
+    }
+
+    if (params.directoryId) {
+      queryParams = queryParams.set('directoryId', params.directoryId);
     }
 
     return this.http.get<DirectoryModel[]>(`${this.baseUrl}/directory`, {

@@ -17,7 +17,7 @@
   <div class="card flex justify-center">
     <p-listbox focusOnHover="true"
       optionLabel="name" optionValue="tagId"
-      [options]="tags" [(ngModel)]="selectedTags"
+      [options]="tags" [(ngModel)]="cardData.tags"
       [checkbox]="true" [filter]="true" 
       [multiple]="true" [metaKeySelection]="false"
       (onChange)="onTagSelectionChange($event)" scrollHeight="250px" [striped]="true" class="w-full md:w-56" />

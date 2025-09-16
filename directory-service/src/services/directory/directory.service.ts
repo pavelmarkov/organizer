@@ -21,11 +21,19 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
     console.log("projectId: ", projectId);
 
+    let whereCondition: Partial<DirectoryEntity> = {
+      parentId: params.parentId ?? null,
+      projectId: projectId ?? null,
+    };
+
+    if (params.directoryId) {
+      whereCondition = {
+        directoryId: params.directoryId,
+      };
+    }
+
     return await this.directoryRepository.findAll({
-      where: {
-        parentId: params.parentId ?? null,
-        projectId: projectId ?? null,
-      },
+      where: whereCondition,
     });
   }
 

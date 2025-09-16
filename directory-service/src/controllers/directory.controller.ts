@@ -8,9 +8,10 @@ export class DirectoryController {
 
   @Get()
   getDirectory(
+    @Query("directoryId") directoryId: string,
     @Query("parentId") parentId: string
   ): Promise<Partial<DirectoryEntity[]>> {
-    return this.directoryService.get({ parentId });
+    return this.directoryService.get({ parentId, directoryId });
   }
 
   @Post("process")

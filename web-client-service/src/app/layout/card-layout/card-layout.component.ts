@@ -33,8 +33,6 @@ export class CardLayoutComponent implements OnInit {
 
   @Input() visible: boolean = false;
 
-  @Input() selectedTags!: string[];
-
   @Output() dialogPanelCloseEvent = new EventEmitter();
 
   @Output() tagChangedEvent = new EventEmitter<string[]>();
@@ -49,7 +47,7 @@ export class CardLayoutComponent implements OnInit {
   ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges & { visible: SimpleChange }): void {
-    if (changes.visible.currentValue) {
+    if (changes.visible?.currentValue) {
       this.loadTags();
     }
   }
@@ -57,12 +55,11 @@ export class CardLayoutComponent implements OnInit {
   loadTags(event?: ScrollerLazyLoadEvent) {
     this.tagsService.getTags().subscribe((data) => {
       this.tags = data;
-      this.selectedTags = this.cardData.tags;
     });
   }
 
   onTagSelectionChange(event: any) {
-    this.tagChangedEvent.emit(this.selectedTags);
+    this.tagChangedEvent.emit(this.cardData.tags);
   }
 
   dialogClosed() {

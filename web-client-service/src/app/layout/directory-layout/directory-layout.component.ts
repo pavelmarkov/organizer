@@ -130,12 +130,21 @@ export class DirectoryLayoutComponent implements OnInit {
   }
 
   showDialog(directory: DirectoryModel) {
-    console.log(directory);
-    this.cardData.title = directory.name;
-    this.cardData.subtitle = directory.directoryId;
-    this.cardData.rowIdentifier = directory.directoryId;
-    this.cardData.tags = directory.tags;
-    this.dialogPanelVisible = true;
+    this.directoryService
+      .getDirectory({
+        directoryId: directory.directoryId,
+      })
+      .subscribe((directories) => {
+        if (!directories.length) {
+          return;
+        }
+        const currentRow = directories[0];
+        this.cardData.title = currentRow.name;
+        this.cardData.subtitle = currentRow.directoryId;
+        this.cardData.rowIdentifier = currentRow.directoryId;
+        this.cardData.tags = currentRow.tags;
+        this.dialogPanelVisible = true;
+      });
   }
 
   closeDialog() {
@@ -156,6 +165,7 @@ export class DirectoryLayoutComponent implements OnInit {
       ])
       .subscribe((data) => {
         console.log(data);
+        this.cardData.tags = selectedTags;
       });
   }
 }
