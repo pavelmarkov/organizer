@@ -7,6 +7,7 @@ import { InjectRepository } from "@mikro-orm/nestjs";
 import { EntityRepository } from "@mikro-orm/sqlite";
 import { AsyncLocalStorage } from "async_hooks";
 import { BaseAbstractService } from "../../domain/services";
+import { View } from "src/domain/types";
 
 @Injectable()
 export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
@@ -222,5 +223,21 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       onConflictFields: ["path"],
       onConflictAction: "ignore",
     });
+  }
+
+  async view(directoryId: string): Promise<View> {
+    const directory = await this.directoryRepository.findOne({
+      directoryId,
+    });
+
+    const view: View = {
+      title: directory.name,
+      subtitle: directory.directoryId,
+      text: directory.path,
+      tags: directory.tags,
+      image: null,
+    };
+
+    return view;
   }
 }

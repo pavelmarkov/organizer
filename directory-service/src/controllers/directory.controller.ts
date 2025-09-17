@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Put, Query } from "@nestjs/common";
 import { DirectoryService } from "../services/directory";
 import { DirectoryEntity } from "src/entities";
+import { ViewDto } from "../dtos";
 
 @Controller("directory")
 export class DirectoryController {
@@ -12,6 +13,13 @@ export class DirectoryController {
     @Query("parentId") parentId: string
   ): Promise<Partial<DirectoryEntity[]>> {
     return this.directoryService.get({ parentId, directoryId });
+  }
+
+  @Get("view")
+  viewDirectory(
+    @Query("directoryId") directoryId: string
+  ): Promise<Partial<ViewDto>> {
+    return this.directoryService.view(directoryId);
   }
 
   @Post("process")
