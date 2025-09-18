@@ -2,7 +2,9 @@
   dismissableMask="true" [(visible)]="visible" [style]="{ width: '50rem' }">
   <p-card [style]="{  overflow: 'hidden' }">
     <ng-template #header>
-      <img alt="Card" [style]="{ height: '25rem' }" class="w-full" src="https://primefaces.org/cdn/primeng/images/card-ng.jpg" />
+      @if(cardData && cardData.image) {
+        <img alt="Card" [style]="{ height: '25rem' }" class="w-full" src="data:image/jpeg;base64, {{cardData.image}}" />
+      }
     </ng-template>
     <ng-template #title>{{cardData.title}}</ng-template>
     <ng-template #subtitle>{{cardData.subtitle}}</ng-template>
@@ -11,6 +13,7 @@
       <div class="flex gap-4 mt-1">
         <p-button label="Cancel" (mouseover)="dialogClosed()" severity="secondary" (click)="dialogClosed()" />
         <p-button label="Save" (click)="dialogClosed()" />
+        <p-button label="Next" (click)="next()" />
       </div>
     </ng-template>
   </p-card>

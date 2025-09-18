@@ -22,17 +22,17 @@ class VideoProcessor():
         self.unique_name = None
         self.full_preview_path = None
 
-    def checkIfExists(self, path, fileToCheck):
-        fileExists = False
+    def findExisting(self, path, fileToCheck):
         for entry in os.listdir(path):
             full_path = os.path.join(path, entry)
             if os.path.isdir(full_path):
-                if self.checkIfExists(full_path, fileToCheck):
-                    return True
+                foundEntry = self.findExisting(full_path, fileToCheck)
+                if foundEntry:
+                    return foundEntry
             else:
                 if entry == fileToCheck:
-                    return True
-        return fileExists
+                    return os.path.join(path, entry)
+        return None
 
     def allocSubfolder(self):
         start = self.max_files_in_folder
@@ -101,7 +101,7 @@ class VideoProcessor():
         if os.path.isfile(self.full_preview_path):
             print('File exists, skipping.')
             return
-        if self.checkIfExists(self.save_to_path, self.unique_name):
+        if self.findExisting(self.save_to_path, self.unique_name):
             print('File exists in subdir, skipping.')
             return
 

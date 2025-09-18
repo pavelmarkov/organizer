@@ -2,7 +2,8 @@ export interface CardModel {
   title?: string;
   subtitle?: string;
   text?: string;
-  imageUrl?: string;
+  image?: string;
   rowIdentifier: string | null;
   tags: string[];
+  next?: string;
 }

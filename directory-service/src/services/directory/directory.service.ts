@@ -8,6 +8,7 @@ import { EntityRepository } from "@mikro-orm/sqlite";
 import { AsyncLocalStorage } from "async_hooks";
 import { BaseAbstractService } from "../../domain/services";
 import { View } from "src/domain/types";
+import { ConfigService } from "src/shared/config";
 
 @Injectable()
 export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
@@ -15,7 +16,8 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     @Inject(MediaService) private readonly mediaClient: MediaService,
     @InjectRepository(DirectoryEntity)
     private readonly directoryRepository: EntityRepository<DirectoryEntity>,
-    private readonly asyncLocalStorage: AsyncLocalStorage<any>
+    private readonly asyncLocalStorage: AsyncLocalStorage<any>,
+    private readonly configService: ConfigService
   ) {}
 
   async get(params: Partial<DirectoryEntity>): Promise<DirectoryEntity[]> {
@@ -231,12 +233,52 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     });
 
     const view: View = {
+      rowIdentifier: directory.directoryId,
       title: directory.name,
       subtitle: directory.directoryId,
       text: directory.path,
       tags: directory.tags,
       image: null,
+      next: null,
     };
+
+    const config = await this.configService.getConfig();
+
+    const url = new URL(
+      `http://${config.mediaServiceHttp.host}:${config.mediaServiceHttp.port}/preview`
+    );
+    url.searchParams.set("path_to_file", directory.path);
+    const imageData = await fetch(url);
+
+    if (imageData.ok) {
+      const blob = await imageData.blob();
+      const arrayBuffer = await blob.arrayBuffer();
+      const content = Buffer.from(arrayBuffer);
+      view.image = content.toString("base64");
+    }
+
+    const nextItem = await this.directoryRepository.findOne(
+      {
+        parentId: directory.parentId,
+        name: { $gt: directory.name },
+      },
+      { orderBy: { name: "asc" } }
+    );
+
+    if (nextItem) {
+      view.next = nextItem?.directoryId;
+    }
+
+    if (!view.next) {
+      const firstItem = await this.directoryRepository.findOne(
+        {
+          parentId: directory.parentId,
+        },
+        { orderBy: { name: "asc" } }
+      );
+
+      view.next = firstItem?.directoryId;
+    }
 
     return view;
   }

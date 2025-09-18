@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { DirectoryService } from '../core/services/';
 import { DirectoryRepository } from '../core/repositories';
-import { DirectoryModel } from '../core/domain';
+import { CardModel, DirectoryModel } from '../core/domain';
 import { inject } from '@angular/core';
 
 export class DirectoryServiceImpl implements DirectoryService {
@@ -27,5 +27,9 @@ export class DirectoryServiceImpl implements DirectoryService {
     directories: Partial<DirectoryModel>[]
   ): Observable<Partial<DirectoryModel>[]> {
     return this.directoryRepository.update(directories);
+  }
+
+  view(directoryId: string): Observable<CardModel> {
+    return this.directoryRepository.view(directoryId);
   }
 }

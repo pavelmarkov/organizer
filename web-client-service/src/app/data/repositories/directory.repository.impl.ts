@@ -3,7 +3,7 @@ import { DirectoryRepository } from '../../core/repositories';
 import { environment } from '../../../config/environment';
 import { inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { DirectoryModel } from '../../core/domain';
+import { CardModel, DirectoryModel } from '../../core/domain';
 
 export class DirectoryRepositoryImpl implements DirectoryRepository {
   private baseUrl: string = environment.apiUrl;
@@ -52,5 +52,15 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
       `${this.baseUrl}/directory`,
       directories
     );
+  }
+
+  view(directoryId: string): Observable<CardModel> {
+    let queryParams = new HttpParams();
+
+    queryParams = queryParams.set('directoryId', directoryId);
+
+    return this.http.get<CardModel>(`${this.baseUrl}/directory/view`, {
+      params: queryParams,
+    });
   }
 }

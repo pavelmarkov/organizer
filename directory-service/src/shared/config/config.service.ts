@@ -7,6 +7,10 @@ export class ConfigService {
 
   async getConfig(): Promise<{
     mediaService: ClientProvider;
+    mediaServiceHttp: {
+      host: string;
+      port: number;
+    };
   }> {
     return {
       mediaService: {
@@ -19,6 +23,10 @@ export class ConfigService {
           },
           noAck: true,
         },
+      },
+      mediaServiceHttp: {
+        host: "localhost",
+        port: 8000,
       },
     };
   }

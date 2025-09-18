@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { DirectoryModel } from '../domain';
+import { CardModel, DirectoryModel } from '../domain';
 
 export abstract class DirectoryRepository {
   abstract getDirectory(
@@ -17,4 +17,6 @@ export abstract class DirectoryRepository {
   abstract update(
     directories: Partial<DirectoryModel>[]
   ): Observable<Partial<DirectoryModel>[]>;
+
+  abstract view(directoryId: string): Observable<CardModel>;
 }

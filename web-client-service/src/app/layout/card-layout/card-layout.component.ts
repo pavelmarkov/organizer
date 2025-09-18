@@ -35,6 +35,8 @@ export class CardLayoutComponent implements OnInit {
 
   @Output() dialogPanelCloseEvent = new EventEmitter();
 
+  @Output() nextItemEvent = new EventEmitter();
+
   @Output() tagChangedEvent = new EventEmitter<string[]>();
 
   tags: TagModel[] = [];
@@ -64,5 +66,9 @@ export class CardLayoutComponent implements OnInit {
 
   dialogClosed() {
     this.dialogPanelCloseEvent.emit();
+  }
+
+  next() {
+    this.nextItemEvent.emit();
   }
 }

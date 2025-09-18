@@ -4,7 +4,7 @@ import { TreeTableModule } from 'primeng/treetable';
 import { TreeNode } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { ConnectionsService, DirectoryService } from '../../core/services';
-import { CardModel, ConnectionModel, DirectoryModel } from '../../core/domain';
+import { CardModel, DirectoryModel } from '../../core/domain';
 import { DataService } from '../../shared/services/data.service';
 import { SelectedNodesType } from '../../core/types';
 
@@ -130,21 +130,21 @@ export class DirectoryLayoutComponent implements OnInit {
   }
 
   showDialog(directory: DirectoryModel) {
-    this.directoryService
-      .getDirectory({
-        directoryId: directory.directoryId,
-      })
-      .subscribe((directories) => {
-        if (!directories.length) {
-          return;
-        }
-        const currentRow = directories[0];
-        this.cardData.title = currentRow.name;
-        this.cardData.subtitle = currentRow.directoryId;
-        this.cardData.rowIdentifier = currentRow.directoryId;
-        this.cardData.tags = currentRow.tags;
-        this.dialogPanelVisible = true;
-      });
+    this.directoryService.view(directory.directoryId).subscribe((viewData) => {
+      this.cardData = viewData;
+      this.dialogPanelVisible = true;
+    });
+  }
+
+  nextItem(directory: DirectoryModel) {
+    if (!this.cardData.next) {
+      return;
+    }
+
+    this.directoryService.view(this.cardData.next).subscribe((viewData) => {
+      this.cardData = viewData;
+      this.dialogPanelVisible = true;
+    });
   }
 
   closeDialog() {
