@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from "../../shared/config";
 
 @Module({
   imports: [
+    ConfigModule,
     ClientsModule.registerAsync([
       {
         name: MEDIA_SERVICE_CLIENT,

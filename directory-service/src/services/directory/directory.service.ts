@@ -16,8 +16,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     @Inject(MediaService) private readonly mediaClient: MediaService,
     @InjectRepository(DirectoryEntity)
     private readonly directoryRepository: EntityRepository<DirectoryEntity>,
-    private readonly asyncLocalStorage: AsyncLocalStorage<any>,
-    private readonly configService: ConfigService
+    private readonly asyncLocalStorage: AsyncLocalStorage<any>
   ) {}
 
   async get(params: Partial<DirectoryEntity>): Promise<DirectoryEntity[]> {
@@ -227,29 +226,6 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     });
   }
 
-  private async getThumbnails(path: string): Promise<string> {
-    const config = await this.configService.getConfig();
-
-    const url = new URL(
-      `http://${config.mediaServiceHttp.host}:${config.mediaServiceHttp.port}/preview`
-    );
-    url.searchParams.set("path_to_file", path);
-    try {
-      const imageData = await fetch(url);
-      if (imageData.ok) {
-        const blob = await imageData.blob();
-        const arrayBuffer = await blob.arrayBuffer();
-        const content = Buffer.from(arrayBuffer);
-        return content.toString("base64");
-      }
-    } catch (error) {
-      console.error("cannot get thumbnails data");
-      return null;
-    }
-
-    return null;
-  }
-
   async view(directoryId: string): Promise<View> {
     const directory = await this.directoryRepository.findOne({
       directoryId,
@@ -288,7 +264,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       view.next = firstItem?.directoryId;
     }
 
-    view.image = await this.getThumbnails(directory.path);
+    view.image = await this.mediaClient.getThumbnails(directory.path);
 
     return view;
   }
