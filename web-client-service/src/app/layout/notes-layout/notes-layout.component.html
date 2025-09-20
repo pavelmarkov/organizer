@@ -11,8 +11,14 @@
       <tr>
         <td>{{ note.name }}</td>
         <td>{{ note.type }}</td>
-        <td>{{ note.description }}</td>
+        <td>{{ note.description }}</td><td>
+          <p-button icon="pi pi-search" (mouseover)="showDialog(note)" severity="secondary" />
+        </td>
       </tr>
     </ng-template>
   </p-table>
 </div>
+<app-card-layout (dialogPanelCloseEvent)="closeDialog()" (tagChangedEvent)="tagChanged($event)"
+  (nextItemEvent)="nextItem($event)" [cardData]="cardData" [visible]="dialogPanelVisible">
+
+</app-card-layout>

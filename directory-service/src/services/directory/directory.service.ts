@@ -8,7 +8,6 @@ import { EntityRepository } from "@mikro-orm/sqlite";
 import { AsyncLocalStorage } from "async_hooks";
 import { BaseAbstractService } from "../../domain/services";
 import { View } from "src/domain/types";
-import { ConfigService } from "src/shared/config";
 
 @Injectable()
 export class DirectoryService implements BaseAbstractService<DirectoryEntity> {

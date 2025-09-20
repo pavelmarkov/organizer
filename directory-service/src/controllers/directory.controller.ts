@@ -16,9 +16,7 @@ export class DirectoryController {
   }
 
   @Get("view")
-  viewDirectory(
-    @Query("directoryId") directoryId: string
-  ): Promise<Partial<ViewDto>> {
+  viewDirectory(@Query("directoryId") directoryId: string): Promise<ViewDto> {
     return this.directoryService.view(directoryId);
   }
 

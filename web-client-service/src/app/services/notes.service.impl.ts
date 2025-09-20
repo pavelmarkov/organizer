@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { NotesService } from '../core/services/';
 import { NotesRepository } from '../core/repositories';
-import { NoteModel } from '../core/domain';
+import { CardModel, NoteModel } from '../core/domain';
 import { inject } from '@angular/core';
 
 export class NotesServiceImpl implements NotesService {
@@ -11,5 +11,13 @@ export class NotesServiceImpl implements NotesService {
 
   getNotes(): Observable<NoteModel[]> {
     return this.notesRepository.getNotes();
+  }
+
+  update(directories: Partial<NoteModel>[]): Observable<Partial<NoteModel>[]> {
+    return this.notesRepository.update(directories);
+  }
+
+  view(directoryId: string): Observable<CardModel> {
+    return this.notesRepository.view(directoryId);
   }
 }

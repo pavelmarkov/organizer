@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
-import { NoteService } from "src/services/notes";
-import { NoteEntity } from "src/entities";
+import { NoteService } from "../services/notes";
+import { NoteEntity } from "../entities";
+import { ViewDto } from "../dtos";
 
 @Controller("notes")
 export class NoteController {
@@ -14,5 +15,10 @@ export class NoteController {
   @Post()
   createNotes(@Body() params: NoteEntity[]): Promise<NoteEntity[]> {
     return this.noteService.create(params);
+  }
+
+  @Get("view")
+  viewDirectory(@Query("noteId") noteId: string): Promise<ViewDto> {
+    return this.noteService.view(noteId);
   }
 }
