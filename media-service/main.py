@@ -1,3 +1,4 @@
+from data.data_storage import DataStorage
 import os
 
 import uvicorn
@@ -50,6 +51,11 @@ async def get_image(path_to_file: str):
 async def main():
     consumer = RabbitMQConsumer()
     await consumer.connect()
+
+    db = DataStorage()
+    media = db.get_madia()
+    print(media)
+
 
 if __name__ == '__main__':
     asyncio.run(main())
