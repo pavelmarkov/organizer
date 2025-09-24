@@ -15,11 +15,11 @@ export class ConnectionEntity {
   })
   tagId: string;
 
-  @ManyToOne(() => DirectoryEntity, {
-    name: "directory_id",
-    columnType: "uuid",
-    nullable: true,
-    referencedColumnNames: ["directory_id"],
-  })
+  // @ManyToOne(() => DirectoryEntity, {
+  //   name: "directory_id",
+  //   columnType: "uuid",
+  //   nullable: true,
+  //   referencedColumnNames: ["directory_id"],
+  // })
   directoryId: string;
 }

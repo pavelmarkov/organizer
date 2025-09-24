@@ -207,7 +207,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
           size: directory.size,
           path: pathPart,
           projectId: projectId,
-          tags: [],
+          tags: null,
         };
       }
     }
@@ -263,7 +263,10 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       view.next = firstItem?.directoryId;
     }
 
-    view.image = await this.mediaClient.getThumbnails(directory.path);
+    view.image = await this.mediaClient.getThumbnails(
+      directory.directoryId,
+      directory.path
+    );
 
     return view;
   }

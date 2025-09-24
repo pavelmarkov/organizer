@@ -1,54 +1,46 @@
-import pika
+import aio_pika
 from config.rabbitmq import get_settings
 from event_handlers.process_media import on_process_media_message_received
+from aio_pika import connect_robust
 
 
 class RabbitMQConsumer():
     def __init__(self):
         self.config = get_settings()
-        self.connection = None
-        self.channel = None
+        self._connection = None
+        self._channel = None
         self._should_reconnect = False
         self._consuming = False
 
-    async def connect(self):
+    async def connect(self, loop):
         """Establish connection to RabbitMQ"""
         try:
-            connection_parameters = pika.ConnectionParameters(
+            self._connection = await connect_robust(
                 host=self.config.host,
-                port=self.config.port
+                port=self.config.port,
+                login='guest',
+                password='guest',
+                loop=loop,
             )
-            connection = pika.BlockingConnection(
-                connection_parameters
-            )
 
-            channel = connection.channel()
+            self._channel = await self._connection.channel()
+            queue = await self._channel.declare_queue(self.config.queue, durable=False)
+            await queue.consume(callback=on_process_media_message_received, no_ack=False)
 
-            channel.queue_declare(queue=self.config.queue)
-
-            channel.basic_qos(prefetch_count=1)
-
-            channel.basic_consume(queue=self.config.queue,
-                                  on_message_callback=on_process_media_message_received,
-                                  auto_ack=False)
-
-            print(' [*] Waiting for messages. To exit press CTRL+C')
-
-            channel.start_consuming()
-        except pika.exceptions.AMQPConnectionError as e:
+        except aio_pika.exceptions.AMQPConnectionError as e:
             print(f"Error connecting to RabbitMQ: {e}")
         except KeyboardInterrupt:
             print("Consumer stopped by user.")
-        finally:
-            if 'connection' in locals() and connection.is_open:
-                connection.close()
+        # finally:
+        #     if 'connection' in locals() and self._connection.is_open:
+        #         self._connection.close()
 
     async def close(self):
         """Close the connection"""
-        if self.connection and self.connection.is_open:
+        if self._connection and self._connection.is_open:
             if self._consuming:
-                self.channel.stop_consuming()
-            self.connection.close()
+                self._channel.stop_consuming()
+            self._connection.close()
         self._consuming = False
 
     async def reconnect(self):

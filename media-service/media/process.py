@@ -15,6 +15,7 @@ class VideoProcessor():
         self.filename = None
 
         self.duration = None
+        self.duration_in_seconds = None
         self.codec_name = None
         self.width = None
         self.height = None
@@ -75,18 +76,29 @@ class VideoProcessor():
         self.width = video_stream.codec_context.width
         self.height = video_stream.codec_context.height
 
-        duration_in_seconds = int(self.duration * video_stream.time_base)
-        minutes = duration_in_seconds // 60
-        seconds = duration_in_seconds % 60
+        self.duration_in_seconds = int(self.duration * video_stream.time_base)
+        minutes = self.duration_in_seconds // 60
+        seconds = self.duration_in_seconds % 60
 
         print(self.duration, video_stream.time_base,
-              duration_in_seconds, minutes, seconds)
+              self.duration_in_seconds, minutes, seconds)
 
         self.unique_name = f"{self.filename}_{minutes}m{seconds}s_{self.width}x{self.height}.jpeg"
         subfolder = self.allocSubfolder()
         self.full_preview_path = os.path.join(
             self.save_to_path, subfolder, self.unique_name
         )
+
+    def get_media_info(self):
+        return {
+            'duration_in_seconds': self.duration_in_seconds,
+            'minutes': self.duration_in_seconds // 60,
+            'seconds': self.duration_in_seconds % 60,
+            'width': self.width,
+            'height': self.height,
+            'codec_name': self.codec_name,
+            'unique_name': self.unique_name
+        }
 
     def process_video_file(self):
         if not self.path:
@@ -101,7 +113,11 @@ class VideoProcessor():
         if os.path.isfile(self.full_preview_path):
             print('File exists, skipping.')
             return
-        if self.findExisting(self.save_to_path, self.unique_name):
+
+        existing_preview_path = self.findExisting(
+            self.save_to_path, self.unique_name)
+        if existing_preview_path:
+            self.full_preview_path = existing_preview_path
             print('File exists in subdir, skipping.')
             return
 

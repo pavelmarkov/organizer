@@ -25,13 +25,16 @@ export class MediaService {
     return mediaServiceAnswer.data;
   }
 
-  async getThumbnails(path: string): Promise<string> {
+  async getThumbnails(directoryId: string, path: string): Promise<string> {
     const config = await this.configService.getConfig();
 
     const url = new URL(
       `http://${config.mediaServiceHttp.host}:${config.mediaServiceHttp.port}/preview`
     );
+
     url.searchParams.set("path_to_file", path);
+    url.searchParams.set("directory_id", directoryId);
+
     try {
       const imageData = await fetch(url);
       if (imageData.ok) {
