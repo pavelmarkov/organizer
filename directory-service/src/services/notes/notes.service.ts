@@ -53,6 +53,8 @@ export class NoteService implements BaseAbstractService<NoteEntity> {
       tags: note.tags,
       image: null,
       next: null,
+      previous: null,
+      details: null,
     };
 
     const nextItem = await this.noteRepository.findOne(

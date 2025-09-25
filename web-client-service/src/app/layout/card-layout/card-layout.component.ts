@@ -7,14 +7,15 @@ import {
   EventEmitter,
   SimpleChanges,
   SimpleChange,
+  HostListener,
 } from '@angular/core';
 
 import { DialogModule } from 'primeng/dialog';
-import { Card, CardModule } from 'primeng/card';
+import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 
 import { FormsModule } from '@angular/forms';
-import { Listbox } from 'primeng/listbox';
+import { Listbox, ListboxFilterEvent } from 'primeng/listbox';
 import { TagsService } from '../../core/services';
 import { ScrollerLazyLoadEvent } from 'primeng/scroller';
 import { CardModel, TagModel } from '../../core/domain';
@@ -37,9 +38,13 @@ export class CardLayoutComponent implements OnInit {
 
   @Output() nextItemEvent = new EventEmitter();
 
+  @Output() previousItemEvent = new EventEmitter();
+
   @Output() tagChangedEvent = new EventEmitter<string[]>();
 
   tags: TagModel[] = [];
+
+  filterValue: string | null = null;
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -68,7 +73,21 @@ export class CardLayoutComponent implements OnInit {
     this.dialogPanelCloseEvent.emit();
   }
 
-  next() {
+  @HostListener('window:keydown.ArrowRight', ['$event'])
+  next($event: MouseEvent | KeyboardEvent) {
     this.nextItemEvent.emit();
+  }
+
+  @HostListener('window:keydown.ArrowLeft', ['$event'])
+  previous($event: MouseEvent | KeyboardEvent) {
+    this.previousItemEvent.emit();
+  }
+
+  newTag($event: MouseEvent): void {
+    console.log(this.filterValue);
+  }
+
+  onFilter($event: ListboxFilterEvent): void {
+    this.filterValue = $event.filter;
   }
 }

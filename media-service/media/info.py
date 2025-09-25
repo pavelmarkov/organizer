@@ -1,0 +1,20 @@
+from media.process import VideoProcessor
+from data.data_storage import MediaRepository
+
+
+class MediaInfo():
+    info = None
+
+    def __init__(self, directory_id: str, path: str):
+
+        media_repository = MediaRepository()
+        media = media_repository.get_madia_by_directory_id(directory_id)
+        print(media)
+        if media:
+            self.info = media.info
+            return
+
+        file = VideoProcessor(path)
+        file.prepare()
+
+        self.info = file.get_media_info()

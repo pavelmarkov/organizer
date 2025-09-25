@@ -8,4 +8,6 @@ export class ViewDto implements View {
   text: string;
   tags: string[];
   next: string;
+  previous: string;
+  details: string;
 }

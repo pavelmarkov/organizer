@@ -3,7 +3,7 @@ import { ProjectEntity } from "../project.entity";
 
 export class WithProjectIdBaseEntity {
   @ManyToOne({
-    primary: true,
+    primary: false,
     joinColumn: "project_id",
     nullable: true,
     index: true,

@@ -6,4 +6,6 @@ export interface CardModel {
   rowIdentifier: string | null;
   tags: string[];
   next?: string;
+  previous?: string;
+  details?: string;
 }

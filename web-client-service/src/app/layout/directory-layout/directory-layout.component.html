@@ -37,7 +37,7 @@
         </ng-container>
         {{ rowData[col.field] }}
         <ng-container *ngIf="last">
-          <p-button icon="pi pi-window-maximize" (mouseover)="showDialog(rowData)" severity="secondary" [style]="{ 'margin-right': '.5em' }" />
+          <p-button icon="pi pi-window-maximize" (click)="showDialog(rowData)" severity="secondary" [style]="{ 'margin-right': '.5em' }" />
           <!-- <p-button icon="pi pi-pencil" severity="secondary" /> -->
         </ng-container>
       </td>
@@ -45,6 +45,6 @@
   </ng-template>
 </p-treetable>
 
-<app-card-layout (dialogPanelCloseEvent)="closeDialog()" (tagChangedEvent)="tagChanged($event)" (nextItemEvent)="nextItem($event)" [cardData]="cardData" [visible]="dialogPanelVisible">
+<app-card-layout (dialogPanelCloseEvent)="closeDialog()" (tagChangedEvent)="tagChanged($event)" (nextItemEvent)="nextItem($event)" (previousItemEvent)="previousItem($event)" [cardData]="cardData" [visible]="dialogPanelVisible">
 
 </app-card-layout>

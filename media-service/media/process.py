@@ -19,6 +19,7 @@ class VideoProcessor():
         self.codec_name = None
         self.width = None
         self.height = None
+        self.size: int = None
 
         self.unique_name = None
         self.full_preview_path = None
@@ -66,7 +67,13 @@ class VideoProcessor():
         if not os.path.exists(self.save_to_path):
             os.makedirs(self.save_to_path)
 
+        if not os.path.isfile(self.path):
+            print('Directory element is not file')
+            return
+
         self.filename = os.path.basename(self.path)
+
+        self.size = os.path.getsize(self.path)
 
         container = av.open(self.path)
         video_stream = container.streams.video[0]
@@ -97,7 +104,8 @@ class VideoProcessor():
             'width': self.width,
             'height': self.height,
             'codec_name': self.codec_name,
-            'unique_name': self.unique_name
+            'unique_name': self.unique_name,
+            'size': self.size,
         }
 
     def process_video_file(self):

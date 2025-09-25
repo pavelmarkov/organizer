@@ -56,6 +56,8 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       );
     });
 
+    console.log(updateData);
+
     return await this.directoryRepository.upsertMany(updateData, {
       onConflictFields: ["directoryId"],
       onConflictAction: "merge",
@@ -233,41 +235,102 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     const view: View = {
       rowIdentifier: directory.directoryId,
       title: directory.name,
-      subtitle: directory.directoryId,
-      text: directory.path,
+      subtitle: directory.path,
+      text: null,
       tags: directory.tags,
       image: null,
       next: null,
+      previous: null,
+      details: null,
     };
+
+    view.next = await this.getNextItem(directory);
+    view.previous = await this.getPreviousItem(directory);
+
+    if (!directory.isFolder) {
+      view.image = await this.mediaClient.getThumbnails(
+        directory.directoryId,
+        directory.path
+      );
+
+      const media = await this.mediaClient.getInfo(
+        directory.directoryId,
+        directory.path
+      );
+
+      if (media?.info) {
+        const info = media.info;
+        const size = this.convertSizeInBytes(info.size);
+        const durationMinutes = `${String(info.minutes).padStart(2, "0")}`;
+        const durationSeconds = `${String(info.seconds).padStart(2, "0")}`;
+        const resolution = `${info.width}x${info.height}`;
+        view.text = `${size} ${durationMinutes}:${durationSeconds} ${resolution}`;
+      }
+    }
+
+    return view;
+  }
+
+  private convertSizeInBytes(sizeInBytes: number): string {
+    if (sizeInBytes < 1024) {
+      return `${sizeInBytes} B`;
+    }
+    if (sizeInBytes < 1024 * 1024) {
+      return `${(sizeInBytes / 1024).toFixed(2)} KB`;
+    }
+    if (sizeInBytes < 1024 * 1024 * 1024) {
+      return `${(sizeInBytes / 1024 / 1024).toFixed(2)} MB`;
+    }
+    return `${(sizeInBytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
+  }
+
+  private async getNextItem(directory: DirectoryEntity): Promise<string> {
+    const projectId = this.asyncLocalStorage.getStore()["projectId"];
 
     const nextItem = await this.directoryRepository.findOne(
       {
-        parentId: directory.parentId,
-        name: { $gt: directory.name },
+        projectId,
+        path: { $gt: directory.path },
       },
-      { orderBy: { name: "asc" } }
+      { orderBy: { path: "asc" } }
     );
 
     if (nextItem) {
-      view.next = nextItem?.directoryId;
+      return nextItem?.directoryId;
     }
 
-    if (!view.next) {
-      const firstItem = await this.directoryRepository.findOne(
-        {
-          parentId: directory.parentId,
-        },
-        { orderBy: { name: "asc" } }
-      );
-
-      view.next = firstItem?.directoryId;
-    }
-
-    view.image = await this.mediaClient.getThumbnails(
-      directory.directoryId,
-      directory.path
+    const firstItem = await this.directoryRepository.findOne(
+      {
+        projectId,
+      },
+      { orderBy: { path: "asc" } }
     );
 
-    return view;
+    return firstItem?.directoryId;
+  }
+
+  private async getPreviousItem(directory: DirectoryEntity): Promise<string> {
+    const projectId = this.asyncLocalStorage.getStore()["projectId"];
+
+    const previousItem = await this.directoryRepository.findOne(
+      {
+        projectId,
+        path: { $lt: directory.path },
+      },
+      { orderBy: { path: "desc" } }
+    );
+
+    if (previousItem) {
+      return previousItem?.directoryId;
+    }
+
+    const lastItem = await this.directoryRepository.findOne(
+      {
+        projectId,
+      },
+      { orderBy: { path: "desc" } }
+    );
+
+    return lastItem?.directoryId;
   }
 }

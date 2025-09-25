@@ -25,6 +25,7 @@ class RabbitMQConsumer():
 
             self._channel = await self._connection.channel()
             queue = await self._channel.declare_queue(self.config.queue, durable=False)
+            self._consuming = True
             await queue.consume(callback=on_process_media_message_received, no_ack=False)
 
         except aio_pika.exceptions.AMQPConnectionError as e:
@@ -37,9 +38,9 @@ class RabbitMQConsumer():
 
     async def close(self):
         """Close the connection"""
-        if self._connection and self._connection.is_open:
+        if self._connection and not self._connection.closed:
             if self._consuming:
-                self._channel.stop_consuming()
+                self._channel.close()
             self._connection.close()
         self._consuming = False
 

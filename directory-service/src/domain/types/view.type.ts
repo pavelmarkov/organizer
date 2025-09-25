@@ -6,4 +6,6 @@ export interface View {
   text: string;
   tags: string[];
   next: string;
+  previous: string;
+  details: string;
 }

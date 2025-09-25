@@ -147,6 +147,17 @@ export class DirectoryLayoutComponent implements OnInit {
     });
   }
 
+  previousItem(directory: DirectoryModel) {
+    if (!this.cardData.previous) {
+      return;
+    }
+
+    this.directoryService.view(this.cardData.previous).subscribe((viewData) => {
+      this.cardData = viewData;
+      this.dialogPanelVisible = true;
+    });
+  }
+
   closeDialog() {
     this.dialogPanelVisible = false;
   }

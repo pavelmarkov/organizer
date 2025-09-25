@@ -11,18 +11,21 @@
     <p>{{cardData.text}}</p>
     <ng-template #footer>
       <div class="flex gap-4 mt-1">
-        <p-button label="Cancel" (mouseover)="dialogClosed()" severity="secondary" (click)="dialogClosed()" />
-        <p-button label="Save" (click)="dialogClosed()" />
-        <p-button label="Next" (click)="next()" />
+        <!-- <p-button label="Cancel" (click)="dialogClosed()" severity="secondary" (click)="dialogClosed()" /> -->
+        <!-- <p-button label="Save" (click)="dialogClosed()" /> -->
+        <p-button label="Previous" (click)="previous($event)" [style]="{ 'margin-left': '0.5rem' }"/>
+        <p-button label="Next" (click)="next($event)" [style]="{ 'margin-left': '0.5rem' }"/>
       </div>
     </ng-template>
   </p-card>
   <div class="card flex justify-center">
     <p-listbox focusOnHover="true"
+      (onFilter)="onFilter($event)"
       optionLabel="name" optionValue="tagId"
       [options]="tags" [(ngModel)]="cardData.tags"
       [checkbox]="true" [filter]="true" 
       [multiple]="true" [metaKeySelection]="false"
       (onChange)="onTagSelectionChange($event)" scrollHeight="250px" [striped]="true" class="w-full md:w-56" />
   </div>
+  <button pButton severity="secondary" (click)="newTag($event)"><span pButtonLabel>New Tag</span></button>
 </p-dialog>
