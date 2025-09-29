@@ -20,6 +20,8 @@ import { TagsService } from '../../core/services';
 import { ScrollerLazyLoadEvent } from 'primeng/scroller';
 import { CardModel, TagModel } from '../../core/domain';
 
+import { Clipboard } from '@angular/cdk/clipboard';
+
 @Component({
   selector: 'app-card-layout',
   imports: [DialogModule, CardModule, ButtonModule, FormsModule, Listbox],
@@ -48,7 +50,8 @@ export class CardLayoutComponent implements OnInit {
 
   constructor(
     private cd: ChangeDetectorRef,
-    private tagsService: TagsService
+    private tagsService: TagsService,
+    private clipboard: Clipboard
   ) {}
 
   ngOnInit() {}
@@ -85,9 +88,36 @@ export class CardLayoutComponent implements OnInit {
 
   newTag($event: MouseEvent): void {
     console.log(this.filterValue);
+    if (!this.filterValue) {
+      return;
+    }
+    this.tagsService.create([{ name: this.filterValue }]).subscribe((data) => {
+      if (data?.length) {
+        this.loadTags();
+      }
+    });
   }
 
   onFilter($event: ListboxFilterEvent): void {
     this.filterValue = $event.filter;
+  }
+
+  copyMessage(value: string | undefined) {
+    if (!value) {
+      return;
+    }
+
+    const pending = this.clipboard.beginCopy(value);
+
+    let remainingAttempts = 3;
+    const attempt = () => {
+      const result = pending.copy();
+      if (!result && --remainingAttempts) {
+        setTimeout(attempt);
+      } else {
+        pending.destroy();
+      }
+    };
+    attempt();
   }
 }

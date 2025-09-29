@@ -12,4 +12,8 @@ export class TagsServiceImpl implements TagsService {
   getTags(): Observable<TagModel[]> {
     return this.tagsRepository.getTags();
   }
+
+  create(items: Partial<TagModel>[]): Observable<Partial<TagModel>[]> {
+    return this.tagsRepository.create(items);
+  }
 }

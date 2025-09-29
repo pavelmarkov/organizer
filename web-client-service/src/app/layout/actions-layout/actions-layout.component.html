@@ -26,7 +26,7 @@
   <ng-template #center>
     <p-iconfield iconPosition="left">
       <p-inputicon class="pi pi-search" />
-      <input type="text" pInputText placeholder="Search" />
+      <input type="text" pInputText placeholder="Search" (input)="search($event)" [(ngModel)]="searchValue"/>
     </p-iconfield>
   </ng-template>
   <ng-template #end>

@@ -12,4 +12,8 @@ export class TagsRepositoryImpl implements TagsRepository {
   getTags(): Observable<TagModel[]> {
     return this.http.get<TagModel[]>(`${this.baseUrl}/tags`);
   }
+
+  create(items: Partial<TagModel>[]): Observable<Partial<TagModel>[]> {
+    return this.http.post<Partial<TagModel>[]>(`${this.baseUrl}/tags`, items);
+  }
 }

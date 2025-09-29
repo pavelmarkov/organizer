@@ -14,6 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
 import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-actions-layout',
@@ -29,6 +30,8 @@ import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
     FileUpload,
 
     TooltipModule,
+
+    FormsModule,
   ],
   templateUrl: './actions-layout.component.html',
   styleUrl: './actions-layout.component.css',
@@ -36,6 +39,7 @@ import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
 })
 export class ActionsLayoutComponent implements OnInit {
   selectedNodes: SelectedNodesType = {};
+  searchValue: string | undefined;
 
   constructor(
     private dataService: DataService,
@@ -88,5 +92,9 @@ export class ActionsLayoutComponent implements OnInit {
 
       reader.readAsText(file);
     });
+  }
+
+  search($event: Event) {
+    console.log(this.searchValue);
   }
 }

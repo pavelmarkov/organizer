@@ -6,9 +6,9 @@ export class TagEntity extends WithProjectIdBaseEntity {
   @PrimaryKey({ type: "uuid" })
   tagId: string;
 
-  @Property()
+  @Property({ unique: true })
   name: string;
 
-  @Property()
+  @Property({ nullable: true })
   description: string;
 }
