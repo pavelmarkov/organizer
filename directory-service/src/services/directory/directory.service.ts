@@ -4,7 +4,7 @@ import { MediaService } from "../../infrastructure/media/media.service";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "path";
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { EntityRepository } from "@mikro-orm/sqlite";
+import { EntityRepository, FilterQuery } from "@mikro-orm/sqlite";
 import { AsyncLocalStorage } from "async_hooks";
 import { BaseAbstractService } from "../../domain/services";
 import { View } from "src/domain/types";
@@ -22,9 +22,11 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
     console.log("projectId: ", projectId);
 
-    let whereCondition: Partial<DirectoryEntity> = {
+    const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
+    console.log("searchValue: ", searchValue);
+
+    let whereCondition: FilterQuery<DirectoryEntity> = {
       parentId: params.parentId ?? null,
-      projectId: projectId ?? null,
     };
 
     if (params.directoryId) {
@@ -32,6 +34,15 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
         directoryId: params.directoryId,
       };
     }
+
+    if (searchValue) {
+      whereCondition = {
+        path: { $like: `%${searchValue}%` },
+        isFolder: false,
+      };
+    }
+
+    whereCondition.projectId = projectId ?? null;
 
     return await this.directoryRepository.findAll({
       where: whereCondition,
@@ -286,13 +297,26 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
   private async getNextItem(directory: DirectoryEntity): Promise<string> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
+    const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
+
+    const whereCondition: FilterQuery<DirectoryEntity> = [
+      { projectId },
+      { path: { $gt: directory.path } },
+    ];
+
+    const searchValueCondition: FilterQuery<DirectoryEntity> = [];
+    if (searchValue) {
+      searchValueCondition.push({ path: { $like: `%${searchValue}%` } });
+      searchValueCondition.push({ isFolder: false });
+    }
 
     const nextItem = await this.directoryRepository.findOne(
       {
-        projectId,
-        path: { $gt: directory.path },
+        $and: [...whereCondition, ...searchValueCondition],
       },
-      { orderBy: { path: "asc" } }
+      {
+        orderBy: { path: "asc" },
+      }
     );
 
     if (nextItem) {
@@ -301,7 +325,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
     const firstItem = await this.directoryRepository.findOne(
       {
-        projectId,
+        $and: [{ projectId }, ...searchValueCondition],
       },
       { orderBy: { path: "asc" } }
     );
@@ -311,12 +335,21 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
   private async getPreviousItem(directory: DirectoryEntity): Promise<string> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
+    const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
+
+    const whereCondition: FilterQuery<DirectoryEntity> = [
+      { projectId },
+      { path: { $lt: directory.path } },
+    ];
+
+    const searchValueCondition: FilterQuery<DirectoryEntity> = [];
+    if (searchValue) {
+      searchValueCondition.push({ path: { $like: `%${searchValue}%` } });
+      searchValueCondition.push({ isFolder: false });
+    }
 
     const previousItem = await this.directoryRepository.findOne(
-      {
-        projectId,
-        path: { $lt: directory.path },
-      },
+      { $and: [...whereCondition, ...searchValueCondition] },
       { orderBy: { path: "desc" } }
     );
 
@@ -326,7 +359,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
     const lastItem = await this.directoryRepository.findOne(
       {
-        projectId,
+        $and: [{ projectId }, ...searchValueCondition],
       },
       { orderBy: { path: "desc" } }
     );

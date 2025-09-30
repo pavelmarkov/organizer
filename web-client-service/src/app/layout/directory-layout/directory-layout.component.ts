@@ -77,6 +77,10 @@ export class DirectoryLayoutComponent implements OnInit {
     this.dataService.currentProject.subscribe((data) => {
       this.loadNodes(null);
     });
+
+    this.dataService.currentSearchValue.subscribe((data) => {
+      this.loadNodes(null);
+    });
   }
 
   private mapDirectoriesToNodes(directories: DirectoryModel[]): TreeNode[] {

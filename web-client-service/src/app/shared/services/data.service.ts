@@ -14,6 +14,9 @@ export class DataService {
   private project = new Subject<string>();
   currentProject = this.project.asObservable();
 
+  private searchValue = new Subject<string>();
+  currentSearchValue = this.searchValue.asObservable();
+
   constructor() {}
 
   changeData(data: SelectedNodesType) {
@@ -26,5 +29,9 @@ export class DataService {
 
   setProject(data: string) {
     this.project.next(data);
+  }
+
+  setSearchValue(data: string) {
+    this.searchValue.next(data);
   }
 }

@@ -32,7 +32,10 @@ import {
   ProjectsService,
   TagsService,
 } from './core/services';
-import { ProjectInterceptor } from './shared/interceptors';
+import {
+  ProjectInterceptor,
+  SearchValueInterceptor,
+} from './shared/interceptors';
 import {
   DirectoryServiceImpl,
   NotesServiceImpl,
@@ -60,6 +63,11 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
 
     { provide: HTTP_INTERCEPTORS, useClass: ProjectInterceptor, multi: true },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: SearchValueInterceptor,
+      multi: true,
+    },
 
     { provide: DirectoryRepository, useClass: DirectoryRepositoryImpl },
     { provide: DirectoryService, useClass: DirectoryServiceImpl },

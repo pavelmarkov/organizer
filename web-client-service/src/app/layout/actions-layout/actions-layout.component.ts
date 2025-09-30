@@ -96,5 +96,6 @@ export class ActionsLayoutComponent implements OnInit {
 
   search($event: Event) {
     console.log(this.searchValue);
+    this.dataService.setSearchValue(this.searchValue ?? '');
   }
 }

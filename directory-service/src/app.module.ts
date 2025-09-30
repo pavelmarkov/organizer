@@ -58,6 +58,7 @@ export class AppModule implements OnModuleInit {
       .apply((req, res, next) => {
         const store = {
           projectId: req.headers["projectid"],
+          searchValue: req.headers["searchvalue"],
         };
         this.asyncLocalStorage.run(store, () => next());
       })
