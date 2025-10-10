@@ -47,6 +47,8 @@ export class ActionsLayoutComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.searchValue = undefined;
+    this.dataService.setSearchValue(this.searchValue ?? '');
     this.dataService.currentSelectedNodes.subscribe((data) => {
       this.selectedNodes = data;
     });
