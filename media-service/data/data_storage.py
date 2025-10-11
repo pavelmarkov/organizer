@@ -65,18 +65,26 @@ class MediaRepository(DataStorage):
 
     def get_madia_by_directory_id(self, directory_id):
         with self.session_scope() as s:
-            try:
-                media = s.query(Media).filter(
-                    Media.directory_id == uuid.UUID(directory_id)
-                ).one()
-                return media
-            except:
-                None
+            medias = s.query(Media).filter(
+                Media.directory_id == uuid.UUID(directory_id)
+            ).all()
+
+            if (len(medias) == 1):
+                return medias[0]
+
+            if (len(medias) == 0):
+                return None
+
+            if (len(medias) > 1):
+                error_message = 'Duplicate value directory_id: ' + directory_id
+                print(error_message)
+                raise ValueError(error_message)
+
+            return None
 
     def insert_many(self, rows: list[Media]):
         with self.session_scope() as s:
             return s.bulk_save_objects([Media(
-                # media_id=row['directory_id'],
                 directory_id=uuid.UUID(row['directory_id']),
                 preview_path=row['preview_path'],
                 info=row['info']

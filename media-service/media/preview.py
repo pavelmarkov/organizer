@@ -9,6 +9,7 @@ class Preview():
     def __init__(self, directory_id: str, path: str):
 
         media_repository = MediaRepository()
+        print('directory_id: ', directory_id)
         media = media_repository.get_madia_by_directory_id(directory_id)
         print(media)
         if media:

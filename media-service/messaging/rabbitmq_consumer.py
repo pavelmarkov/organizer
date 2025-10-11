@@ -25,7 +25,7 @@ class RabbitMQConsumer():
 
             self._channel = await self._connection.channel()
 
-            # self._channel.set_qos(prefetch_count=1)
+            self._channel.set_qos(prefetch_count=1, prefetch_size=1)
 
             queue = await self._channel.declare_queue(self.config.queue, durable=False)
             self._consuming = True
