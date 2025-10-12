@@ -79,6 +79,9 @@ class VideoProcessor():
         video_stream = container.streams.video[0]
 
         self.duration = video_stream.duration
+        if (self.duration is None):
+            self.duration = container.duration // 1000
+
         self.codec_name = video_stream.codec_context.name
         self.width = video_stream.codec_context.width
         self.height = video_stream.codec_context.height
@@ -87,7 +90,7 @@ class VideoProcessor():
         minutes = self.duration_in_seconds // 60
         seconds = self.duration_in_seconds % 60
 
-        print(self.duration, video_stream.time_base,
+        print('Video info: ', self.duration, video_stream.time_base,
               self.duration_in_seconds, minutes, seconds)
 
         self.unique_name = f"{self.filename}_{minutes}m{seconds}s_{self.width}x{self.height}.jpeg"
@@ -177,7 +180,7 @@ class VideoProcessor():
 
         total_frame_cnt = video_stream.frames
         if total_frame_cnt <= 0:
-            duration = float(video_stream.duration *
+            duration = float(self.duration *
                              video_stream.time_base)  # seconds
             total_frame_cnt = round(duration * float(framerate))
 

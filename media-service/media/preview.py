@@ -11,7 +11,6 @@ class Preview():
         media_repository = MediaRepository()
         print('directory_id: ', directory_id)
         media = media_repository.get_madia_by_directory_id(directory_id)
-        print(media)
         if media:
             self.preview_path = media.preview_path
             self.unique_name = media.info['unique_name']

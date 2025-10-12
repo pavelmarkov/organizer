@@ -11,7 +11,7 @@ import uuid
 
 main_engine = sa.create_engine(
     "sqlite:///media.db",
-    echo=True,
+    echo=False,
 )
 
 DBSession = sessionmaker(
@@ -80,7 +80,9 @@ class MediaRepository(DataStorage):
                 print(error_message)
                 raise ValueError(error_message)
 
-            return None
+            error_message = 'Something wend wrong during getting directory_id: ' + directory_id
+            print(error_message)
+            raise ValueError(error_message)
 
     def insert_many(self, rows: list[Media]):
         with self.session_scope() as s:

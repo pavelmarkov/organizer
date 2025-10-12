@@ -17,12 +17,20 @@ def blocking_io():
     print(f"blocking_io complete at {time.strftime('%X')}")
 
 
+def process_video(processor: VideoProcessor):
+    processor.prepare()
+    processor.process_video_file()
+
+
 async def on_process_media_message_received(
     incoming_message: AbstractIncomingMessage
 ):
     """
     Callback function executed when a message is received.
     """
+
+    if incoming_message.redelivered:
+        print(f" [x] Message redelivered {incoming_message.message_id}")
 
     message = json.loads(incoming_message.body.decode())
 
@@ -50,9 +58,7 @@ async def on_process_media_message_received(
 
     start_time = time.process_time()
     videoProcessor = VideoProcessor(path)
-
-    await asyncio.to_thread(videoProcessor.prepare)
-    await asyncio.to_thread(videoProcessor.process_video_file)
+    await asyncio.to_thread(process_video, videoProcessor)
 
     # async with asyncio.TaskGroup() as tg:
     #     task1 = tg.create_task(videoProcessor.prepare())

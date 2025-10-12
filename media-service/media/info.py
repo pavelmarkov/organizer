@@ -9,7 +9,7 @@ class MediaInfo():
 
         media_repository = MediaRepository()
         media = media_repository.get_madia_by_directory_id(directory_id)
-        print(media)
+
         if media:
             self.info = media.info
             return
