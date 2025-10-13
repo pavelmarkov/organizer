@@ -1,3 +1,9 @@
+<app-actions-layout
+  (processEvent)="processNotes()"
+  (importEvent)="importNotes($event)"
+  (searchEvent)="searchNotes()">
+</app-actions-layout>
+
 <div class="card">
   <p-table [value]="notes" [tableStyle]="{ 'min-width': '50rem' }">
     <ng-template #header>

@@ -23,7 +23,10 @@ export class SearchValueInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     if (this.searchValue) {
       const requestWithSearchValue = req.clone({
-        headers: req.headers.append(SEARCH_VALUE_HEADER, this.searchValue),
+        headers: req.headers.append(
+          SEARCH_VALUE_HEADER,
+          encodeURI(this.searchValue)
+        ),
       });
       return handler.handle(requestWithSearchValue);
     }

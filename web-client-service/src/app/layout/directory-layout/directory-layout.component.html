@@ -1,6 +1,8 @@
-<app-actions-layout>
-
-</app-actions-layout>
+<app-actions-layout
+  (processEvent)="processDirectory()"
+  (importEvent)="importDirectoryFromFile($event)"
+  (searchEvent)="searchDirectory()"
+></app-actions-layout>
 
 <p-treetable
   [value]="files"
@@ -45,6 +47,11 @@
   </ng-template>
 </p-treetable>
 
-<app-card-layout (dialogPanelCloseEvent)="closeDialog()" (tagChangedEvent)="tagChanged($event)" (nextItemEvent)="nextItem($event)" (previousItemEvent)="previousItem($event)" [cardData]="cardData" [visible]="dialogPanelVisible">
-
+<app-card-layout 
+  (dialogPanelCloseEvent)="closeDialog()"
+  (tagChangedEvent)="tagChanged($event)"
+  (nextItemEvent)="nextItem($event)"
+  (previousItemEvent)="previousItem($event)"
+  [cardData]="cardData"
+  [visible]="dialogPanelVisible">
 </app-card-layout>

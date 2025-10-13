@@ -9,8 +9,8 @@
         accept=".json"
         maxFileSize="1000000"
         [customUpload]="true"
-        (uploadHandler)="importDirectory($event)"
-        (onUpload)="importDirectory($event)" [auto]="true"
+        (uploadHandler)="import($event)"
+        (onUpload)="import($event)" [auto]="true"
       >
       <ng-template #header let-chooseCallback="chooseCallback">
         <p-button
@@ -30,7 +30,7 @@
     </p-iconfield>
   </ng-template>
   <ng-template #end>
-    <p-button icon="pi pi-refresh" text severity="secondary" (click)="processNodes($event)"
+    <p-button icon="pi pi-refresh" text severity="secondary" (click)="process($event)"
       pTooltip="Process file" tooltipPosition="bottom" showDelay="1000" hideDelay="300" />
   </ng-template>
 </p-toolbar>

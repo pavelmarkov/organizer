@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { NoteEntity } from "../../entities";
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { EntityRepository } from "@mikro-orm/sqlite";
+import { EntityRepository, FilterQuery } from "@mikro-orm/sqlite";
 import { v4 as uuidv4 } from "uuid";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { BaseAbstractService } from "../../domain/services";
@@ -17,11 +17,21 @@ export class NoteService implements BaseAbstractService<NoteEntity> {
 
   async get(): Promise<NoteEntity[]> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
+    const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
+
+    const whereCondition: FilterQuery<NoteEntity> = {
+      projectId: projectId ?? null,
+    };
+
+    if (searchValue) {
+      whereCondition.$or = [
+        { name: { $like: `%${searchValue}%` } },
+        { description: { $like: `%${searchValue}%` } },
+      ];
+    }
 
     return await this.noteRepository.findAll({
-      where: {
-        projectId: projectId ?? null,
-      },
+      where: whereCondition,
     });
   }
 

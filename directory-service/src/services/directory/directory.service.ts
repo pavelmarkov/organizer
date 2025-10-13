@@ -20,10 +20,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
   async get(params: Partial<DirectoryEntity>): Promise<DirectoryEntity[]> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
-    console.log("projectId: ", projectId);
-
     const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
-    console.log("searchValue: ", searchValue);
 
     let whereCondition: FilterQuery<DirectoryEntity> = {
       parentId: params.parentId ?? null,

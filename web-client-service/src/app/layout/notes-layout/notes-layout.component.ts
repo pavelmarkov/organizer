@@ -5,10 +5,16 @@ import { NotesService } from '../../core/services';
 import { DataService } from '../../shared/services/data.service';
 import { CardLayoutComponent } from '../card-layout/card-layout.component';
 import { ButtonModule } from 'primeng/button';
+import { ActionsLayoutComponent } from '../actions-layout/actions-layout.component';
 
 @Component({
   selector: 'app-notes-layout',
-  imports: [TableModule, CardLayoutComponent, ButtonModule],
+  imports: [
+    TableModule,
+    CardLayoutComponent,
+    ButtonModule,
+    ActionsLayoutComponent,
+  ],
   templateUrl: './notes-layout.component.html',
   styleUrl: './notes-layout.component.css',
 })
@@ -81,5 +87,13 @@ export class NotesLayoutComponent {
         console.log(data);
         this.cardData.tags = selectedTags;
       });
+  }
+
+  importNotes(event: string) {}
+
+  processNotes() {}
+
+  searchNotes() {
+    this.getNotes();
   }
 }

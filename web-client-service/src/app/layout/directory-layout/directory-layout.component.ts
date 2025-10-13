@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { ActionsLayoutComponent } from '../actions-layout/actions-layout.component';
 
 import { CardLayoutComponent } from '../card-layout/card-layout.component';
+import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
 
 interface Column {
   field: keyof DirectoryModel | '';
@@ -69,16 +70,7 @@ export class DirectoryLayoutComponent implements OnInit {
 
     this.loading = true;
 
-    this.dataService.currentImportedDirectory.subscribe((data) => {
-      console.log(data.message);
-      this.loadNodes(null);
-    });
-
     this.dataService.currentProject.subscribe((data) => {
-      this.loadNodes(null);
-    });
-
-    this.dataService.currentSearchValue.subscribe((data) => {
       this.loadNodes(null);
     });
   }
@@ -129,9 +121,7 @@ export class DirectoryLayoutComponent implements OnInit {
       });
   }
 
-  nodeSelect(event: any) {
-    this.dataService.changeData(this.selectionKeys);
-  }
+  nodeSelect(event: any) {}
 
   showDialog(directory: DirectoryModel) {
     this.directoryService.view(directory.directoryId).subscribe((viewData) => {
@@ -182,5 +172,35 @@ export class DirectoryLayoutComponent implements OnInit {
         console.log(data);
         this.cardData.tags = selectedTags;
       });
+  }
+
+  processDirectory() {
+    console.log('Nodes to process: ', this.selectionKeys);
+    const directoryGuids = Object.keys(this.selectionKeys)
+      .filter((directoryGuid) => this.selectionKeys[directoryGuid].checked)
+      .map((directoryGuid) => directoryGuid);
+    this.directoryService;
+
+    this.directoryService
+      .processDirectory(directoryGuids)
+      .subscribe((processingNodes) => {
+        console.log(processingNodes);
+      });
+  }
+
+  importDirectoryFromFile(fileContent: string) {
+    console.log('import from directory layout');
+    const directoryStructure: ImportDirectoryStructureRequestDto =
+      JSON.parse(fileContent);
+    this.directoryService
+      .importDirectory(directoryStructure.data)
+      .subscribe((importResult) => {
+        console.log('import result ', importResult);
+        this.loadNodes(null);
+      });
+  }
+
+  searchDirectory() {
+    this.loadNodes(null);
   }
 }

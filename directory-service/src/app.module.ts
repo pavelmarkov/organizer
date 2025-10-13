@@ -58,7 +58,9 @@ export class AppModule implements OnModuleInit {
       .apply((req, res, next) => {
         const store = {
           projectId: req.headers["projectid"],
-          searchValue: req.headers["searchvalue"],
+          searchValue: req.headers["searchvalue"]
+            ? decodeURI(req.headers["searchvalue"])
+            : null,
         };
         this.asyncLocalStorage.run(store, () => next());
       })

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 
@@ -7,13 +7,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { DataService } from '../../shared/services/data.service';
-import { SelectedNodesType } from '../../core/types';
-import { DirectoryService } from '../../core/services';
 
 import { TooltipModule } from 'primeng/tooltip';
 
 import { FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
-import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -38,57 +35,35 @@ import { FormsModule } from '@angular/forms';
   providers: [],
 })
 export class ActionsLayoutComponent implements OnInit {
-  selectedNodes: SelectedNodesType = {};
   searchValue: string | undefined;
 
-  constructor(
-    private dataService: DataService,
-    private directoryService: DirectoryService
-  ) {}
+  @Output() processEvent = new EventEmitter();
+  @Output() importEvent = new EventEmitter<string>();
+  @Output() searchEvent = new EventEmitter();
+
+  constructor(private dataService: DataService) {}
 
   ngOnInit() {
     this.searchValue = undefined;
     this.dataService.setSearchValue(this.searchValue ?? '');
-    this.dataService.currentSelectedNodes.subscribe((data) => {
-      this.selectedNodes = data;
-    });
   }
 
   choose(event: MouseEvent, callback: VoidFunction) {
     callback();
   }
 
-  processNodes(event: MouseEvent) {
-    console.log('Nodes to process: ', this.selectedNodes);
-    const directoryGuids = Object.keys(this.selectedNodes)
-      .filter((directoryGuid) => this.selectedNodes[directoryGuid].checked)
-      .map((directoryGuid) => directoryGuid);
-    this.directoryService;
-
-    this.directoryService
-      .processDirectory(directoryGuids)
-      .subscribe((processingNodes) => {
-        console.log(processingNodes);
-      });
+  process(event: MouseEvent) {
+    this.processEvent.emit();
   }
 
-  importDirectory(event: FileUploadHandlerEvent) {
+  import(event: FileUploadHandlerEvent) {
     event.files.forEach((file) => {
       const reader: FileReader = new FileReader();
 
       reader.onload = () => {
         const fileContent = reader.result;
         if (typeof fileContent === 'string') {
-          const directoryStructure: ImportDirectoryStructureRequestDto =
-            JSON.parse(fileContent);
-          this.directoryService
-            .importDirectory(directoryStructure.data)
-            .subscribe((importResult) => {
-              console.log('import result ', importResult);
-              this.dataService.importDirectoryFinished({
-                message: 'directory imported',
-              });
-            });
+          this.importEvent.emit(fileContent);
         }
       };
 
@@ -97,7 +72,7 @@ export class ActionsLayoutComponent implements OnInit {
   }
 
   search($event: Event) {
-    console.log(this.searchValue);
     this.dataService.setSearchValue(this.searchValue ?? '');
+    this.searchEvent.emit();
   }
 }
