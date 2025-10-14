@@ -13,6 +13,7 @@ import { ActionsLayoutComponent } from '../actions-layout/actions-layout.compone
 
 import { CardLayoutComponent } from '../card-layout/card-layout.component';
 import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
+import { TreeTableLayoutComponent } from '../tree-table-layout/tree-table-layout.component';
 
 interface Column {
   field: keyof DirectoryModel | '';
@@ -27,11 +28,16 @@ interface Column {
     CommonModule,
     ButtonModule,
     CardLayoutComponent,
+    TreeTableLayoutComponent,
   ],
   templateUrl: './directory-layout.component.html',
   styleUrl: './directory-layout.component.css',
 })
 export class DirectoryLayoutComponent implements OnInit {
+  dataKeyName: string = 'directoryId';
+
+  selectionKeys: SelectedNodesType = {};
+
   files!: TreeNode[];
 
   cols!: Column[];
@@ -39,10 +45,6 @@ export class DirectoryLayoutComponent implements OnInit {
   totalRecords!: number;
 
   loading: boolean = false;
-
-  selectionKeys: SelectedNodesType = {};
-
-  selected: string[] = [];
 
   dialogPanelVisible: boolean = false;
 
@@ -104,10 +106,8 @@ export class DirectoryLayoutComponent implements OnInit {
     });
   }
 
-  onNodeExpand(event: any) {
+  onNodeExpand(node: TreeNode) {
     this.loading = true;
-
-    const node = event.node;
     const nodeId = node.data.directoryId;
 
     this.directoryService
@@ -115,13 +115,11 @@ export class DirectoryLayoutComponent implements OnInit {
       .subscribe((nodeChildren) => {
         console.log(nodeChildren);
         node.children = this.mapDirectoriesToNodes(nodeChildren);
-        this.files = [...this.files];
         this.loading = false;
+        this.files = [...this.files];
         this.cd.markForCheck();
       });
   }
-
-  nodeSelect(event: any) {}
 
   showDialog(directory: DirectoryModel) {
     this.directoryService.view(directory.directoryId).subscribe((viewData) => {
@@ -175,14 +173,12 @@ export class DirectoryLayoutComponent implements OnInit {
   }
 
   processDirectory() {
-    console.log('Nodes to process: ', this.selectionKeys);
-    const directoryGuids = Object.keys(this.selectionKeys)
-      .filter((directoryGuid) => this.selectionKeys[directoryGuid].checked)
-      .map((directoryGuid) => directoryGuid);
-    this.directoryService;
+    const selectedDirectoryGuids = Object.keys(this.selectionKeys).filter(
+      (guid) => this.selectionKeys[guid].checked
+    );
 
     this.directoryService
-      .processDirectory(directoryGuids)
+      .processDirectory(selectedDirectoryGuids)
       .subscribe((processingNodes) => {
         console.log(processingNodes);
       });
