@@ -1,11 +1,9 @@
 
 import asyncio
 import json
-from pika.adapters.blocking_connection import BlockingConnection, BlockingChannel
-from pika.spec import BasicProperties, Basic
 from media.process import VideoProcessor
 import time
-from data.data_storage import MediaRepository
+from data.repositories.media import MediaRepository
 from aio_pika.abc import AbstractIncomingMessage
 
 

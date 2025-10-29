@@ -1,5 +1,4 @@
 import json
-from data.data_storage import DataStorage
 import os
 
 import uvicorn
@@ -82,11 +81,7 @@ async def get_info(
 
 
 def main():
-
-    # uvicorn.run(app)
-
-    db = DataStorage()
-    db.run_migrations()
+    pass
 
 
 if __name__ == '__main__':

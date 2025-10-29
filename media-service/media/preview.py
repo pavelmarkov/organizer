@@ -1,5 +1,5 @@
 from media.process import VideoProcessor
-from data.data_storage import MediaRepository
+from data.repositories.media import MediaRepository
 
 
 class Preview():

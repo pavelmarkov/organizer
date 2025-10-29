@@ -1,18 +1,11 @@
-from typing import List
 from typing import Optional
-from typing import Any
-from sqlalchemy import Column, String, create_engine, func
+from sqlalchemy import Column, func
 from sqlalchemy.types import JSON, UUID
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-import sqlalchemy as sa
 
 from uuid import uuid4, UUID as pUUID
-
-
-class Base(DeclarativeBase):
-    pass
+from data.models.base import Base
 
 
 class Media(Base):
