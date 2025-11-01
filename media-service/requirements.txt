@@ -11,3 +11,4 @@ av==15.0.0
 Pillow==11.1.0
 
 sqlalchemy==2.0.43
+aiosqlite==0.21.0
