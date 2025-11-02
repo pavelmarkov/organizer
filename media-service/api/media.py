@@ -29,6 +29,7 @@ async def get_image(
     path_to_file: str
 ):
     preview = Preview(directory_id, path_to_file)
+    await preview.get_preview()
 
     if not preview.preview_path:
         return Response("File not found!")
@@ -52,6 +53,7 @@ async def get_info(
     path_to_file: str
 ):
     media = MediaInfo(directory_id, path_to_file)
+    await media.get_info()
 
     if not media.info:
         return JSONResponse({"error": True})

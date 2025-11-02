@@ -1,20 +1,26 @@
 from media.process import VideoProcessor
-from data.repositories.media import MediaRepository
+from data.repositories.media_async import MediaRepositoryAsync
 
 
 class MediaInfo():
     info = None
+    directory_id: str
+    path: str
 
     def __init__(self, directory_id: str, path: str):
 
-        media_repository = MediaRepository()
-        media = media_repository.get_madia_by_directory_id(directory_id)
+        self.directory_id = directory_id
+        self.path = path
+
+    async def get_info(self):
+        media_repository = MediaRepositoryAsync()
+        media = await media_repository.get_madia_by_directory_id(self.directory_id)
 
         if media:
             self.info = media.info
             return
 
-        file = VideoProcessor(path)
+        file = VideoProcessor(self.path)
         file.prepare()
 
         self.info = file.get_media_info()

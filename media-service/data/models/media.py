@@ -14,7 +14,7 @@ class Media(Base):
                       server_default=func.gen_random_uuid())
     # Mapped[UUID] = mapped_column(
     #     primary_key=True, default=uuid4, server_default=func.gen_random_uuid())
-    directory_id: Mapped[pUUID] = mapped_column()
+    directory_id: Mapped[pUUID] = mapped_column(unique=True, nullable=False)
     preview_path: Mapped[Optional[str]]
     info: Mapped[Optional[JSON]] = mapped_column(type_=JSON)
 

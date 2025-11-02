@@ -3,16 +3,8 @@ import asyncio
 import json
 from media.process import VideoProcessor
 import time
-from data.repositories.media import MediaRepository
+from data.repositories.media_async import MediaRepositoryAsync
 from aio_pika.abc import AbstractIncomingMessage
-
-
-def blocking_io():
-    print(f"start blocking_io at {time.strftime('%X')}")
-    # Note that time.sleep() can be replaced with any blocking
-    # IO-bound operation, such as file operations.
-    time.sleep(5)
-    print(f"blocking_io complete at {time.strftime('%X')}")
 
 
 def process_video(processor: VideoProcessor):
@@ -40,9 +32,9 @@ async def on_process_media_message_received(
     print(f" [x] Pattern: {message['pattern']}; Id: {message['id']};")
     print(f" [x] Path {path}")
 
-    media_repository = MediaRepository()
+    media_repository = MediaRepositoryAsync()
 
-    media = media_repository.get_madia_by_directory_id(directory_id)
+    media = await media_repository.get_madia_by_directory_id(directory_id)
     # blocking_io()
     # await asyncio.to_thread(blocking_io)
 
@@ -69,7 +61,8 @@ async def on_process_media_message_received(
         print('processing time too large')
 
     info = videoProcessor.get_media_info()
-    media_repository.insert_many([{
+
+    await media_repository.upsert_many([{
         'directory_id': directory_id,
         'preview_path': videoProcessor.full_preview_path,
         'info': info
