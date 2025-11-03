@@ -4,26 +4,20 @@
   (searchEvent)="searchNotes()">
 </app-actions-layout>
 
-<div class="card">
-  <p-table [value]="notes" [tableStyle]="{ 'min-width': '50rem' }">
-    <ng-template #header>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-note>
-      <tr>
-        <td>{{ note.name }}</td>
-        <td>{{ note.type }}</td>
-        <td>{{ note.description }}</td><td>
-          <p-button icon="pi pi-search" (click)="showDialog(note)" severity="secondary" />
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-</div>
+<tree-table-layout
+  [rows]="notes"
+  [columns]="cols"
+  [totalRecords]="totalRecords"
+  [loading]="loading"
+  [dataKeyName]="dataKeyName"
+  [selectionKeys]="selectionKeys"
+
+  (nodeExpandEvent)="onNodeExpand($event)"
+  (showDialogEvent)="showDialog($event)"
+  (loadNodesEvent)="loadNodes($event)"
+  (paginationEvent)="paginate($event)"
+></tree-table-layout>
+
 <app-card-layout (dialogPanelCloseEvent)="closeDialog()" (tagChangedEvent)="tagChanged($event)"
   (nextItemEvent)="nextItem($event)" [cardData]="cardData" [visible]="dialogPanelVisible">
 

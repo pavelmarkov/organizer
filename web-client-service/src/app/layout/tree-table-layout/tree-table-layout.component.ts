@@ -14,6 +14,7 @@ import { SelectedNodesType } from '../../core/types';
 
 import { ButtonModule } from 'primeng/button';
 import { TreeNodeExpandEvent } from 'primeng/tree';
+import { PaginatorState } from 'primeng/paginator';
 
 interface Column {
   field: string;
@@ -45,9 +46,15 @@ export class TreeTableLayoutComponent implements OnInit {
 
   @Output() loadNodesEvent = new EventEmitter<void>();
 
+  @Output() paginationEvent = new EventEmitter<PaginatorState>();
+
   constructor(private cd: ChangeDetectorRef) {}
 
   ngOnInit() {}
+
+  onPage($event: PaginatorState) {
+    this.paginationEvent.emit($event);
+  }
 
   loadNodes($event: any) {
     this.loadNodesEvent.emit();

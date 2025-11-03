@@ -5,7 +5,7 @@ import { EntityRepository, FilterQuery } from "@mikro-orm/sqlite";
 import { v4 as uuidv4 } from "uuid";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { BaseAbstractService } from "../../domain/services";
-import { View } from "src/domain/types";
+import { View } from "../../domain/types";
 
 @Injectable()
 export class NoteService implements BaseAbstractService<NoteEntity> {
@@ -15,7 +15,9 @@ export class NoteService implements BaseAbstractService<NoteEntity> {
     private readonly asyncLocalStorage: AsyncLocalStorage<any>
   ) {}
 
-  async get(): Promise<NoteEntity[]> {
+  private formWhereCondition(
+    filter?: Partial<NoteEntity>
+  ): FilterQuery<NoteEntity> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
     const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
 
@@ -30,9 +32,27 @@ export class NoteService implements BaseAbstractService<NoteEntity> {
       ];
     }
 
+    return whereCondition;
+  }
+
+  async get(
+    filter?: Partial<NoteEntity>,
+    pagination?: { limit: number; offset: number }
+  ): Promise<NoteEntity[]> {
+    const whereCondition = this.formWhereCondition(filter);
+
     return await this.noteRepository.findAll({
       where: whereCondition,
+      orderBy: { name: "asc" },
+      offset: pagination?.offset ?? 0,
+      limit: pagination?.limit ?? 10,
     });
+  }
+
+  async count(filter?: Partial<NoteEntity>): Promise<number> {
+    const whereCondition = this.formWhereCondition(filter);
+
+    return await this.noteRepository.count(whereCondition);
   }
 
   async create(notes: Partial<NoteEntity[]>): Promise<NoteEntity[]> {

@@ -9,8 +9,15 @@ export class NotesServiceImpl implements NotesService {
 
   constructor() {}
 
-  getNotes(): Observable<NoteModel[]> {
-    return this.notesRepository.getNotes();
+  getNotes(
+    params: Partial<NoteModel>,
+    pagination: { offset: number; limit: number }
+  ): Observable<NoteModel[]> {
+    return this.notesRepository.getNotes(params, pagination);
+  }
+
+  count(): Observable<number> {
+    return this.notesRepository.count();
   }
 
   update(directories: Partial<NoteModel>[]): Observable<Partial<NoteModel>[]> {

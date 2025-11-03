@@ -8,8 +8,16 @@ export class NoteController {
   constructor(private readonly noteService: NoteService) {}
 
   @Get()
-  getNotes(): Promise<NoteEntity[]> {
-    return this.noteService.get();
+  getNotes(
+    @Query("limit") limit: number,
+    @Query("offset") offset: number
+  ): Promise<NoteEntity[]> {
+    return this.noteService.get(null, { limit, offset });
+  }
+
+  @Get("count")
+  countNotes(): Promise<number> {
+    return this.noteService.count();
   }
 
   @Post()

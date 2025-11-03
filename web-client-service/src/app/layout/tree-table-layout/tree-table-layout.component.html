@@ -13,6 +13,7 @@
   [scrollable]="true"
   [tableStyle]="{ 'min-width': '50rem' }"
   [selectionKeys]="selectionKeys"
+  (onPage)="onPage($event)"
   >
   <ng-template #header let-columns>
     <tr>
