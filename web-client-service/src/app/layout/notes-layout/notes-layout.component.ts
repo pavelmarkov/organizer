@@ -135,6 +135,17 @@ export class NotesLayoutComponent {
     });
   }
 
+  previousItem(note: NoteModel) {
+    if (!this.cardData.previous) {
+      return;
+    }
+
+    this.notesService.view(this.cardData.previous).subscribe((viewData) => {
+      this.cardData = viewData;
+      this.dialogPanelVisible = true;
+    });
+  }
+
   closeDialog() {
     this.dialogPanelVisible = false;
   }

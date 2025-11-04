@@ -18,7 +18,11 @@
   (paginationEvent)="paginate($event)"
 ></tree-table-layout>
 
-<app-card-layout (dialogPanelCloseEvent)="closeDialog()" (tagChangedEvent)="tagChanged($event)"
-  (nextItemEvent)="nextItem($event)" [cardData]="cardData" [visible]="dialogPanelVisible">
-
+<app-card-layout
+  (dialogPanelCloseEvent)="closeDialog()"
+  (tagChangedEvent)="tagChanged($event)"
+  (nextItemEvent)="nextItem($event)"
+  (previousItemEvent)="previousItem($event)"
+  [cardData]="cardData"
+  [visible]="dialogPanelVisible">
 </app-card-layout>

@@ -16,23 +16,37 @@ export class NoteService implements BaseAbstractService<NoteEntity> {
   ) {}
 
   private formWhereCondition(
-    filter?: Partial<NoteEntity>
+    filter?: FilterQuery<NoteEntity>
   ): FilterQuery<NoteEntity> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
     const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
 
-    const whereCondition: FilterQuery<NoteEntity> = {
-      projectId: projectId ?? null,
-    };
+    const projectIdCondition: FilterQuery<NoteEntity> = [
+      {
+        projectId: projectId ?? null,
+      },
+    ];
 
+    const searchValueCondition: FilterQuery<NoteEntity> = [];
     if (searchValue) {
-      whereCondition.$or = [
-        { name: { $like: `%${searchValue}%` } },
-        { description: { $like: `%${searchValue}%` } },
-      ];
+      searchValueCondition.push({
+        $or: [
+          { name: { $like: `%${searchValue}%` } },
+          { description: { $like: `%${searchValue}%` } },
+        ],
+      });
     }
 
-    return whereCondition;
+    const whereCondition: FilterQuery<NoteEntity> = [
+      ...projectIdCondition,
+      ...searchValueCondition,
+    ];
+
+    if (filter) {
+      whereCondition.push(filter);
+    }
+
+    return { $and: whereCondition };
   }
 
   async get(
@@ -88,9 +102,9 @@ export class NoteService implements BaseAbstractService<NoteEntity> {
     };
 
     const nextItem = await this.noteRepository.findOne(
-      {
+      this.formWhereCondition({
         name: { $gt: note.name },
-      },
+      }),
       { orderBy: { name: "asc" } }
     );
 
@@ -98,15 +112,33 @@ export class NoteService implements BaseAbstractService<NoteEntity> {
       view.next = nextItem?.noteId;
     }
 
+    const previousItem = await this.noteRepository.findOne(
+      this.formWhereCondition({
+        name: { $lt: note.name },
+      }),
+      { orderBy: { name: "desc" } }
+    );
+
+    if (previousItem) {
+      view.previous = previousItem?.noteId;
+    }
+
     if (!view.next) {
       const firstItem = await this.noteRepository.findOne(
-        {
-          name: { $lt: note.name },
-        },
+        this.formWhereCondition(),
         { orderBy: { name: "asc" } }
       );
 
       view.next = firstItem?.noteId;
+    }
+
+    if (!view.previous) {
+      const lastItem = await this.noteRepository.findOne(
+        this.formWhereCondition(),
+        { orderBy: { name: "desc" } }
+      );
+
+      view.previous = lastItem?.noteId;
     }
 
     return view;
