@@ -12,7 +12,7 @@ from data.models import Media
 
 
 class MediaRepositoryAsync():
-    async def get_madia_by_directory_id(self, directory_id: str, session: AsyncSession = Depends(get_async_db_session)) -> Media | None:
+    async def get_madia_by_directory_id(self, directory_id: str, session: AsyncSession = Depends(get_async_db_session)) -> Media:
         async for session in get_async_db_session():
             results = await session.scalars(
                 select(Media)
