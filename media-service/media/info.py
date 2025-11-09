@@ -23,4 +23,4 @@ class MediaInfo():
         file = VideoProcessor(self.path)
         file.prepare()
 
-        self.info = file.get_media_info()
+        self.info = await file.get_media_info()

@@ -52,6 +52,7 @@ export class MediaService implements OnModuleInit {
         return content.toString("base64");
       }
     } catch (error) {
+      console.log(error);
       console.error("cannot get thumbnails data");
       return null;
     }

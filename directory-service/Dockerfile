@@ -9,6 +9,7 @@ COPY package*.json ./
 
 # Install the application dependencies
 RUN npm install
+# RUN npm install sqlite3 --build-from-source
 
 # Copy the rest of the application files
 COPY . .

@@ -99,7 +99,7 @@ class VideoProcessor():
             self.save_to_path, subfolder, self.unique_name
         )
 
-    def get_media_info(self):
+    async def get_media_info(self):
         return {
             'duration_in_seconds': self.duration_in_seconds,
             'minutes': self.duration_in_seconds // 60,

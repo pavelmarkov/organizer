@@ -6,7 +6,8 @@ import {
   ProjectsModule,
   TagsModule,
 } from "./services";
-import { MikroORM, SqliteDriver } from "@mikro-orm/sqlite";
+import { MikroORM } from "@mikro-orm/sqlite";
+import { SqliteDriver } from "@mikro-orm/sqlite";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { SeedManager } from "@mikro-orm/seeder";
 import { DirectorySeeder } from "./persistence";

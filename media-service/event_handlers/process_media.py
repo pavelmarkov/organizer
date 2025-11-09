@@ -60,7 +60,7 @@ async def on_process_media_message_received(
     if (elapsed_time > 60):
         print('processing time too large')
 
-    info = videoProcessor.get_media_info()
+    info = await videoProcessor.get_media_info()
 
     await media_repository.upsert_many([{
         'directory_id': directory_id,

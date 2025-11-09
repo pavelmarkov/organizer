@@ -13,14 +13,17 @@ from contextlib import asynccontextmanager
 
 from middleware.monitoring import metrics_middleware
 
+from data.repositories.base_async import init_db
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await asyncio.sleep(3)
     loop = asyncio.get_running_loop()
     consumer = RabbitMQConsumer()
-    task = loop.create_task(consumer.connect(loop))
-    await task
+    connect_to_queue_task = loop.create_task(consumer.connect(loop))
+    connect_to_queue_task
+    run_db_migrations_tast = loop.create_task(init_db())
+    await run_db_migrations_tast
     yield
     await consumer.close()
 

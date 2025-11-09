@@ -1,8 +1,9 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 
 
 class Settings(BaseSettings):
-    host: str = "localhost"
+    host: str = Field(alias="RABBIT_MQ_HOST", default="localhost")
     port: int = 5672
     user: str = "guest"
     password: str = "guest"

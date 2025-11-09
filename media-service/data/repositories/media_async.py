@@ -54,3 +54,4 @@ class MediaRepositoryAsync():
         )
         async for session in get_async_db_session():
             await session.execute(statement)
+            return
