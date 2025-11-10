@@ -1,0 +1,7 @@
+global:
+  scrate_interval: 5s
+
+scrape_configs:
+  - job_name: organizer
+    static_configs:
+      - targets: ["media-service:8000"]
