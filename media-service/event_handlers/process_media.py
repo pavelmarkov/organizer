@@ -1,10 +1,30 @@
 
 import asyncio
-import json
 from media.process import VideoProcessor
 import time
 from data.repositories.media_async import MediaRepositoryAsync
 from aio_pika.abc import AbstractIncomingMessage
+
+from pydantic import BaseModel, Field
+
+
+class DirectoryEntityModel(BaseModel):
+    directory_id: str = Field(alias='directoryId')
+    path: str = Field(alias='path')
+
+
+class DirectoryMessageModel(BaseModel):
+    directory: list[DirectoryEntityModel]
+
+
+class ProcessMediaMessageBody(BaseModel):
+    id: str
+    pattern: str
+    data: DirectoryMessageModel
+
+
+def parseDirectoryMessageBody(message: str) -> ProcessMediaMessageBody:
+    return ProcessMediaMessageBody.model_validate_json(message)
 
 
 def process_video(processor: VideoProcessor):
@@ -15,45 +35,33 @@ def process_video(processor: VideoProcessor):
 async def on_process_media_message_received(
     incoming_message: AbstractIncomingMessage
 ):
-    """
-    Callback function executed when a message is received.
-    """
-
     if incoming_message.redelivered:
         print(f" [x] Message redelivered {incoming_message.message_id}")
 
-    message = json.loads(incoming_message.body.decode())
-
-    directory_id = message['data']['directory'][0]['directoryId']
-    path = message['data']['directory'][0]['path']
+    parsedMessage = parseDirectoryMessageBody(incoming_message.body.decode())
 
     print('\n')
     print(f" [x] Received: ")
-    print(f" [x] Pattern: {message['pattern']}; Id: {message['id']};")
+    print(f" [x] Pattern: {parsedMessage.pattern}; Id: {parsedMessage.id};")
+
+    directory_id = parsedMessage.data.directory[0].directory_id
+    path = parsedMessage.data.directory[0].path
+
     print(f" [x] Path {path}")
 
     media_repository = MediaRepositoryAsync()
 
     media = await media_repository.get_madia_by_directory_id(directory_id)
-    # blocking_io()
-    # await asyncio.to_thread(blocking_io)
 
     if media:
         print('media exists, skipping')
         await incoming_message.ack()
-        # await asyncio.sleep(2)
         print('incoming_message.ack()')
-        # blocking_io()
         return
 
     start_time = time.process_time()
     videoProcessor = VideoProcessor(path)
     await asyncio.to_thread(process_video, videoProcessor)
-
-    # async with asyncio.TaskGroup() as tg:
-    #     task1 = tg.create_task(videoProcessor.prepare())
-    #     task2 = tg.create_task(videoProcessor.process_video_file())
-    #     await asyncio.sleep(1)
 
     elapsed_time = time.process_time() - start_time
     print('total time processing video: ', elapsed_time)
