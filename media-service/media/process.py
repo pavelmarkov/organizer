@@ -3,6 +3,7 @@ import av
 import os
 from config.files import get_settings
 from PIL import Image
+from dtos.media_entity import MediaInfo
 
 
 class VideoProcessor():
@@ -99,17 +100,17 @@ class VideoProcessor():
             self.save_to_path, subfolder, self.unique_name
         )
 
-    async def get_media_info(self):
-        return {
-            'duration_in_seconds': self.duration_in_seconds,
-            'minutes': self.duration_in_seconds // 60,
-            'seconds': self.duration_in_seconds % 60,
-            'width': self.width,
-            'height': self.height,
-            'codec_name': self.codec_name,
-            'unique_name': self.unique_name,
-            'size': self.size,
-        }
+    def get_media_info(self) -> MediaInfo:
+        return MediaInfo(
+            duration_in_seconds=self.duration_in_seconds,
+            minutes=self.duration_in_seconds // 60,
+            seconds=self.duration_in_seconds % 60,
+            width=self.width,
+            height=self.height,
+            codec_name=self.codec_name,
+            unique_name=self.unique_name,
+            size=self.size,
+        )
 
     def process_video_file(self):
         if not self.path:

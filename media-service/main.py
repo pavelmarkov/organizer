@@ -2,9 +2,6 @@ from fastapi import FastAPI, Response
 
 import asyncio
 
-from fastapi.responses import PlainTextResponse
-from prometheus_client import REGISTRY, generate_latest
-
 from messaging.rabbitmq_consumer import RabbitMQConsumer
 
 from api import main_router
@@ -30,12 +27,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.middleware('http')(metrics_middleware)
-
-
-@app.get('/metrics', response_class=PlainTextResponse)
-async def get_metrics():
-    metrics_data = generate_latest(REGISTRY)
-    return Response(content=metrics_data, media_type='text/plain')
 
 app.include_router(main_router)
 

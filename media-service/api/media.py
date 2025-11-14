@@ -1,10 +1,7 @@
-
-import json
 import os
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 
-from fastapi import Response
 from fastapi.responses import FileResponse, JSONResponse
 
 from media.preview import Preview

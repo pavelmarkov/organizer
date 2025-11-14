@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
 from data.models import Media
+from dtos.media_entity import UpsertMediaEntityDto
 
 
 class MediaRepositoryAsync():
@@ -37,21 +38,19 @@ class MediaRepositoryAsync():
             print(error_message)
             raise ValueError(error_message)
 
-    async def upsert_many(self, rows: list[Media]):
-        statement = sqlite_upsert(Media).values([
-            ({
-                'directory_id': uuid.UUID(row['directory_id']),
-                'preview_path': row['preview_path'],
-                'info': row['info']
-            }) for row in rows
-        ])
-        statement = statement.on_conflict_do_update(
+    async def upsert_many(self, rows: list[UpsertMediaEntityDto]):
+        new_rows = [row.model_dump() for row in rows]
+
+        statement = sqlite_upsert(Media).values(new_rows)
+
+        statement.on_conflict_do_update(
             index_elements=[Media.directory_id],
             set_=dict(
                 preview_path=statement.excluded.preview_path,
                 info=statement.excluded.info
             )
         )
+
         async for session in get_async_db_session():
             await session.execute(statement)
             return

@@ -1,10 +1,8 @@
-from prometheus_client import Summary
+
 from fastapi import Request
 import time
 
-REQUEST_DURATION = Summary(
-    'request_duration_in_seconds', 'Time spent procession request'
-)
+from metrics.common import REQUEST_DURATION
 
 
 async def metrics_middleware(request: Request, call_next):
