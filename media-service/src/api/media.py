@@ -4,12 +4,12 @@ from fastapi import APIRouter, Response
 
 from fastapi.responses import FileResponse, JSONResponse
 
-from media.preview import Preview
-from media.info import MediaInfo
+from src.media.preview import Preview
+from src.media.info import MediaInfo
 
-from messaging.rabbitmq_producer import RabbitMQProducer
+from src.messaging.rabbitmq_producer import RabbitMQProducer
 
-router = APIRouter()
+router = APIRouter(prefix="/media", tags=["Media"])
 
 
 @router.get(
@@ -56,10 +56,3 @@ async def get_info(
         return JSONResponse({"error": True})
 
     return JSONResponse({"info": media.info})
-
-
-@router.get("/")
-async def read_root():
-    producer = RabbitMQProducer()
-    producer.send_message()
-    return {"message": "Hello, World!"}

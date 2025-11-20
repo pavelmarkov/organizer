@@ -2,7 +2,7 @@
 from fastapi import Request
 import time
 
-from metrics.common import REQUEST_DURATION
+from src.metrics.common import REQUEST_DURATION
 
 
 async def metrics_middleware(request: Request, call_next):

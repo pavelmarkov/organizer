@@ -16,7 +16,7 @@ export class MediaService implements OnModuleInit {
 
   async onModuleInit() {
     const config = await this.configService.getConfig();
-    this.httpUrl = `http://${config.mediaServiceHttp.host}:${config.mediaServiceHttp.port}`;
+    this.httpUrl = `http://${config.mediaServiceHttp.host}:${config.mediaServiceHttp.port}/api/v1/media`;
   }
 
   async processDirectory(

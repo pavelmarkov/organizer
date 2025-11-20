@@ -1,16 +1,16 @@
 
 import asyncio
-from media.process import VideoProcessor
+from src.media.process import VideoProcessor
 import time
-from data.repositories.media_async import MediaRepositoryAsync
+from src.data.repositories.media_async import MediaRepositoryAsync
 from aio_pika.abc import AbstractIncomingMessage
 
-from logger.log import logger
+from src.logger.log import logger
 
-from dtos.media_processing import ProcessMediaMessageBodyDto
-from dtos.media_entity import UpsertMediaEntityDto
+from src.dtos.media_processing import ProcessMediaMessageBodyDto
+from src.dtos.media_entity import UpsertMediaEntityDto
 
-from metrics import MEDIA_PROCESSING_DURATION_SECONDS
+from src.metrics import MEDIA_PROCESSING_DURATION_SECONDS
 
 
 def parseDirectoryMessageBody(message: str) -> ProcessMediaMessageBodyDto:

@@ -1,9 +1,9 @@
 
 import av
 import os
-from config.files import get_settings
+from src.config.files import get_settings
 from PIL import Image
-from dtos.media_entity import MediaInfo
+from src.dtos.media_entity import MediaInfo
 
 
 class VideoProcessor():

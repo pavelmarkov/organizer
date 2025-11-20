@@ -2,15 +2,15 @@ from fastapi import FastAPI, Response
 
 import asyncio
 
-from messaging.rabbitmq_consumer import RabbitMQConsumer
+from src.messaging.rabbitmq_consumer import RabbitMQConsumer
 
-from api import main_router
+from src.api import main_router
 
 from contextlib import asynccontextmanager
 
-from middleware.monitoring import metrics_middleware
+from src.middleware.monitoring import metrics_middleware
 
-from data.repositories.base_async import init_db
+from src.data.repositories.base_async import init_db
 
 
 @asynccontextmanager
@@ -28,7 +28,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.middleware('http')(metrics_middleware)
 
-app.include_router(main_router)
+app.include_router(main_router, prefix='/api')
 
 
 def main():

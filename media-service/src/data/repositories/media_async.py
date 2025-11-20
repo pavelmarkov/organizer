@@ -4,12 +4,12 @@ from fastapi.params import Depends
 from sqlalchemy import select
 from sqlalchemy.dialects.sqlite import insert as sqlite_upsert
 
-from data.repositories.base_async import get_async_db_session
+from src.data.repositories.base_async import get_async_db_session
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
-from data.models import Media
-from dtos.media_entity import UpsertMediaEntityDto
+from src.data.models import Media
+from src.dtos.media_entity import UpsertMediaEntityDto
 
 
 class MediaRepositoryAsync():

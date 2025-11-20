@@ -1,4 +1,4 @@
-from data.models import Base
+from src.data.models import Base
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
     AsyncSession,

@@ -1,5 +1,5 @@
-from media.process import VideoProcessor
-from data.repositories.media_async import MediaRepositoryAsync
+from src.media.process import VideoProcessor
+from src.data.repositories.media_async import MediaRepositoryAsync
 
 
 class Preview():
