@@ -33,6 +33,16 @@ export class NotesRepositoryImpl implements NotesRepository {
     return this.http.put<Partial<NoteModel>[]>(`${this.baseUrl}/notes`, notes);
   }
 
+  remove(notes: Partial<NoteModel>[]): Observable<Partial<NoteModel>[]> {
+    return this.http.delete<Partial<NoteModel>[]>(`${this.baseUrl}/notes`, {
+      body: notes,
+    });
+  }
+
+  create(notes: Partial<NoteModel>[]): Observable<Partial<NoteModel>[]> {
+    return this.http.post<Partial<NoteModel>[]>(`${this.baseUrl}/notes`, notes);
+  }
+
   view(noteId: string): Observable<CardModel> {
     let queryParams = new HttpParams();
 

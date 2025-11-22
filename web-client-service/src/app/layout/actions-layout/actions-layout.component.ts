@@ -40,6 +40,7 @@ export class ActionsLayoutComponent implements OnInit {
   @Output() processEvent = new EventEmitter();
   @Output() importEvent = new EventEmitter<string>();
   @Output() searchEvent = new EventEmitter();
+  @Output() createEvent = new EventEmitter();
 
   constructor(private dataService: DataService) {}
 
@@ -54,6 +55,10 @@ export class ActionsLayoutComponent implements OnInit {
 
   process(event: MouseEvent) {
     this.processEvent.emit();
+  }
+
+  create(event: MouseEvent) {
+    this.createEvent.emit();
   }
 
   import(event: FileUploadHandlerEvent) {

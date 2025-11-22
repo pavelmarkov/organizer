@@ -20,8 +20,16 @@ export class NotesServiceImpl implements NotesService {
     return this.notesRepository.count();
   }
 
-  update(directories: Partial<NoteModel>[]): Observable<Partial<NoteModel>[]> {
-    return this.notesRepository.update(directories);
+  create(notes: Partial<NoteModel>[]): Observable<Partial<NoteModel>[]> {
+    return this.notesRepository.create(notes);
+  }
+
+  update(notes: Partial<NoteModel>[]): Observable<Partial<NoteModel>[]> {
+    return this.notesRepository.update(notes);
+  }
+
+  remove(notes: Partial<NoteModel>[]): Observable<Partial<NoteModel>[]> {
+    return this.notesRepository.remove(notes);
   }
 
   view(directoryId: string): Observable<CardModel> {

@@ -1,7 +1,8 @@
 <app-actions-layout
   (processEvent)="processNotes()"
   (importEvent)="importNotes($event)"
-  (searchEvent)="searchNotes()">
+  (searchEvent)="searchNotes()"
+  (createEvent)="createNoteDialog()">
 </app-actions-layout>
 
 <tree-table-layout
@@ -16,6 +17,8 @@
   (showDialogEvent)="showDialog($event)"
   (loadNodesEvent)="loadNodes($event)"
   (paginationEvent)="paginate($event)"
+  (editEvent)="editNote($event)"
+  (removeEvent)="removeNote($event)"
 ></tree-table-layout>
 
 <app-card-layout
@@ -26,3 +29,20 @@
   [cardData]="cardData"
   [visible]="dialogPanelVisible">
 </app-card-layout>
+
+<p-dialog [(visible)]="createDialogVisible" [style]="{ width: '450px' }" header="Product Details" [modal]="true">
+  <ng-template #content>
+    <!-- <div class="flex flex-col gap-6"> -->
+      <input type="text" placeholder="Name" pInputText id="name" [(ngModel)]="note.name" required autofocus fluid />
+      <textarea placeholder="Description" id="description" pTextarea [(ngModel)]="note.description" required rows="3" cols="20"
+        fluid></textarea>
+      <input type="text" placeholder="Source" pInputText id="source" [(ngModel)]="note.source" fluid/>
+      <input type="text" placeholder="Type" pInputText id="type" [(ngModel)]="note.type" fluid/>
+    <!-- </div> -->
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button label="Cancel" icon="pi pi-times" text (click)="hideCreateDialog()" />
+    <p-button label="Save" icon="pi pi-check" (click)="saveNote()" />
+  </ng-template>
+</p-dialog>

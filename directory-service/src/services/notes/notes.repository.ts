@@ -81,6 +81,57 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
     });
   }
 
+  async update(
+    notes: (Partial<NoteEntity> & Pick<NoteEntity, "noteId">)[]
+  ): Promise<NoteEntity[]> {
+    if (!notes.length) {
+      return [];
+    }
+
+    const noteIds = notes.map((note) => note.noteId);
+
+    const currentNotes = await this.noteRepository.findAll({
+      where: {
+        noteId: { $in: noteIds },
+      },
+    });
+
+    currentNotes.forEach((note) => {
+      const updateData = notes.find(
+        (updateDataNote) => updateDataNote.noteId === note.noteId
+      );
+      Object.assign(note, updateData);
+    });
+
+    return await this.noteRepository.upsertMany(currentNotes, {
+      onConflictFields: ["noteId"],
+      onConflictAction: "merge",
+      onConflictMergeFields: ["description", "type", "source", "tags"],
+    });
+  }
+
+  async delete(
+    notes: (Partial<NoteEntity> & Pick<NoteEntity, "noteId">)[]
+  ): Promise<NoteEntity[]> {
+    if (!notes.length) {
+      return [];
+    }
+
+    const noteIds = notes.map((note) => note.noteId);
+
+    const currentNotes = await this.noteRepository.findAll({
+      where: {
+        noteId: { $in: noteIds },
+      },
+    });
+
+    await this.noteRepository.nativeDelete({
+      noteId: { $in: noteIds },
+    });
+
+    return currentNotes;
+  }
+
   async upsertMany(
     notes: (Partial<NoteEntity> & Pick<NoteEntity, "name">)[]
   ): Promise<NoteEntity[]> {
@@ -89,6 +140,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
     notes.forEach((note) => {
       note.noteId = uuidv4();
       note.projectId = projectId;
+      note.tags = note.tags ?? [];
     });
 
     return await this.noteRepository.upsertMany(notes, {

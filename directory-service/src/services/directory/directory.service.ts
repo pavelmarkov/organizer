@@ -43,6 +43,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
     return await this.directoryRepository.findAll({
       where: whereCondition,
+      orderBy: { path: "asc" },
     });
   }
 

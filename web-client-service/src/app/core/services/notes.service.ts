@@ -9,7 +9,15 @@ export abstract class NotesService {
 
   abstract count(): Observable<number>;
 
+  abstract create(
+    notes: Partial<NoteModel>[]
+  ): Observable<Partial<NoteModel>[]>;
+
   abstract update(
+    notes: Partial<NoteModel>[]
+  ): Observable<Partial<NoteModel>[]>;
+
+  abstract remove(
     notes: Partial<NoteModel>[]
   ): Observable<Partial<NoteModel>[]>;
 

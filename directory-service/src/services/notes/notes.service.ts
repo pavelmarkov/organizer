@@ -27,6 +27,14 @@ export class NoteService implements BaseAbstractService<NoteEntity> {
     return await this.noteRepository.upsertMany(notes);
   }
 
+  async update(notes: Partial<NoteEntity[]>): Promise<NoteEntity[]> {
+    return await this.noteRepository.update(notes);
+  }
+
+  async delete(notes: Partial<NoteEntity[]>): Promise<NoteEntity[]> {
+    return await this.noteRepository.delete(notes);
+  }
+
   async view(noteId: string): Promise<View> {
     const note = await this.noteRepository.findOne(noteId);
 

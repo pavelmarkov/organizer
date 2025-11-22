@@ -48,6 +48,10 @@ export class TreeTableLayoutComponent implements OnInit {
 
   @Output() paginationEvent = new EventEmitter<PaginatorState>();
 
+  @Output() editEvent = new EventEmitter<TreeNode['data']>();
+
+  @Output() removeEvent = new EventEmitter<TreeNode['data']>();
+
   constructor(private cd: ChangeDetectorRef) {}
 
   ngOnInit() {}
@@ -67,5 +71,13 @@ export class TreeTableLayoutComponent implements OnInit {
 
   showDialog(event: any) {
     this.showDialogEvent.emit(event);
+  }
+
+  edit(event: any) {
+    this.editEvent.emit(event);
+  }
+
+  remove(event: any) {
+    this.removeEvent.emit(event);
   }
 }

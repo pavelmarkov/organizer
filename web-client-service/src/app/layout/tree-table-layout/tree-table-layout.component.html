@@ -37,7 +37,8 @@
         {{ rowData[col.field] }}
         <ng-container *ngIf="last">
           <p-button icon="pi pi-window-maximize" (click)="showDialog(rowData)" severity="secondary" [style]="{ 'margin-right': '.5em' }" />
-          <!-- <p-button icon="pi pi-pencil" severity="secondary" /> -->
+          <p-button icon="pi pi-pencil" (click)="edit(rowData)" severity="secondary" [style]="{ 'margin-right': '.5em' }" />
+          <p-button icon="pi pi-trash" (click)="remove(rowData)" severity="secondary" />
         </ng-container>
       </td>
     </tr>
