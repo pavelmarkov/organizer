@@ -14,6 +14,7 @@ import { ActionsLayoutComponent } from '../actions-layout/actions-layout.compone
 import { CardLayoutComponent } from '../card-layout/card-layout.component';
 import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
 import { TreeTableLayoutComponent } from '../tree-table-layout/tree-table-layout.component';
+import { PaginatorState } from 'primeng/paginator';
 
 interface Column {
   field: keyof DirectoryModel | '';
@@ -52,6 +53,9 @@ export class DirectoryLayoutComponent implements OnInit {
     rowIdentifier: null,
     tags: [],
   };
+
+  limit: number = 10;
+  offset: number = 0;
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -96,14 +100,28 @@ export class DirectoryLayoutComponent implements OnInit {
   loadNodes(event: any) {
     this.loading = true;
 
-    this.directoryService.getDirectory({}).subscribe((directories) => {
-      const nodes = this.mapDirectoriesToNodes(directories);
-      console.log(nodes);
-      this.files = [...nodes];
-      this.loading = false;
-      this.totalRecords = nodes.length;
-      this.cd.markForCheck();
+    this.directoryService
+      .getDirectory({}, { offset: this.offset, limit: this.limit })
+      .subscribe((directories) => {
+        const nodes = this.mapDirectoriesToNodes(directories);
+        console.log(nodes);
+        this.files = [...nodes];
+        this.loading = false;
+        this.cd.markForCheck();
+      });
+    this.getTotalCount();
+  }
+
+  getTotalCount() {
+    this.directoryService.count().subscribe((data) => {
+      this.totalRecords = data;
     });
+  }
+
+  paginate($event: PaginatorState) {
+    this.limit = $event.rows ?? 10;
+    this.offset = $event.first ?? 0;
+    this.loadNodes($event);
   }
 
   onNodeExpand(node: TreeNode) {
@@ -111,7 +129,7 @@ export class DirectoryLayoutComponent implements OnInit {
     const nodeId = node.data.directoryId;
 
     this.directoryService
-      .getDirectory({ parentId: nodeId })
+      .getDirectory({ parentId: nodeId }, {})
       .subscribe((nodeChildren) => {
         console.log(nodeChildren);
         node.children = this.mapDirectoriesToNodes(nodeChildren);

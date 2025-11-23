@@ -9,8 +9,15 @@ export class DirectoryServiceImpl implements DirectoryService {
 
   constructor() {}
 
-  getDirectory(params: Partial<DirectoryModel>): Observable<DirectoryModel[]> {
-    return this.directoryRepository.getDirectory(params);
+  getDirectory(
+    params: Partial<DirectoryModel>,
+    pagination: { offset: number; limit: number }
+  ): Observable<DirectoryModel[]> {
+    return this.directoryRepository.getDirectory(params, pagination);
+  }
+
+  count(): Observable<number> {
+    return this.directoryRepository.count();
   }
 
   processDirectory(directoryGuids: string[]): Observable<{ message: string }> {

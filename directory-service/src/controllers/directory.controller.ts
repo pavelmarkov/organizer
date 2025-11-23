@@ -10,9 +10,19 @@ export class DirectoryController {
   @Get()
   getDirectory(
     @Query("directoryId") directoryId: string,
-    @Query("parentId") parentId: string
+    @Query("parentId") parentId: string,
+    @Query("limit") limit: number,
+    @Query("offset") offset: number
   ): Promise<Partial<DirectoryEntity[]>> {
-    return this.directoryService.get({ parentId, directoryId });
+    return this.directoryService.get(
+      { parentId, directoryId },
+      { limit, offset }
+    );
+  }
+
+  @Get("count")
+  countNotes(): Promise<number> {
+    return this.directoryService.count();
   }
 
   @Get("view")

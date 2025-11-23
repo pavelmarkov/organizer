@@ -4,27 +4,36 @@ import { MediaService } from "../../infrastructure/media/media.service";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "path";
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { EntityRepository, FilterQuery } from "@mikro-orm/sqlite";
-import { AsyncLocalStorage } from "async_hooks";
 import { BaseAbstractService } from "../../domain/services";
 import { View } from "src/domain/types";
+import { DirectoryRepository } from "./directory.repository";
+import { convertSizeInBytes } from "./utils/convert-size-in-bytes";
+import { AsyncLocalStorage } from "async_hooks";
 
 @Injectable()
 export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
   constructor(
     @Inject(MediaService) private readonly mediaClient: MediaService,
-    @InjectRepository(DirectoryEntity)
-    private readonly directoryRepository: EntityRepository<DirectoryEntity>,
+    private readonly directoryRepository: DirectoryRepository,
     private readonly asyncLocalStorage: AsyncLocalStorage<any>
   ) {}
 
-  async get(params: Partial<DirectoryEntity>): Promise<DirectoryEntity[]> {
-    const projectId = this.asyncLocalStorage.getStore()["projectId"];
+  async get(
+    params: Partial<DirectoryEntity>,
+    pagination?: { offset: number; limit: number }
+  ): Promise<DirectoryEntity[]> {
     const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
 
-    let whereCondition: FilterQuery<DirectoryEntity> = {
-      parentId: params.parentId ?? null,
-    };
+    let whereCondition: Partial<DirectoryEntity> = {};
+    let paginationValues = null;
+
+    if (!searchValue) {
+      whereCondition.parentId = params.parentId ?? null;
+    }
+
+    if (searchValue || "parentId" in whereCondition) {
+      paginationValues = pagination;
+    }
 
     if (params.directoryId) {
       whereCondition = {
@@ -32,45 +41,22 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       };
     }
 
-    if (searchValue) {
-      whereCondition = {
-        path: { $like: `%${searchValue}%` },
-        isFolder: false,
-      };
-    }
-
-    whereCondition.projectId = projectId ?? null;
-
     return await this.directoryRepository.findAll({
-      where: whereCondition,
-      orderBy: { path: "asc" },
+      filter: whereCondition,
+      pagination: paginationValues,
+      order: { path: "asc" },
     });
   }
 
+  async count(filter?: Partial<DirectoryEntity>): Promise<number> {
+    return await this.directoryRepository.count(filter);
+  }
+
   async update(
-    directories: Partial<DirectoryEntity>[]
+    directories: (Partial<DirectoryEntity> &
+      Pick<DirectoryEntity, "directoryId">)[]
   ): Promise<DirectoryEntity[]> {
-    const updateData = await this.directoryRepository.findAll({
-      where: {
-        directoryId: { $in: directories.map((row) => row.directoryId) },
-      },
-    });
-
-    updateData.forEach((row) => {
-      const newValues = directories.find(
-        (directory) => directory.directoryId === row.directoryId
-      );
-      Object.keys(newValues).forEach(
-        (property) => (row[property] = newValues[property])
-      );
-    });
-
-    console.log(updateData);
-
-    return await this.directoryRepository.upsertMany(updateData, {
-      onConflictFields: ["directoryId"],
-      onConflictAction: "merge",
-    });
+    return this.directoryRepository.update(directories);
   }
 
   private scanFolder(
@@ -156,19 +142,13 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
   async create(
     directories: Partial<DirectoryEntity>[]
   ): Promise<Partial<DirectoryEntity>[]> {
-    console.log("newDirectories: ", directories);
-
-    const projectId = this.asyncLocalStorage.getStore()["projectId"];
-    console.log("projectId: ", projectId);
-
     const nodes: {
       [path: string]: DirectoryEntity;
     } = {};
 
     const existingFolders = await this.directoryRepository.findAll({
-      where: {
+      filter: {
         isFolder: true,
-        projectId,
       },
     });
 
@@ -217,7 +197,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
           fileType: parsedPath.ext,
           size: directory.size,
           path: pathPart,
-          projectId: projectId,
+          projectId: null,
           tags: null,
         };
       }
@@ -230,16 +210,11 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
     console.log(nodes);
 
-    return await this.directoryRepository.upsertMany(newDirectories, {
-      onConflictFields: ["path"],
-      onConflictAction: "ignore",
-    });
+    return await this.directoryRepository.upsertMany(newDirectories);
   }
 
   async view(directoryId: string): Promise<View> {
-    const directory = await this.directoryRepository.findOne({
-      directoryId,
-    });
+    const directory = await this.directoryRepository.findOne(directoryId);
 
     const view: View = {
       rowIdentifier: directory.directoryId,
@@ -253,8 +228,8 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       details: null,
     };
 
-    view.next = await this.getNextItem(directory);
-    view.previous = await this.getPreviousItem(directory);
+    view.next = await this.directoryRepository.getNextItemId(directory);
+    view.previous = await this.directoryRepository.getPreviousItemId(directory);
 
     if (!directory.isFolder) {
       view.image = await this.mediaClient.getThumbnails(
@@ -269,7 +244,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
       if (media?.info) {
         const info = media.info;
-        const size = this.convertSizeInBytes(info.size);
+        const size = convertSizeInBytes(info.size);
         const durationMinutes = `${String(info.minutes).padStart(2, "0")}`;
         const durationSeconds = `${String(info.seconds).padStart(2, "0")}`;
         const resolution = `${info.width}x${info.height}`;
@@ -278,90 +253,5 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     }
 
     return view;
-  }
-
-  private convertSizeInBytes(sizeInBytes: number): string {
-    if (sizeInBytes < 1024) {
-      return `${sizeInBytes} B`;
-    }
-    if (sizeInBytes < 1024 * 1024) {
-      return `${(sizeInBytes / 1024).toFixed(2)} KB`;
-    }
-    if (sizeInBytes < 1024 * 1024 * 1024) {
-      return `${(sizeInBytes / 1024 / 1024).toFixed(2)} MB`;
-    }
-    return `${(sizeInBytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
-  }
-
-  private async getNextItem(directory: DirectoryEntity): Promise<string> {
-    const projectId = this.asyncLocalStorage.getStore()["projectId"];
-    const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
-
-    const whereCondition: FilterQuery<DirectoryEntity> = [
-      { projectId },
-      { path: { $gt: directory.path } },
-    ];
-
-    const searchValueCondition: FilterQuery<DirectoryEntity> = [];
-    if (searchValue) {
-      searchValueCondition.push({ path: { $like: `%${searchValue}%` } });
-      searchValueCondition.push({ isFolder: false });
-    }
-
-    const nextItem = await this.directoryRepository.findOne(
-      {
-        $and: [...whereCondition, ...searchValueCondition],
-      },
-      {
-        orderBy: { path: "asc" },
-      }
-    );
-
-    if (nextItem) {
-      return nextItem?.directoryId;
-    }
-
-    const firstItem = await this.directoryRepository.findOne(
-      {
-        $and: [{ projectId }, ...searchValueCondition],
-      },
-      { orderBy: { path: "asc" } }
-    );
-
-    return firstItem?.directoryId;
-  }
-
-  private async getPreviousItem(directory: DirectoryEntity): Promise<string> {
-    const projectId = this.asyncLocalStorage.getStore()["projectId"];
-    const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
-
-    const whereCondition: FilterQuery<DirectoryEntity> = [
-      { projectId },
-      { path: { $lt: directory.path } },
-    ];
-
-    const searchValueCondition: FilterQuery<DirectoryEntity> = [];
-    if (searchValue) {
-      searchValueCondition.push({ path: { $like: `%${searchValue}%` } });
-      searchValueCondition.push({ isFolder: false });
-    }
-
-    const previousItem = await this.directoryRepository.findOne(
-      { $and: [...whereCondition, ...searchValueCondition] },
-      { orderBy: { path: "desc" } }
-    );
-
-    if (previousItem) {
-      return previousItem?.directoryId;
-    }
-
-    const lastItem = await this.directoryRepository.findOne(
-      {
-        $and: [{ projectId }, ...searchValueCondition],
-      },
-      { orderBy: { path: "desc" } }
-    );
-
-    return lastItem?.directoryId;
   }
 }

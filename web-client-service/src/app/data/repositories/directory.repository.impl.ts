@@ -11,7 +11,10 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
 
   constructor() {}
 
-  getDirectory(params: Partial<DirectoryModel>): Observable<DirectoryModel[]> {
+  getDirectory(
+    params: Partial<DirectoryModel>,
+    pagination: { offset: number; limit: number }
+  ): Observable<DirectoryModel[]> {
     let queryParams = new HttpParams();
 
     if (params.parentId) {
@@ -22,9 +25,20 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
       queryParams = queryParams.set('directoryId', params.directoryId);
     }
 
+    if (pagination.offset || pagination.offset === 0) {
+      queryParams = queryParams.set('offset', pagination.offset);
+    }
+    if (pagination.limit) {
+      queryParams = queryParams.set('limit', pagination.limit);
+    }
+
     return this.http.get<DirectoryModel[]>(`${this.baseUrl}/directory`, {
       params: queryParams,
     });
+  }
+
+  count(): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}/directory/count`);
   }
 
   processDirectory(directoryGuids: string[]): Observable<{ message: string }> {

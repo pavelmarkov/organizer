@@ -4,6 +4,7 @@ import { MediaModule } from "../../infrastructure/media";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { DirectoryEntity } from "../../entities";
 import { AsyncLocalStorageModule } from "../../storage/async-local-storage.module";
+import { DirectoryRepository } from "./directory.repository";
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { AsyncLocalStorageModule } from "../../storage/async-local-storage.modul
     MediaModule,
     AsyncLocalStorageModule,
   ],
-  providers: [DirectoryService],
+  providers: [DirectoryService, DirectoryRepository],
   exports: [DirectoryService],
 })
 export class DirectoryModule {}
