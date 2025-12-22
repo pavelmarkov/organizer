@@ -5,6 +5,7 @@ import {
   NoteModule,
   ProjectsModule,
   TagsModule,
+  MemoriesModule,
 } from "./services";
 import { MikroORM } from "@mikro-orm/sqlite";
 import { SqliteDriver } from "@mikro-orm/sqlite";
@@ -17,6 +18,7 @@ import {
   NoteController,
   ProjectsController,
   TagsController,
+  MemoriesController,
 } from "./controllers";
 import { AsyncLocalStorageModule } from "./storage/async-local-storage.module";
 import { AsyncLocalStorage } from "node:async_hooks";
@@ -27,6 +29,7 @@ const CONTROLLERS = [
   ProjectsController,
   TagsController,
   ConnectionsController,
+  MemoriesController,
 ];
 
 @Module({
@@ -44,6 +47,7 @@ const CONTROLLERS = [
     ProjectsModule,
     TagsModule,
     ConnectionsModule,
+    MemoriesModule,
   ],
   providers: [DirectoryModule, NoteModule, ProjectsModule],
   controllers: CONTROLLERS,

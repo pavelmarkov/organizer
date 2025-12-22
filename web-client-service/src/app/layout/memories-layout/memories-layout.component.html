@@ -1,0 +1,25 @@
+<app-actions-layout
+  (processEvent)="start()">
+</app-actions-layout>
+<p-panel #videoContainer>
+  <video 
+    class="player"
+    controls
+    muted="muted"
+    (ended)="playNext(videoPlayer1, videoPlayer2)"
+    (error)="error($event, videoPlayer1, videoPlayer2)"
+    #videoPlayer1>
+    <source type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <video 
+    class="player" 
+    controls 
+    muted="muted" 
+    (ended)="playNext(videoPlayer1, videoPlayer2)"
+    (error)="error($event, videoPlayer1, videoPlayer2)"
+    #videoPlayer2>
+    <source type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</p-panel>

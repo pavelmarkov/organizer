@@ -47,6 +47,14 @@ export class MenuLayoutComponent implements OnInit {
           this.section = event.item?.label;
         },
       },
+      {
+        label: 'Memories',
+        icon: 'pi pi-hashtag',
+        routerLink: 'memories',
+        command: (event: MenuItemCommandEvent) => {
+          this.section = event.item?.label;
+        },
+      },
     ];
 
     this.projectsService.getProjects().subscribe((data) => {

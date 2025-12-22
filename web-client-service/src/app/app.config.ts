@@ -17,10 +17,12 @@ import {
   NotesRepository,
   ProjectsRepository,
   TagsRepository,
+  MemoriesRepository,
 } from './core/repositories';
 import {
   ConnectionsRepositoryImpl,
   DirectoryRepositoryImpl,
+  MemoriesRepositoryImpl,
   NotesRepositoryImpl,
   ProjectsRepositoryImpl,
   TagsRepositoryImpl,
@@ -28,6 +30,7 @@ import {
 import {
   ConnectionsService,
   DirectoryService,
+  MemoriesService,
   NotesService,
   ProjectsService,
   TagsService,
@@ -42,6 +45,7 @@ import {
   ProjectsServiceImpl,
   TagsServiceImpl,
   ConnectionsServiceImpl,
+  MemoriesServiceImpl,
 } from './services';
 
 // import Lara from '@primeng/themes/lara';
@@ -83,5 +87,8 @@ export const appConfig: ApplicationConfig = {
 
     { provide: ConnectionsRepository, useClass: ConnectionsRepositoryImpl },
     { provide: ConnectionsService, useClass: ConnectionsServiceImpl },
+
+    { provide: MemoriesRepository, useClass: MemoriesRepositoryImpl },
+    { provide: MemoriesService, useClass: MemoriesServiceImpl },
   ],
 };

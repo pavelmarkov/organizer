@@ -1,8 +1,15 @@
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { MediaInfoDto, ProcessMediaMessageRequestDto } from "../../dtos";
+import {
+  GenerateMemoriesDto,
+  MediaInfoDto,
+  ProcessMediaMessageRequestDto,
+} from "../../dtos";
 import { ClientProxy } from "@nestjs/microservices";
 import { lastValueFrom } from "rxjs";
-import { MEDIA_SERVICE_CLIENT } from "../../consts/infrastructure";
+import {
+  MEDIA_SERVICE_CLIENT,
+  MEMORIES_SERVICE_CLIENT,
+} from "../../consts/infrastructure";
 import { ConfigService } from "../../shared/config";
 
 @Injectable()
@@ -10,7 +17,9 @@ export class MediaService implements OnModuleInit {
   httpUrl: string = null;
 
   constructor(
-    @Inject(MEDIA_SERVICE_CLIENT) private readonly client: ClientProxy,
+    @Inject(MEDIA_SERVICE_CLIENT) private readonly mediaClient: ClientProxy,
+    @Inject(MEMORIES_SERVICE_CLIENT)
+    private readonly memoriesClient: ClientProxy,
     private readonly configService: ConfigService
   ) {}
 
@@ -25,7 +34,7 @@ export class MediaService implements OnModuleInit {
     try {
       console.log("params to media service 1: ", params);
       const mediaServiceAnswer = await lastValueFrom(
-        this.client.send("media_queue", params)
+        this.mediaClient.send("media_queue", params)
       );
 
       console.log("mediaServiceAnswer 1: ", mediaServiceAnswer);
@@ -83,5 +92,29 @@ export class MediaService implements OnModuleInit {
     }
 
     return null;
+  }
+
+  async generateMemories(
+    params: GenerateMemoriesDto
+  ): Promise<{ message: string }> {
+    const memoriesServiceAnswer = await lastValueFrom(
+      this.memoriesClient.send("memories_queue", params)
+    );
+    console.log("memoriesServiceAnswer: ", memoriesServiceAnswer);
+    return { message: "ok" };
+  }
+
+  async getMemorySources(): Promise<string[]> {
+    const url = new URL(`${this.httpUrl}/sources`);
+
+    const sources = await fetch(url);
+
+    const result = await sources.json();
+
+    if (Array.isArray(result)) {
+      return result;
+    }
+
+    return [];
   }
 }

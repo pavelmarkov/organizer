@@ -3,12 +3,12 @@ import { DirectoryEntity } from "../../entities";
 import { MediaService } from "../../infrastructure/media/media.service";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "path";
-import { InjectRepository } from "@mikro-orm/nestjs";
 import { BaseAbstractService } from "../../domain/services";
 import { View } from "src/domain/types";
 import { DirectoryRepository } from "./directory.repository";
 import { convertSizeInBytes } from "./utils/convert-size-in-bytes";
 import { AsyncLocalStorage } from "async_hooks";
+import { GenerateMemoriesDto } from "src/dtos";
 
 @Injectable()
 export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
@@ -85,24 +85,28 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     return result;
   }
 
-  async process(directoryGuids: string[]): Promise<{ message: string }> {
-    const directories = await this.directoryRepository.findAll({
-      // where: {
-      //   directoryId: { $in: directoryGuids },
-      // },
-    });
+  private async getAllFilesInFolder(params: {
+    directoryGuids: string[];
+  }): Promise<DirectoryEntity[]> {
+    const { directoryGuids } = params;
 
-    console.log(directoryGuids);
+    const directories = await this.directoryRepository.findAll({});
 
     const chosenFiles: DirectoryEntity[] = [];
+
+    const includedFileGuidsSet = new Set<string>();
 
     directories
       .filter((directoryElement) =>
         directoryGuids.includes(directoryElement.directoryId)
       )
       .forEach((directoryElement) => {
+        if (includedFileGuidsSet.has(directoryElement.directoryId)) {
+          return;
+        }
         if (!directoryElement.isFolder) {
           chosenFiles.push(directoryElement);
+          includedFileGuidsSet.add(directoryElement.directoryId);
           return;
         }
         const filesInFolder = this.scanFolder(
@@ -111,8 +115,17 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
         );
         filesInFolder.forEach((file) => {
           chosenFiles.push(file);
+          includedFileGuidsSet.add(file.directoryId);
         });
       });
+
+    return chosenFiles;
+  }
+
+  async process(directoryGuids: string[]): Promise<{ message: string }> {
+    const chosenFiles: DirectoryEntity[] = await this.getAllFilesInFolder({
+      directoryGuids,
+    });
 
     if (!chosenFiles.length) {
       return {
@@ -137,6 +150,19 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     return {
       message: "ok",
     };
+  }
+
+  async generateMemories(
+    params?: GenerateMemoriesDto
+  ): Promise<{ message: string }> {
+    const files = await this.getAllFilesInFolder(params);
+    const directoryGuids = files.map((file) => file.directoryId);
+    const paths = files.map((file) => file.path);
+    await this.mediaClient.generateMemories({
+      directoryGuids,
+      paths,
+    });
+    return { message: "ok" };
   }
 
   async create(

@@ -7,7 +7,8 @@ class Settings(BaseSettings):
     port: int = 5672
     user: str = "guest"
     password: str = "guest"
-    queue: str = "media_queue"
+    media_queue: str = "media_queue"
+    memories_queue: str = "memories_queue"
 
 
 def get_settings():

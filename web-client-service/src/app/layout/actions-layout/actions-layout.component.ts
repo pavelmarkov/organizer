@@ -41,6 +41,7 @@ export class ActionsLayoutComponent implements OnInit {
   @Output() importEvent = new EventEmitter<string>();
   @Output() searchEvent = new EventEmitter();
   @Output() createEvent = new EventEmitter();
+  @Output() generateEvent = new EventEmitter();
 
   constructor(private dataService: DataService) {}
 
@@ -79,5 +80,9 @@ export class ActionsLayoutComponent implements OnInit {
   search($event: Event) {
     this.dataService.setSearchValue(this.searchValue ?? '');
     this.searchEvent.emit();
+  }
+
+  generate($event: Event) {
+    this.generateEvent.emit();
   }
 }

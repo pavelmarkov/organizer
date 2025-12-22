@@ -3,3 +3,4 @@ export * from './notes.service';
 export * from './projects.service';
 export * from './tags.service';
 export * from './connections.service';
+export * from './memories.service';

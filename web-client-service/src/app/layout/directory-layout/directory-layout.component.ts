@@ -1,9 +1,13 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 
 import { TreeTableModule } from 'primeng/treetable';
-import { TreeNode } from 'primeng/api';
+import { TreeNode, TreeTableNode } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ConnectionsService, DirectoryService } from '../../core/services';
+import {
+  ConnectionsService,
+  DirectoryService,
+  MemoriesService,
+} from '../../core/services';
 import { CardModel, DirectoryModel } from '../../core/domain';
 import { DataService } from '../../shared/services/data.service';
 import { SelectedNodesType } from '../../core/types';
@@ -61,7 +65,8 @@ export class DirectoryLayoutComponent implements OnInit {
     private cd: ChangeDetectorRef,
     private directoryService: DirectoryService,
     private connectionsService: ConnectionsService,
-    private dataService: DataService
+    private dataService: DataService,
+    private memoriesService: MemoriesService
   ) {}
 
   ngOnInit() {
@@ -216,5 +221,15 @@ export class DirectoryLayoutComponent implements OnInit {
 
   searchDirectory() {
     this.loadNodes(null);
+  }
+
+  generateMemory() {
+    console.log('calling generateMemory');
+    const selectedDirectoryGuids = Object.keys(this.selectionKeys).filter(
+      (guid) => this.selectionKeys[guid].checked
+    );
+    this.memoriesService.generate(selectedDirectoryGuids).subscribe((data) => {
+      console.log(data);
+    });
   }
 }

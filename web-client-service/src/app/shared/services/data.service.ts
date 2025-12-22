@@ -10,6 +10,9 @@ export class DataService {
   private searchValue = new Subject<string>();
   currentSearchValue = this.searchValue.asObservable();
 
+  private selectedNodes = new Subject<SelectedNodesType>();
+  currentSelectedNodes = this.selectedNodes.asObservable();
+
   constructor() {}
 
   setProject(data: string) {
@@ -18,5 +21,9 @@ export class DataService {
 
   setSearchValue(data: string) {
     this.searchValue.next(data);
+  }
+
+  setSelectedNodes(data: SelectedNodesType) {
+    this.selectedNodes.next(data);
   }
 }

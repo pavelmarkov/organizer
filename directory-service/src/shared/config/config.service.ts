@@ -7,6 +7,7 @@ export class ConfigService {
 
   async getConfig(): Promise<{
     mediaService: ClientProvider;
+    memoriesService: ClientProvider;
     mediaServiceHttp: {
       host: string;
       port: number;
@@ -20,6 +21,22 @@ export class ConfigService {
           queue: "media_queue",
           queueOptions: {
             durable: false,
+            arguments: {
+              "x-max-length": 1000000,
+            },
+          },
+          noAck: true,
+        },
+      },
+      memoriesService: {
+        transport: Transport.RMQ,
+        options: {
+          urls: [`amqp://${process.env.RABBIT_MQ_HOST ?? "localhost"}:5672`],
+          queue: "memories_queue",
+          prefetchCount: 1,
+          queueOptions: {
+            durable: false,
+            maxLength: 1000000,
             arguments: {
               "x-max-length": 1000000,
             },

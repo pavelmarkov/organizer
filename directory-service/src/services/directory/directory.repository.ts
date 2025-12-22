@@ -210,4 +210,15 @@ export class DirectoryRepository
 
     return null;
   }
+
+  async getSubfilesByPath(path: string): Promise<DirectoryEntity[]> {
+    const files = await this.directoryRepository.findAll({
+      where: this.formWhereCondition({
+        path: { $like: `${path}%` },
+        isFolder: false,
+      }),
+      orderBy: { path: "desc" },
+    });
+    return files;
+  }
 }

@@ -1,7 +1,10 @@
 import { Module } from "@nestjs/common";
 import { ClientsModule } from "@nestjs/microservices";
 import { MediaService } from "./media.service";
-import { MEDIA_SERVICE_CLIENT } from "../../consts/infrastructure";
+import {
+  MEDIA_SERVICE_CLIENT,
+  MEMORIES_SERVICE_CLIENT,
+} from "../../consts/infrastructure";
 import { ConfigModule, ConfigService } from "../../shared/config";
 
 @Module({
@@ -15,6 +18,16 @@ import { ConfigModule, ConfigService } from "../../shared/config";
           const mediaServiceConfig = (await configService.getConfig())
             .mediaService;
           return mediaServiceConfig;
+        },
+        inject: [ConfigService],
+      },
+      {
+        name: MEMORIES_SERVICE_CLIENT,
+        imports: [ConfigModule],
+        useFactory: async (configService: ConfigService) => {
+          const memoriesServiceConfig = (await configService.getConfig())
+            .memoriesService;
+          return memoriesServiceConfig;
         },
         inject: [ConfigService],
       },
