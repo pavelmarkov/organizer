@@ -4,18 +4,20 @@ import { MediaService } from "../../infrastructure/media/media.service";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "path";
 import { BaseAbstractService } from "../../domain/services";
-import { View } from "src/domain/types";
+import { View } from "../../domain/types";
 import { DirectoryRepository } from "./directory.repository";
 import { convertSizeInBytes } from "./utils/convert-size-in-bytes";
 import { AsyncLocalStorage } from "async_hooks";
-import { GenerateMemoriesDto } from "src/dtos";
+import { GenerateMemoriesDto } from "../../dtos";
+import { MemoriesRepository } from "../../persistence/repositories";
 
 @Injectable()
 export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
   constructor(
     @Inject(MediaService) private readonly mediaClient: MediaService,
     private readonly directoryRepository: DirectoryRepository,
-    private readonly asyncLocalStorage: AsyncLocalStorage<any>
+    private readonly asyncLocalStorage: AsyncLocalStorage<any>,
+    private readonly memoriesRepository: MemoriesRepository
   ) {}
 
   async get(
@@ -156,12 +158,23 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     params?: GenerateMemoriesDto
   ): Promise<{ message: string }> {
     const files = await this.getAllFilesInFolder(params);
+
     const directoryGuids = files.map((file) => file.directoryId);
     const paths = files.map((file) => file.path);
+
+    const memory = await this.memoriesRepository.upsertMany([
+      {
+        name: uuidv4(),
+        description: "",
+      },
+    ]);
+
     await this.mediaClient.generateMemories({
       directoryGuids,
+      memoryGuid: memory[0].id,
       paths,
     });
+
     return { message: "ok" };
   }
 

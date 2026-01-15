@@ -8,9 +8,10 @@ import ffmpeg
 
 
 class MemoriesGenerator():
-    def __init__(self, paths: List[str]):
+    def __init__(self, memory_guid: str, paths: List[str]):
         config = get_settings()
-        self.save_to_path = config.memories_path
+        self.memory_guid = memory_guid
+        self.save_to_path = config.memories_path + '/' + self.memory_guid
         self.paths: List[str] = paths
 
     def prepare(self):

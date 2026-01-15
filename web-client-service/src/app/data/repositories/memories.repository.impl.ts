@@ -21,7 +21,7 @@ export class MemoriesRepositoryImpl implements MemoriesRepository {
   }
 
   get(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}/memories`);
+    return this.http.get<string[]>(`${this.baseUrl}/memories/sources`);
   }
 
   getStreamUrl(pathToFile: string): string {

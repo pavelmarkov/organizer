@@ -1,11 +1,14 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { GenerateMemoriesDto } from "../../dtos";
 import { MediaService } from "../../infrastructure/media/media.service";
+import { MemoriesRepository } from "../../persistence/repositories";
+import { MemoryEntity } from "../../entities";
 
 @Injectable()
 export class MemoriesService {
   constructor(
-    @Inject(MediaService) private readonly mediaClient: MediaService
+    @Inject(MediaService) private readonly mediaClient: MediaService,
+    private readonly memoriesRepository: MemoriesRepository
   ) {}
 
   async generate(params?: GenerateMemoriesDto): Promise<{ message: string }> {
@@ -13,7 +16,11 @@ export class MemoriesService {
     return { message: "ok" };
   }
 
-  async get(): Promise<string[]> {
+  async getSources(): Promise<string[]> {
     return await this.mediaClient.getMemorySources();
+  }
+
+  async get(): Promise<MemoryEntity[]> {
+    return await this.memoriesRepository.findAll({});
   }
 }

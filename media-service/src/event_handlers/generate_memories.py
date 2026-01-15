@@ -34,6 +34,7 @@ async def on_generate_memories_message_received(
 
     directory_guids = parsed_message.data.directory_guids
     paths = parsed_message.data.paths
+    memory_guid = parsed_message.data.memory_guid
 
     logger.info(
         f"Processing media with guids={directory_guids};")
@@ -45,7 +46,7 @@ async def on_generate_memories_message_received(
         print(media)
 
     start_time = time.process_time()
-    memories_generator = MemoriesGenerator(paths)
+    memories_generator = MemoriesGenerator(memory_guid, paths)
     await asyncio.to_thread(generate_video, memories_generator)
     elapsed_time = time.process_time() - start_time
     logger.info(f"Total time generating media: {elapsed_time};")
