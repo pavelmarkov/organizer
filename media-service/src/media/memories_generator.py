@@ -37,6 +37,11 @@ class MemoriesGenerator():
         random_start_points = random.sample(
             range(max_interval_length, cut_length), number_of_intervals)
 
+        mean = full_length // 2
+        std_dev = mean // 4
+        random_start_points = [int(random.normalvariate(
+            mu=mean, sigma=std_dev)) for _ in range(number_of_intervals)]
+
         for start_point in sorted(random_start_points):
             interval_length = random.randint(*interval_length_range)
             end_point = start_point + interval_length

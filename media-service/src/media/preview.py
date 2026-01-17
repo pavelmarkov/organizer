@@ -23,7 +23,5 @@ class Preview():
         file = VideoProcessor(self.path)
         file.prepare()
 
-        self.preview_path = file.findExisting(
-            file.save_to_path, file.unique_name
-        )
+        self.preview_path = None
         self.unique_name = file.unique_name

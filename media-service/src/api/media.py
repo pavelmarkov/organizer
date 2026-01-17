@@ -3,7 +3,7 @@ import random
 import os
 from typing import List, Optional
 
-from fastapi import APIRouter, Response, Header
+from fastapi import APIRouter, HTTPException, Response, Header
 
 from fastapi.responses import FileResponse, JSONResponse
 
@@ -13,6 +13,8 @@ from src.media.stream import Stream
 from src.media.memories_generator import MemoriesGenerator
 
 from src.messaging.rabbitmq_producer import RabbitMQProducer
+
+from fastapi.encoders import jsonable_encoder
 
 router = APIRouter(prefix="/media", tags=["Media"])
 
@@ -34,7 +36,7 @@ async def get_image(
     await preview.get_preview()
 
     if not preview.preview_path:
-        return Response("File not found!")
+        raise HTTPException(status_code=404, detail="File not found!")
 
     if os.path.exists(preview.preview_path):
         return FileResponse(
@@ -43,7 +45,7 @@ async def get_image(
             filename=preview.unique_name
         )
 
-    return Response("File not found!")
+    raise HTTPException(status_code=404, detail="File not found!")
 
 
 @router.get(
@@ -60,7 +62,7 @@ async def get_info(
     if not media.info:
         return JSONResponse({"error": True})
 
-    return JSONResponse({"info": media.info})
+    return JSONResponse({"info": jsonable_encoder(media.info)})
 
 
 @router.get("/stream")

@@ -271,24 +271,26 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     view.previous = await this.directoryRepository.getPreviousItemId(directory);
 
     if (!directory.isFolder) {
-      view.image = await this.mediaClient.getThumbnails(
-        directory.directoryId,
-        directory.path
-      );
-
       const media = await this.mediaClient.getInfo(
         directory.directoryId,
         directory.path
       );
 
-      if (media?.info) {
-        const info = media.info;
-        const size = convertSizeInBytes(info.size);
-        const durationMinutes = `${String(info.minutes).padStart(2, "0")}`;
-        const durationSeconds = `${String(info.seconds).padStart(2, "0")}`;
-        const resolution = `${info.width}x${info.height}`;
-        view.text = `${size} ${durationMinutes}:${durationSeconds} ${resolution}`;
+      if (!media?.info) {
+        return view;
       }
+
+      view.image = await this.mediaClient.getThumbnails(
+        directory.directoryId,
+        directory.path
+      );
+
+      const info = media.info;
+      const size = convertSizeInBytes(info.size);
+      const durationMinutes = `${String(info.minutes).padStart(2, "0")}`;
+      const durationSeconds = `${String(info.seconds).padStart(2, "0")}`;
+      const resolution = `${info.width}x${info.height}`;
+      view.text = `${size} ${durationMinutes}:${durationSeconds} ${resolution}`;
     }
 
     return view;
