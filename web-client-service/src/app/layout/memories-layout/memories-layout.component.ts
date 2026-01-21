@@ -10,10 +10,26 @@ import { ActionsLayoutComponent } from '../actions-layout/actions-layout.compone
 import { MemoriesService } from '../../core/services';
 import { CommonModule } from '@angular/common';
 import { RoundRobin } from './utils/round-robin';
+import { MemoriesModel } from '../../core/domain';
+import { SplitterModule } from 'primeng/splitter';
+import { OrderListModule } from 'primeng/orderlist';
+import { Listbox, ListboxFilterEvent } from 'primeng/listbox';
+import { ListboxModule } from 'primeng/listbox';
+import { FormsModule } from '@angular/forms';
+import { DataService } from '../../shared/services/data.service';
 
 @Component({
   selector: 'app-memories-layout',
-  imports: [CommonModule, CardModule, PanelModule, ActionsLayoutComponent],
+  imports: [
+    CommonModule,
+    CardModule,
+    PanelModule,
+    ActionsLayoutComponent,
+    SplitterModule,
+    OrderListModule,
+    ListboxModule,
+    FormsModule,
+  ],
   templateUrl: './memories-layout.component.html',
   styleUrl: './memories-layout.component.css',
 })
@@ -25,14 +41,41 @@ export class MemoriesLayoutComponent {
 
   constructor(
     private cd: ChangeDetectorRef,
-    private memoriesService: MemoriesService
+    private memoriesService: MemoriesService,
+    private dataService: DataService,
   ) {}
 
   muted: boolean = true;
 
   roundRobin: RoundRobin = new RoundRobin([]);
 
-  ngOnInit() {}
+  memories: MemoriesModel[] = [];
+  selectedMemory!: string;
+  filterValue: string | null = null;
+
+  ngOnInit() {
+    this.get();
+
+    this.dataService.currentProject.subscribe((data) => {
+      this.get();
+    });
+  }
+
+  onMemorySelectionChange(event: any) {
+    console.log(this.selectedMemory);
+  }
+
+  onMemoryFilter($event: ListboxFilterEvent): void {
+    console.log('memory filter');
+    this.filterValue = $event.filter;
+  }
+
+  get() {
+    this.memoriesService.get().subscribe((data) => {
+      this.memories = data;
+      console.log(this.memories);
+    });
+  }
 
   playNext(videoplayer: HTMLVideoElement, secondVideoplayer: HTMLVideoElement) {
     secondVideoplayer.src = this.roundRobin.getNext();
@@ -48,13 +91,20 @@ export class MemoriesLayoutComponent {
     // secondVideoplayer.style.maxWidth = '100%';
   }
 
+  chooseMemory($event: any) {
+    console.log($event);
+  }
+
   start() {
-    this.memoriesService.get().subscribe((data) => {
-      this.roundRobin = new RoundRobin([]);
+    console.log('selectedMemory: ', this.selectedMemory);
+    this.memoriesService.getSources(this.selectedMemory).subscribe((data) => {
+      console.log(data);
 
       if (data?.length < 1) {
         return;
       }
+
+      this.roundRobin = new RoundRobin([]);
 
       if (data.length === 1) {
         data.push(data[0]);
@@ -64,12 +114,15 @@ export class MemoriesLayoutComponent {
         this.roundRobin.add(this.memoriesService.getStreamUrl(path));
       });
 
+      this.videoPlayer1.nativeElement.muted = this.muted;
+      this.videoPlayer2.nativeElement.muted = this.muted;
+
       this.videoPlayer2.nativeElement.src = this.roundRobin.getNext();
       this.videoPlayer2.nativeElement.load();
 
       this.playNext(
         this.videoPlayer2.nativeElement,
-        this.videoPlayer1.nativeElement
+        this.videoPlayer1.nativeElement,
       );
     });
   }
@@ -77,7 +130,7 @@ export class MemoriesLayoutComponent {
   error(
     error: unknown,
     videoplayer: HTMLVideoElement,
-    secondVideoplayer: HTMLVideoElement
+    secondVideoplayer: HTMLVideoElement,
   ) {
     console.log('error', error);
     setTimeout(() => this.playNext(videoplayer, secondVideoplayer), 3000);

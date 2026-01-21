@@ -1,25 +1,42 @@
 <app-actions-layout
   (processEvent)="start()">
 </app-actions-layout>
-<p-panel #videoContainer>
-  <video 
-    class="player"
-    controls
-    muted="muted"
-    (ended)="playNext(videoPlayer1, videoPlayer2)"
-    (error)="error($event, videoPlayer1, videoPlayer2)"
-    #videoPlayer1>
-    <source type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-  <video 
-    class="player" 
-    controls 
-    muted="muted" 
-    (ended)="playNext(videoPlayer1, videoPlayer2)"
-    (error)="error($event, videoPlayer1, videoPlayer2)"
-    #videoPlayer2>
-    <source type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</p-panel>
+
+<p-splitter [panelSizes]="[25, 75]" class="mb-8">
+  <ng-template #panel>
+    <div class="flex items-center justify-center h-full">
+      <p-listbox
+        focusOnHover="true"
+        (onFilter)="onMemoryFilter($event)"
+        optionLabel="id"
+        optionValue="id"
+        [options]="memories"
+        [(ngModel)]="selectedMemory"
+        [checkbox]="true"
+        [filter]="true"
+        [multiple]="false"
+        [metaKeySelection]="false"
+        (onChange)="onMemorySelectionChange($event)"
+        scrollHeight="250px"
+        [striped]="true"
+        class="w-full md:w-56" />
+    </div>
+  </ng-template>
+  <ng-template #panel>
+    <div class="flex items-center justify-center h-full">
+      <p-panel #videoContainer>
+        <video class="player" controls muted="muted" (ended)="playNext(videoPlayer1, videoPlayer2)"
+          (error)="error($event, videoPlayer1, videoPlayer2)" #videoPlayer1>
+          <source type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <video class="player" controls muted="muted" (ended)="playNext(videoPlayer1, videoPlayer2)"
+          (error)="error($event, videoPlayer1, videoPlayer2)" #videoPlayer2>
+          <source type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </p-panel>
+    </div>
+  </ng-template>
+</p-splitter>
+

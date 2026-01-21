@@ -20,7 +20,7 @@ export class MediaService implements OnModuleInit {
     @Inject(MEDIA_SERVICE_CLIENT) private readonly mediaClient: ClientProxy,
     @Inject(MEMORIES_SERVICE_CLIENT)
     private readonly memoriesClient: ClientProxy,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async onModuleInit() {
@@ -29,12 +29,12 @@ export class MediaService implements OnModuleInit {
   }
 
   async processDirectory(
-    params: ProcessMediaMessageRequestDto
+    params: ProcessMediaMessageRequestDto,
   ): Promise<ProcessMediaMessageRequestDto> {
     try {
       console.log("params to media service 1: ", params);
       const mediaServiceAnswer = await lastValueFrom(
-        this.mediaClient.send("media_queue", params)
+        this.mediaClient.send("media_queue", params),
       );
 
       console.log("mediaServiceAnswer 1: ", mediaServiceAnswer);
@@ -71,7 +71,7 @@ export class MediaService implements OnModuleInit {
 
   async getInfo(
     directoryId: string,
-    path: string
+    path: string,
   ): Promise<{
     error?: boolean;
     info?: MediaInfoDto;
@@ -95,17 +95,19 @@ export class MediaService implements OnModuleInit {
   }
 
   async generateMemories(
-    params: GenerateMemoriesDto
+    params: GenerateMemoriesDto,
   ): Promise<{ message: string }> {
     const memoriesServiceAnswer = await lastValueFrom(
-      this.memoriesClient.send("memories_queue", params)
+      this.memoriesClient.send("memories_queue", params),
     );
     console.log("memoriesServiceAnswer: ", memoriesServiceAnswer);
     return { message: "ok" };
   }
 
-  async getMemorySources(): Promise<string[]> {
+  async getMemorySources(memoryId: string): Promise<string[]> {
     const url = new URL(`${this.httpUrl}/sources`);
+
+    url.searchParams.set("memory_id", memoryId);
 
     const sources = await fetch(url);
 

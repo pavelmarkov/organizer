@@ -17,12 +17,12 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     @Inject(MediaService) private readonly mediaClient: MediaService,
     private readonly directoryRepository: DirectoryRepository,
     private readonly asyncLocalStorage: AsyncLocalStorage<any>,
-    private readonly memoriesRepository: MemoriesRepository
+    private readonly memoriesRepository: MemoriesRepository,
   ) {}
 
   async get(
     params: Partial<DirectoryEntity>,
-    pagination?: { offset: number; limit: number }
+    pagination?: { offset: number; limit: number },
   ): Promise<DirectoryEntity[]> {
     const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
 
@@ -56,78 +56,18 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
   async update(
     directories: (Partial<DirectoryEntity> &
-      Pick<DirectoryEntity, "directoryId">)[]
+      Pick<DirectoryEntity, "directoryId">)[],
   ): Promise<DirectoryEntity[]> {
     return this.directoryRepository.update(directories);
   }
 
-  private scanFolder(
-    directoryStructure: DirectoryEntity[],
-    folderId: string
-  ): DirectoryEntity[] {
-    const result: DirectoryEntity[] = [];
-
-    const children = directoryStructure.filter(
-      (directoryNode) => directoryNode.parentId === folderId
-    );
-
-    for (const directoryNode of children) {
-      if (directoryNode.isFolder) {
-        const filesInSubfolder = this.scanFolder(
-          directoryStructure,
-          directoryNode.directoryId
-        );
-        for (const subfile of filesInSubfolder) {
-          result.push(subfile);
-        }
-      } else {
-        result.push(directoryNode);
-      }
-    }
-    return result;
-  }
-
-  private async getAllFilesInFolder(params: {
-    directoryGuids: string[];
-  }): Promise<DirectoryEntity[]> {
-    const { directoryGuids } = params;
-
-    const directories = await this.directoryRepository.findAll({});
-
-    const chosenFiles: DirectoryEntity[] = [];
-
-    const includedFileGuidsSet = new Set<string>();
-
-    directories
-      .filter((directoryElement) =>
-        directoryGuids.includes(directoryElement.directoryId)
-      )
-      .forEach((directoryElement) => {
-        if (includedFileGuidsSet.has(directoryElement.directoryId)) {
-          return;
-        }
-        if (!directoryElement.isFolder) {
-          chosenFiles.push(directoryElement);
-          includedFileGuidsSet.add(directoryElement.directoryId);
-          return;
-        }
-        const filesInFolder = this.scanFolder(
-          directories,
-          directoryElement.directoryId
-        );
-        filesInFolder.forEach((file) => {
-          chosenFiles.push(file);
-          includedFileGuidsSet.add(file.directoryId);
-        });
-      });
-
-    return chosenFiles;
-  }
-
   async process(directoryGuids: string[]): Promise<{ message: string }> {
-    const chosenFiles: DirectoryEntity[] = await this.getAllFilesInFolder({
-      directoryGuids,
-    });
+    const selectedDirectories =
+      await this.directoryRepository.getAllSubdirectories(directoryGuids);
+
+    const chosenFiles = selectedDirectories.filter(
+      (directory) => !directory.isFolder,
+    );
 
     if (!chosenFiles.length) {
       return {
@@ -155,9 +95,14 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
   }
 
   async generateMemories(
-    params?: GenerateMemoriesDto
+    params?: GenerateMemoriesDto,
   ): Promise<{ message: string }> {
-    const files = await this.getAllFilesInFolder(params);
+    const chosenDirectories =
+      await this.directoryRepository.getAllSubdirectories(
+        params.directoryGuids,
+      );
+
+    const files = chosenDirectories.filter((directory) => !directory.isFolder);
 
     const directoryGuids = files.map((file) => file.directoryId);
     const paths = files.map((file) => file.path);
@@ -179,7 +124,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
   }
 
   async create(
-    directories: Partial<DirectoryEntity>[]
+    directories: Partial<DirectoryEntity>[],
   ): Promise<Partial<DirectoryEntity>[]> {
     const nodes: {
       [path: string]: DirectoryEntity;
@@ -194,7 +139,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     const existingFoldersMap: { [path: string]: DirectoryEntity } = {};
 
     existingFolders.forEach(
-      (folder) => (existingFoldersMap[folder.path] = folder)
+      (folder) => (existingFoldersMap[folder.path] = folder),
     );
 
     for (const directory of directories) {
@@ -273,7 +218,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     if (!directory.isFolder) {
       const media = await this.mediaClient.getInfo(
         directory.directoryId,
-        directory.path
+        directory.path,
       );
 
       if (!media?.info) {
@@ -282,7 +227,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
       view.image = await this.mediaClient.getThumbnails(
         directory.directoryId,
-        directory.path
+        directory.path,
       );
 
       const info = media.info;

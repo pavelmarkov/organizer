@@ -17,11 +17,11 @@ export class DirectoryRepository
   constructor(
     @InjectRepository(DirectoryEntity)
     private readonly directoryRepository: EntityRepository<DirectoryEntity>,
-    private readonly asyncLocalStorage: AsyncLocalStorage<any>
+    private readonly asyncLocalStorage: AsyncLocalStorage<any>,
   ) {}
 
   private formWhereCondition(
-    filter?: FilterQuery<DirectoryEntity>
+    filter?: FilterQuery<DirectoryEntity>,
   ): FilterQuery<DirectoryEntity> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
     const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
@@ -35,7 +35,7 @@ export class DirectoryRepository
     const searchValueCondition: FilterQuery<DirectoryEntity> = [];
     if (searchValue) {
       searchValueCondition.push(
-        ...[{ path: { $like: `%${searchValue}%` } }, { isFolder: false }]
+        ...[{ path: { $like: `%${searchValue}%` } }, { isFolder: false }],
       );
     }
 
@@ -92,7 +92,7 @@ export class DirectoryRepository
 
   async update(
     directories: (Partial<DirectoryEntity> &
-      Pick<DirectoryEntity, "directoryId">)[]
+      Pick<DirectoryEntity, "directoryId">)[],
   ): Promise<DirectoryEntity[]> {
     if (!directories.length) {
       return [];
@@ -109,7 +109,7 @@ export class DirectoryRepository
     currentDirectories.forEach((directory) => {
       const updateData = directories.find(
         (updateDataDirectory) =>
-          updateDataDirectory.directoryId === directory.directoryId
+          updateDataDirectory.directoryId === directory.directoryId,
       );
       Object.assign(directory, updateData);
     });
@@ -123,7 +123,7 @@ export class DirectoryRepository
 
   async delete(
     directories: (Partial<DirectoryEntity> &
-      Pick<DirectoryEntity, "directoryId">)[]
+      Pick<DirectoryEntity, "directoryId">)[],
   ): Promise<DirectoryEntity[]> {
     if (!directories.length) {
       return [];
@@ -145,7 +145,7 @@ export class DirectoryRepository
   }
 
   async upsertMany(
-    directories: (Partial<DirectoryEntity> & Pick<DirectoryEntity, "name">)[]
+    directories: (Partial<DirectoryEntity> & Pick<DirectoryEntity, "name">)[],
   ): Promise<DirectoryEntity[]> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
 
@@ -166,7 +166,7 @@ export class DirectoryRepository
       this.formWhereCondition({
         path: { $gt: currentItem.path },
       }),
-      { orderBy: { path: "asc" } }
+      { orderBy: { path: "asc" } },
     );
 
     if (nextItem) {
@@ -175,7 +175,7 @@ export class DirectoryRepository
 
     const firstItem = await this.directoryRepository.findOne(
       this.formWhereCondition(),
-      { orderBy: { path: "asc" } }
+      { orderBy: { path: "asc" } },
     );
 
     if (firstItem) {
@@ -186,13 +186,13 @@ export class DirectoryRepository
   }
 
   async getPreviousItemId(
-    currentItem: DirectoryEntity
+    currentItem: DirectoryEntity,
   ): Promise<string | null> {
     const previousItem = await this.directoryRepository.findOne(
       this.formWhereCondition({
         path: { $lt: currentItem.path },
       }),
-      { orderBy: { path: "desc" } }
+      { orderBy: { path: "desc" } },
     );
 
     if (previousItem) {
@@ -201,7 +201,7 @@ export class DirectoryRepository
 
     const lastItem = await this.directoryRepository.findOne(
       this.formWhereCondition(),
-      { orderBy: { path: "desc" } }
+      { orderBy: { path: "desc" } },
     );
 
     if (lastItem) {
@@ -211,14 +211,46 @@ export class DirectoryRepository
     return null;
   }
 
-  async getSubfilesByPath(path: string): Promise<DirectoryEntity[]> {
-    const files = await this.directoryRepository.findAll({
+  public async getAllSubdirectories(
+    directoryIds: string[],
+  ): Promise<DirectoryEntity[]> {
+    const chosenDirectoriesMap: Map<string, DirectoryEntity> = new Map<
+      string,
+      DirectoryEntity
+    >();
+
+    const selectedDirectories = await this.directoryRepository.findAll({
       where: this.formWhereCondition({
-        path: { $like: `${path}%` },
-        isFolder: false,
+        directoryId: { $in: directoryIds },
       }),
-      orderBy: { path: "desc" },
+      // orderBy: { path: "desc" },
     });
-    return files;
+
+    const selectedFolderPaths: string[] = [];
+    selectedDirectories.forEach((directory) => {
+      if (directory.isFolder) {
+        selectedFolderPaths.push(directory.path);
+        return;
+      }
+      chosenDirectoriesMap.set(directory.path, directory);
+    });
+
+    await Promise.all(
+      selectedFolderPaths.map(async (path) => {
+        const allFilesInFolder = await this.directoryRepository.findAll({
+          where: this.formWhereCondition({
+            path: { $like: `${path}%` },
+          }),
+          // orderBy: { path: "desc" },
+        });
+        allFilesInFolder.forEach((directory) => {
+          chosenDirectoriesMap.set(directory.path, directory);
+        });
+      }),
+    );
+
+    return Array.from(chosenDirectoriesMap.keys()).map((path) =>
+      chosenDirectoriesMap.get(path),
+    );
   }
 }

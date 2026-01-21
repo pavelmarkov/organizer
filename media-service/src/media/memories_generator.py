@@ -1,10 +1,10 @@
 import os
 from typing import List
 from src.config.files import get_settings
-from moviepy import VideoFileClip
 import random
 import os
 import ffmpeg
+from pprint import pprint
 
 
 class MemoriesGenerator():
@@ -34,10 +34,10 @@ class MemoriesGenerator():
 
         number_of_intervals = random.randint(*numer_of_intervals_range)
 
-        random_start_points = random.sample(
-            range(max_interval_length, cut_length), number_of_intervals)
+        # random_start_points = random.sample(
+        #     range(max_interval_length, cut_length), number_of_intervals)
 
-        mean = full_length // 2
+        mean = cut_length // 2
         std_dev = mean // 4
         random_start_points = [int(random.normalvariate(
             mu=mean, sigma=std_dev)) for _ in range(number_of_intervals)]
@@ -52,18 +52,20 @@ class MemoriesGenerator():
 
     def get_summary_video(self):
         for file_path in self.paths:
-            video_clip = VideoFileClip(file_path)
-            duration = int(video_clip.duration)
+            video_file = ffmpeg.probe(file_path)
+            print("video info: ")
+            pprint(video_file, indent=2)
+            duration = int(float(video_file["format"]["duration"]))
             intervals = self.get_random_intervals(duration, (2, 3), (7, 10))
             for interval in intervals:
-                d = interval[1] - interval[0]
+                clip_duration = interval[1] - interval[0]
                 filename = os.path.basename(file_path)
                 output_file = os.path.join(
                     self.save_to_path, f"{interval[0]}_{interval[1]}_{filename}")
                 try:
                     (
                         ffmpeg
-                        .input(file_path, ss=interval[0], t=d)
+                        .input(file_path, ss=interval[0], t=clip_duration)
                         # '-c copy' copies streams without re-encoding
                         .output(output_file, c='copy')
                         .run(overwrite_output=True)
@@ -73,15 +75,12 @@ class MemoriesGenerator():
                     print(f"Error: {e.stderr.decode()}")
                     continue
 
-                # subclip = video_clip.subclipped(*interval)
-                # filename = os.path.basename(file_path)
-                # subclip.write_videofile(os.path.join(
-                #     self.save_to_path, f"{interval[0]}_{interval[1]}_{filename}"))
-
         return
 
     def get_memory_sources(self) -> List[str]:
         paths = []
+        if not os.path.isdir(os.path.join(self.save_to_path)):
+            return []
         for entry in os.listdir(os.path.join(self.save_to_path)):
             if os.path.basename(entry).startswith('.'):
                 continue

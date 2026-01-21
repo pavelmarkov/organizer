@@ -1,8 +1,9 @@
 import { Observable } from 'rxjs';
 import { environment } from '../../../config/environment';
 import { inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { MemoriesRepository } from '../../core/repositories/memories.repository';
+import { MemoriesModel } from '../../core/domain';
 
 export class MemoriesRepositoryImpl implements MemoriesRepository {
   private baseUrl: string = environment.apiUrl;
@@ -16,12 +17,27 @@ export class MemoriesRepositoryImpl implements MemoriesRepository {
       `${this.baseUrl}/memories/generator`,
       {
         directoryGuids,
-      }
+      },
     );
   }
 
-  get(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}/memories/sources`);
+  get(): Observable<MemoriesModel[]> {
+    let queryParams = new HttpParams();
+    queryParams = queryParams.set('offset', 0);
+    queryParams = queryParams.set('limit', 200);
+
+    return this.http.get<MemoriesModel[]>(`${this.baseUrl}/memories`, {
+      params: queryParams,
+    });
+  }
+
+  getSources(memoryId: string): Observable<string[]> {
+    let queryParams = new HttpParams();
+
+    queryParams = queryParams.set('memoryId', memoryId);
+    return this.http.get<string[]>(`${this.baseUrl}/memories/sources`, {
+      params: queryParams,
+    });
   }
 
   getStreamUrl(pathToFile: string): string {

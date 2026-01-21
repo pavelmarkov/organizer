@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { GenerateMemoriesDto } from "../dtos";
 import { MemoriesService, DirectoryService } from "../services";
 import { MemoryEntity } from "../entities";
@@ -7,7 +7,7 @@ import { MemoryEntity } from "../entities";
 export class MemoriesController {
   constructor(
     private readonly memoriesService: MemoriesService,
-    private readonly directoryService: DirectoryService
+    private readonly directoryService: DirectoryService,
   ) {}
 
   @Post("generator")
@@ -16,12 +16,15 @@ export class MemoriesController {
   }
 
   @Get("sources")
-  getSources(): Promise<string[]> {
-    return this.memoriesService.getSources();
+  getSources(@Query("memoryId") memoryId: string): Promise<string[]> {
+    return this.memoriesService.getSources(memoryId);
   }
 
   @Get()
-  get(): Promise<MemoryEntity[]> {
-    return this.memoriesService.get();
+  get(
+    @Query("limit") limit: number,
+    @Query("offset") offset: number,
+  ): Promise<MemoryEntity[]> {
+    return this.memoriesService.get({ offset, limit });
   }
 }

@@ -89,7 +89,9 @@ async def video_endpoint(
 
 
 @router.get("/sources")
-async def video_endpoint() -> List[str]:
-    memories = MemoriesGenerator([])
+async def video_endpoint(
+    memory_id: str,
+) -> List[str]:
+    memories = MemoriesGenerator(memory_id, [])
     sources = memories.get_memory_sources()
     return JSONResponse(sources)

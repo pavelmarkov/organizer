@@ -8,7 +8,7 @@ import { MemoryEntity } from "../../entities";
 export class MemoriesService {
   constructor(
     @Inject(MediaService) private readonly mediaClient: MediaService,
-    private readonly memoriesRepository: MemoriesRepository
+    private readonly memoriesRepository: MemoriesRepository,
   ) {}
 
   async generate(params?: GenerateMemoriesDto): Promise<{ message: string }> {
@@ -16,11 +16,16 @@ export class MemoriesService {
     return { message: "ok" };
   }
 
-  async getSources(): Promise<string[]> {
-    return await this.mediaClient.getMemorySources();
+  async getSources(memoryId: string): Promise<string[]> {
+    return await this.mediaClient.getMemorySources(memoryId);
   }
 
-  async get(): Promise<MemoryEntity[]> {
-    return await this.memoriesRepository.findAll({});
+  async get(pagination?: {
+    offset: number;
+    limit: number;
+  }): Promise<MemoryEntity[]> {
+    return await this.memoriesRepository.findAll({
+      pagination,
+    });
   }
 }
