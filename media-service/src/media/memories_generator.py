@@ -91,3 +91,20 @@ class MemoriesGenerator():
                 )
 
         return paths
+
+    def remove(self) -> List[str]:
+        messages = []
+        dir_path = os.path.join(self.save_to_path)
+
+        if not os.path.isdir(dir_path):
+            messages.append("Nothing to delete")
+            return messages
+
+        for entry in os.listdir(dir_path):
+            os.remove(os.path.join(dir_path, entry))
+            messages.append(f'Removed file {entry}')
+
+        os.rmdir(dir_path)
+        messages.append(f'Removed folder {dir_path}')
+
+        return messages

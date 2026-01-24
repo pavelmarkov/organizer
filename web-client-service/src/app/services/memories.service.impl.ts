@@ -9,12 +9,34 @@ export class MemoriesServiceImpl implements MemoriesService {
 
   constructor() {}
 
-  generate(directoryGuids: string[]): Observable<{ message: string }> {
-    return this.memoriesRepository.generate(directoryGuids);
-  }
-
   get(): Observable<MemoriesModel[]> {
     return this.memoriesRepository.get();
+  }
+
+  count(): Observable<number> {
+    return this.memoriesRepository.count();
+  }
+
+  create(
+    memories: Partial<MemoriesModel>[],
+  ): Observable<Partial<MemoriesModel>[]> {
+    return this.memoriesRepository.create(memories);
+  }
+
+  update(
+    memories: Partial<MemoriesModel>[],
+  ): Observable<Partial<MemoriesModel>[]> {
+    return this.memoriesRepository.update(memories);
+  }
+
+  remove(
+    memories: Partial<MemoriesModel>[],
+  ): Observable<Partial<MemoriesModel>[]> {
+    return this.memoriesRepository.remove(memories);
+  }
+
+  generate(directoryGuids: string[]): Observable<{ message: string }> {
+    return this.memoriesRepository.generate(directoryGuids);
   }
 
   getSources(memoryId: string): Observable<string[]> {

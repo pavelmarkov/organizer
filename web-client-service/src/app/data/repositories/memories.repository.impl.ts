@@ -6,28 +6,49 @@ import { MemoriesRepository } from '../../core/repositories/memories.repository'
 import { MemoriesModel } from '../../core/domain';
 
 export class MemoriesRepositoryImpl implements MemoriesRepository {
-  private baseUrl: string = environment.apiUrl;
+  private baseUrl: string = `${environment.apiUrl}/memories`;
   private mediaUrl: string = environment.mediaUrl;
   private http: HttpClient = inject(HttpClient);
 
   constructor() {}
-
-  generate(directoryGuids: string[]): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(
-      `${this.baseUrl}/memories/generator`,
-      {
-        directoryGuids,
-      },
-    );
-  }
 
   get(): Observable<MemoriesModel[]> {
     let queryParams = new HttpParams();
     queryParams = queryParams.set('offset', 0);
     queryParams = queryParams.set('limit', 200);
 
-    return this.http.get<MemoriesModel[]>(`${this.baseUrl}/memories`, {
+    return this.http.get<MemoriesModel[]>(this.baseUrl, {
       params: queryParams,
+    });
+  }
+
+  count(): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}/count`);
+  }
+
+  create(
+    memories: Partial<MemoriesModel>[],
+  ): Observable<Partial<MemoriesModel>[]> {
+    return this.http.post<Partial<MemoriesModel>[]>(this.baseUrl, memories);
+  }
+
+  update(
+    memories: Partial<MemoriesModel>[],
+  ): Observable<Partial<MemoriesModel>[]> {
+    return this.http.put<Partial<MemoriesModel>[]>(this.baseUrl, memories);
+  }
+
+  remove(
+    memories: Partial<MemoriesModel>[],
+  ): Observable<Partial<MemoriesModel>[]> {
+    return this.http.delete<Partial<MemoriesModel>[]>(this.baseUrl, {
+      body: memories,
+    });
+  }
+
+  generate(directoryGuids: string[]): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/generator`, {
+      directoryGuids,
     });
   }
 
@@ -35,12 +56,12 @@ export class MemoriesRepositoryImpl implements MemoriesRepository {
     let queryParams = new HttpParams();
 
     queryParams = queryParams.set('memoryId', memoryId);
-    return this.http.get<string[]>(`${this.baseUrl}/memories/sources`, {
+    return this.http.get<string[]>(`${this.baseUrl}/sources`, {
       params: queryParams,
     });
   }
 
   getStreamUrl(pathToFile: string): string {
-    return `${this.mediaUrl}/api/v1/media/stream?path_to_file=${pathToFile}&directory_id=k`;
+    return `${this.mediaUrl}/api/v1/media/stream?path_to_file=${encodeURIComponent(pathToFile)}&directory_id=k`;
   }
 }

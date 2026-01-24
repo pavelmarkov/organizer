@@ -17,6 +17,13 @@ import { Listbox, ListboxFilterEvent } from 'primeng/listbox';
 import { ListboxModule } from 'primeng/listbox';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../shared/services/data.service';
+import { SpeedDialModule } from 'primeng/speeddial';
+import { MenuItem, MessageService } from 'primeng/api';
+
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { Dialog, DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-memories-layout',
@@ -29,7 +36,16 @@ import { DataService } from '../../shared/services/data.service';
     OrderListModule,
     ListboxModule,
     FormsModule,
+
+    SpeedDialModule,
+
+    DialogModule,
+    ButtonModule,
+    InputTextModule,
+    TextareaModule,
+    CommonModule,
   ],
+  providers: [MessageService],
   templateUrl: './memories-layout.component.html',
   styleUrl: './memories-layout.component.css',
 })
@@ -50,10 +66,40 @@ export class MemoriesLayoutComponent {
   roundRobin: RoundRobin = new RoundRobin([]);
 
   memories: MemoriesModel[] = [];
-  selectedMemory!: string;
+  selectedMemoryId!: string;
+  currentMemory: MemoriesModel = {
+    id: '',
+    name: '',
+    description: '',
+  };
   filterValue: string | null = null;
 
+  createDialogVisible: boolean = false;
+
+  items!: MenuItem[];
+
   ngOnInit() {
+    this.items = [
+      {
+        icon: 'pi pi-pencil',
+        command: () => {
+          this.edit();
+        },
+      },
+      {
+        icon: 'pi pi-trash',
+        command: () => {
+          this.delete();
+        },
+      },
+      {
+        icon: 'pi pi-external-link',
+        command: () => {
+          this.view();
+        },
+      },
+    ];
+
     this.get();
 
     this.dataService.currentProject.subscribe((data) => {
@@ -61,8 +107,32 @@ export class MemoriesLayoutComponent {
     });
   }
 
+  view(): void {}
+  edit(): void {
+    this.createDialogVisible = true;
+  }
+  save(): void {
+    console.log(this.currentMemory);
+    this.memoriesService.update([this.currentMemory]).subscribe((data) => {
+      this.get();
+      this.hideCreateDialog();
+    });
+  }
+  delete(): void {
+    this.memoriesService.remove([this.currentMemory]).subscribe((data) => {
+      this.get();
+      this.hideCreateDialog();
+    });
+  }
+  hideCreateDialog(): void {
+    this.createDialogVisible = false;
+  }
+
   onMemorySelectionChange(event: any) {
-    console.log(this.selectedMemory);
+    console.log(this.selectedMemoryId);
+    this.currentMemory =
+      this.memories.find((memory) => memory.id === this.selectedMemoryId) ??
+      this.currentMemory;
   }
 
   onMemoryFilter($event: ListboxFilterEvent): void {
@@ -96,8 +166,8 @@ export class MemoriesLayoutComponent {
   }
 
   start() {
-    console.log('selectedMemory: ', this.selectedMemory);
-    this.memoriesService.getSources(this.selectedMemory).subscribe((data) => {
+    console.log('selectedMemoryId: ', this.selectedMemoryId);
+    this.memoriesService.getSources(this.selectedMemoryId).subscribe((data) => {
       console.log(data);
 
       if (data?.length < 1) {

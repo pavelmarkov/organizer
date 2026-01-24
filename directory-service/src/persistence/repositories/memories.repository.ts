@@ -17,11 +17,11 @@ export class MemoriesRepository
   constructor(
     @InjectRepository(MemoryEntity)
     private readonly memoryRepository: EntityRepository<MemoryEntity>,
-    private readonly asyncLocalStorage: AsyncLocalStorage<any>
+    private readonly asyncLocalStorage: AsyncLocalStorage<any>,
   ) {}
 
   private formWhereCondition(
-    filter?: FilterQuery<MemoryEntity>
+    filter?: FilterQuery<MemoryEntity>,
   ): FilterQuery<MemoryEntity> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
     const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
@@ -84,28 +84,28 @@ export class MemoriesRepository
   }
 
   async update(
-    notes: (Partial<MemoryEntity> & Pick<MemoryEntity, "id">)[]
+    memories: (Partial<MemoryEntity> & Pick<MemoryEntity, "id">)[],
   ): Promise<MemoryEntity[]> {
-    if (!notes.length) {
+    if (!memories.length) {
       return [];
     }
 
-    const noteIds = notes.map((note) => note.id);
+    const memoryIds = memories.map((memory) => memory.id);
 
-    const currentNotes = await this.memoryRepository.findAll({
+    const currentMemories = await this.memoryRepository.findAll({
       where: {
-        id: { $in: noteIds },
+        id: { $in: memoryIds },
       },
     });
 
-    currentNotes.forEach((note) => {
-      const updateData = notes.find(
-        (updateDataNote) => updateDataNote.id === note.id
+    currentMemories.forEach((memory) => {
+      const updateData = memories.find(
+        (updateDataMemory) => updateDataMemory.id === memory.id,
       );
-      Object.assign(note, updateData);
+      Object.assign(memory, { ...updateData, projectId: memory.projectId });
     });
 
-    return await this.memoryRepository.upsertMany(currentNotes, {
+    return await this.memoryRepository.upsertMany(currentMemories, {
       onConflictFields: ["id"],
       onConflictAction: "merge",
       onConflictMergeFields: ["description", "name"],
@@ -113,29 +113,29 @@ export class MemoriesRepository
   }
 
   async delete(
-    notes: (Partial<MemoryEntity> & Pick<MemoryEntity, "id">)[]
+    memories: (Partial<MemoryEntity> & Pick<MemoryEntity, "id">)[],
   ): Promise<MemoryEntity[]> {
-    if (!notes.length) {
+    if (!memories.length) {
       return [];
     }
 
-    const noteIds = notes.map((note) => note.id);
+    const memoryIds = memories.map((memory) => memory.id);
 
-    const currentNotes = await this.memoryRepository.findAll({
+    const currentMemories = await this.memoryRepository.findAll({
       where: {
-        id: { $in: noteIds },
+        id: { $in: memoryIds },
       },
     });
 
     await this.memoryRepository.nativeDelete({
-      id: { $in: noteIds },
+      id: { $in: memoryIds },
     });
 
-    return currentNotes;
+    return currentMemories;
   }
 
   async upsertMany(
-    memories: (Partial<MemoryEntity> & Pick<MemoryEntity, "name">)[]
+    memories: (Partial<MemoryEntity> & Pick<MemoryEntity, "name">)[],
   ): Promise<MemoryEntity[]> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
 
@@ -156,7 +156,7 @@ export class MemoriesRepository
       this.formWhereCondition({
         name: { $gt: currentItem.name },
       }),
-      { orderBy: { name: "asc" } }
+      { orderBy: { name: "asc" } },
     );
 
     if (nextItem) {
@@ -165,7 +165,7 @@ export class MemoriesRepository
 
     const firstItem = await this.memoryRepository.findOne(
       this.formWhereCondition(),
-      { orderBy: { name: "asc" } }
+      { orderBy: { name: "asc" } },
     );
 
     if (firstItem) {
@@ -180,7 +180,7 @@ export class MemoriesRepository
       this.formWhereCondition({
         name: { $lt: currentItem.name },
       }),
-      { orderBy: { name: "desc" } }
+      { orderBy: { name: "desc" } },
     );
 
     if (previousItem) {
@@ -189,7 +189,7 @@ export class MemoriesRepository
 
     const lastItem = await this.memoryRepository.findOne(
       this.formWhereCondition(),
-      { orderBy: { name: "desc" } }
+      { orderBy: { name: "desc" } },
     );
 
     if (lastItem) {

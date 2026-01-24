@@ -119,4 +119,20 @@ export class MediaService implements OnModuleInit {
 
     return [];
   }
+
+  async removeMemory(memoryId: string): Promise<string[]> {
+    const url = new URL(`${this.httpUrl}/memories`);
+
+    url.searchParams.set("memory_id", memoryId);
+
+    const messages = await fetch(url, { method: "DELETE" });
+
+    const result = await messages.json();
+
+    if (Array.isArray(result)) {
+      return result;
+    }
+
+    return [];
+  }
 }

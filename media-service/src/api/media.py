@@ -95,3 +95,12 @@ async def video_endpoint(
     memories = MemoriesGenerator(memory_id, [])
     sources = memories.get_memory_sources()
     return JSONResponse(sources)
+
+
+@router.delete("/memories")
+async def video_endpoint(
+    memory_id: str,
+) -> List[str]:
+    memories = MemoriesGenerator(memory_id, [])
+    messages = memories.remove()
+    return JSONResponse(messages)

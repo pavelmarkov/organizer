@@ -4,14 +4,16 @@
 
 <p-splitter [panelSizes]="[25, 75]" class="mb-8">
   <ng-template #panel>
-    <div class="flex items-center justify-center h-full">
+    <div 
+      class="flex items-center justify-center h-full" 
+      [style]="{ 'margin-right': '2rem' }">
       <p-listbox
         focusOnHover="true"
         (onFilter)="onMemoryFilter($event)"
-        optionLabel="id"
+        optionLabel="name"
         optionValue="id"
         [options]="memories"
-        [(ngModel)]="selectedMemory"
+        [(ngModel)]="selectedMemoryId"
         [checkbox]="true"
         [filter]="true"
         [multiple]="false"
@@ -19,7 +21,19 @@
         (onChange)="onMemorySelectionChange($event)"
         scrollHeight="250px"
         [striped]="true"
-        class="w-full md:w-56" />
+        class="w-full md:w-56">
+        <ng-template #item let-item>
+          <div class="flex items-center gap-2">
+            <div>{{ item.name }}</div>
+          </div>
+        </ng-template>
+      </p-listbox>
+    </div>
+    <div class="card">
+      <div style="height: 250px; position: relative;">
+        <p-speeddial [model]="items" direction="down"
+          [style]="{ position: 'absolute', left: 'calc(50% - 3rem)', top: 0 }" />
+      </div>
     </div>
   </ng-template>
   <ng-template #panel>
@@ -40,3 +54,17 @@
   </ng-template>
 </p-splitter>
 
+<p-dialog [(visible)]="createDialogVisible" [style]="{ width: '450px' }" header="Memory" [modal]="true">
+  <ng-template #content>
+    <!-- <div class="flex flex-col gap-6"> -->
+    <input type="text" placeholder="Name" pInputText id="name" [(ngModel)]="currentMemory.name" required autofocus fluid />
+    <textarea placeholder="Description" id="description" pTextarea [(ngModel)]="currentMemory.description" required rows="3"
+      cols="20" fluid></textarea>
+    <!-- </div> -->
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button label="Cancel" icon="pi pi-times" text (click)="hideCreateDialog()" />
+    <p-button label="Save" icon="pi pi-check" (click)="save()" />
+  </ng-template>
+</p-dialog>

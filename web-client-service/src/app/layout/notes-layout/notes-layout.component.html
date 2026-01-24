@@ -30,7 +30,7 @@
   [visible]="dialogPanelVisible">
 </app-card-layout>
 
-<p-dialog [(visible)]="createDialogVisible" [style]="{ width: '450px' }" header="Product Details" [modal]="true">
+<p-dialog [(visible)]="createDialogVisible" [style]="{ width: '450px' }" header="Note" [modal]="true">
   <ng-template #content>
     <!-- <div class="flex flex-col gap-6"> -->
       <input type="text" placeholder="Name" pInputText id="name" [(ngModel)]="note.name" required autofocus fluid />
