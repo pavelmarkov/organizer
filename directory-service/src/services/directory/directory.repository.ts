@@ -131,17 +131,18 @@ export class DirectoryRepository
 
     const directoryIds = directories.map((directory) => directory.directoryId);
 
-    const currentDirectories = await this.directoryRepository.findAll({
-      where: {
-        directoryId: { $in: directoryIds },
-      },
-    });
+    const elementsToDelete = await this.getAllSubdirectories(directoryIds);
 
-    await this.directoryRepository.nativeDelete({
-      directoryId: { $in: directoryIds },
-    });
+    const directoryIdsToDelete = elementsToDelete.map(
+      (directory) => directory.directoryId,
+    );
 
-    return currentDirectories;
+    // const numberOfRowsDeleted = await this.directoryRepository.nativeDelete({
+    //   directoryId: { $in: directoryIdsToDelete },
+    // });
+    // console.log("Number of rows deleted: ", numberOfRowsDeleted);
+
+    return elementsToDelete;
   }
 
   async upsertMany(

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Put, Query } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Query,
+} from "@nestjs/common";
 import { DirectoryService } from "../services/directory";
 import { DirectoryEntity } from "src/entities";
 import { ViewDto } from "../dtos";
@@ -12,11 +20,11 @@ export class DirectoryController {
     @Query("directoryId") directoryId: string,
     @Query("parentId") parentId: string,
     @Query("limit") limit: number,
-    @Query("offset") offset: number
+    @Query("offset") offset: number,
   ): Promise<Partial<DirectoryEntity[]>> {
     return this.directoryService.get(
       { parentId, directoryId },
-      { limit, offset }
+      { limit, offset },
     );
   }
 
@@ -32,22 +40,27 @@ export class DirectoryController {
 
   @Post("process")
   processDirectory(
-    @Body() params: { directoryGuids: string[] }
+    @Body() params: { directoryGuids: string[] },
   ): Promise<{ message: string }> {
     return this.directoryService.process(params.directoryGuids);
   }
 
   @Post()
   importDirectory(
-    @Body() directories: DirectoryEntity[]
+    @Body() directories: DirectoryEntity[],
   ): Promise<Partial<DirectoryEntity>[]> {
     return this.directoryService.create(directories);
   }
 
   @Put()
   update(
-    @Body() directories: DirectoryEntity[]
+    @Body() directories: DirectoryEntity[],
   ): Promise<Partial<DirectoryEntity>[]> {
     return this.directoryService.update(directories);
+  }
+
+  @Delete()
+  deleteNotes(@Body() params: DirectoryEntity[]): Promise<DirectoryEntity[]> {
+    return this.directoryService.delete(params);
   }
 }

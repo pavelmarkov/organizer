@@ -11,7 +11,7 @@ export class DirectoryServiceImpl implements DirectoryService {
 
   getDirectory(
     params: Partial<DirectoryModel>,
-    pagination: { offset: number; limit: number }
+    pagination: { offset: number; limit: number },
   ): Observable<DirectoryModel[]> {
     return this.directoryRepository.getDirectory(params, pagination);
   }
@@ -25,18 +25,24 @@ export class DirectoryServiceImpl implements DirectoryService {
   }
 
   importDirectory(
-    directories: Partial<DirectoryModel>[]
+    directories: Partial<DirectoryModel>[],
   ): Observable<Partial<DirectoryModel>[]> {
     return this.directoryRepository.importDirectory(directories);
   }
 
   update(
-    directories: Partial<DirectoryModel>[]
+    directories: Partial<DirectoryModel>[],
   ): Observable<Partial<DirectoryModel>[]> {
     return this.directoryRepository.update(directories);
   }
 
   view(directoryId: string): Observable<CardModel> {
     return this.directoryRepository.view(directoryId);
+  }
+
+  remove(
+    directories: Partial<DirectoryModel>[],
+  ): Observable<Partial<DirectoryModel>[]> {
+    return this.directoryRepository.remove(directories);
   }
 }

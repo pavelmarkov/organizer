@@ -13,7 +13,7 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
 
   getDirectory(
     params: Partial<DirectoryModel>,
-    pagination: { offset: number; limit: number }
+    pagination: { offset: number; limit: number },
   ): Observable<DirectoryModel[]> {
     let queryParams = new HttpParams();
 
@@ -46,25 +46,25 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
       `${this.baseUrl}/directory/process`,
       {
         directoryGuids,
-      }
+      },
     );
   }
 
   importDirectory(
-    directoryStructure: Partial<DirectoryModel>[]
+    directoryStructure: Partial<DirectoryModel>[],
   ): Observable<Partial<DirectoryModel>[]> {
     return this.http.post<Partial<DirectoryModel>[]>(
       `${this.baseUrl}/directory`,
-      directoryStructure
+      directoryStructure,
     );
   }
 
   update(
-    directories: Partial<DirectoryModel>[]
+    directories: Partial<DirectoryModel>[],
   ): Observable<Partial<DirectoryModel>[]> {
     return this.http.put<Partial<DirectoryModel>[]>(
       `${this.baseUrl}/directory`,
-      directories
+      directories,
     );
   }
 
@@ -76,5 +76,16 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
     return this.http.get<CardModel>(`${this.baseUrl}/directory/view`, {
       params: queryParams,
     });
+  }
+
+  remove(
+    directories: Partial<DirectoryModel>[],
+  ): Observable<Partial<DirectoryModel>[]> {
+    return this.http.delete<Partial<DirectoryModel>[]>(
+      `${this.baseUrl}/directory`,
+      {
+        body: directories,
+      },
+    );
   }
 }

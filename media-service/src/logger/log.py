@@ -2,7 +2,7 @@
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter(
     fmt='%(asctime)s [%(levelname)s] [%(funcName)s]: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'

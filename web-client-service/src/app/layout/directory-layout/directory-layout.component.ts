@@ -66,7 +66,7 @@ export class DirectoryLayoutComponent implements OnInit {
     private directoryService: DirectoryService,
     private connectionsService: ConnectionsService,
     private dataService: DataService,
-    private memoriesService: MemoriesService
+    private memoriesService: MemoriesService,
   ) {}
 
   ngOnInit() {
@@ -197,7 +197,7 @@ export class DirectoryLayoutComponent implements OnInit {
 
   processDirectory() {
     const selectedDirectoryGuids = Object.keys(this.selectionKeys).filter(
-      (guid) => this.selectionKeys[guid].checked
+      (guid) => this.selectionKeys[guid].checked,
     );
 
     this.directoryService
@@ -226,10 +226,17 @@ export class DirectoryLayoutComponent implements OnInit {
   generateMemory() {
     console.log('calling generateMemory');
     const selectedDirectoryGuids = Object.keys(this.selectionKeys).filter(
-      (guid) => this.selectionKeys[guid].checked
+      (guid) => this.selectionKeys[guid].checked,
     );
     this.memoriesService.generate(selectedDirectoryGuids).subscribe((data) => {
       console.log(data);
+    });
+  }
+
+  remove(directory: DirectoryModel): void {
+    this.directoryService.remove([directory]).subscribe((data) => {
+      console.log(data);
+      this.loadNodes(null);
     });
   }
 }

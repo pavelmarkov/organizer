@@ -61,6 +61,10 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     return this.directoryRepository.update(directories);
   }
 
+  async delete(items: Partial<DirectoryEntity[]>): Promise<DirectoryEntity[]> {
+    return await this.directoryRepository.delete(items);
+  }
+
   async process(directoryGuids: string[]): Promise<{ message: string }> {
     const selectedDirectories =
       await this.directoryRepository.getAllSubdirectories(directoryGuids);

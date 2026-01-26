@@ -2,19 +2,21 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  inject,
   Input,
   OnInit,
   Output,
 } from '@angular/core';
 
 import { TreeTableModule } from 'primeng/treetable';
-import { TreeNode } from 'primeng/api';
+import { ConfirmationService, TreeNode } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { SelectedNodesType } from '../../core/types';
 
 import { ButtonModule } from 'primeng/button';
 import { TreeNodeExpandEvent } from 'primeng/tree';
 import { PaginatorState } from 'primeng/paginator';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 interface Column {
   field: string;
@@ -23,11 +25,14 @@ interface Column {
 
 @Component({
   selector: 'tree-table-layout',
-  imports: [TreeTableModule, CommonModule, ButtonModule],
   templateUrl: './tree-table-layout.component.html',
   styleUrl: './tree-table-layout.component.css',
+  imports: [TreeTableModule, CommonModule, ButtonModule, ConfirmDialogModule],
+  providers: [ConfirmationService],
 })
 export class TreeTableLayoutComponent implements OnInit {
+  private confirmationService = inject(ConfirmationService);
+
   @Input() selectionKeys: SelectedNodesType = {};
 
   @Input() dataKeyName!: string;
@@ -77,7 +82,26 @@ export class TreeTableLayoutComponent implements OnInit {
     this.editEvent.emit(event);
   }
 
-  remove(event: any) {
-    this.removeEvent.emit(event);
+  remove(event: TreeNode['data']) {
+    this.confirmationService.confirm({
+      message: 'Do you want to delete this record?',
+      header: `Deleting ${event.name}`,
+      icon: 'pi pi-info-circle',
+      rejectLabel: 'Cancel',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true,
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+        severity: 'danger',
+      },
+
+      accept: () => {
+        this.removeEvent.emit(event);
+      },
+      reject: () => {},
+    });
   }
 }

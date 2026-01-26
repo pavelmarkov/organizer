@@ -6,10 +6,13 @@ import os
 import ffmpeg
 from pprint import pprint
 
+from src.logger.log import logger
+
 
 class MemoriesGenerator():
     def __init__(self, memory_guid: str, paths: List[str]):
         config = get_settings()
+        self.max_files_for_memories = 50
         self.memory_guid = memory_guid
         self.save_to_path = config.memories_path + '/' + self.memory_guid
         self.paths: List[str] = paths
@@ -51,15 +54,25 @@ class MemoriesGenerator():
         return intervals
 
     def get_summary_video(self):
-        for file_path in self.paths:
+        random_paths: List[str] = self.paths.copy()
+        random.shuffle(random_paths)
+
+        index = 1
+
+        logger.info(
+            f"Star generating memories from {len(random_paths)} files"
+        )
+
+        for file_path in random_paths:
             video_file = ffmpeg.probe(file_path)
-            print("video info: ")
-            pprint(video_file, indent=2)
+            filename = os.path.basename(file_path)
+            logger.debug(f"Processing file {filename}")
+            # print("video info: ")
+            # pprint(video_file, indent=2)
             duration = int(float(video_file["format"]["duration"]))
-            intervals = self.get_random_intervals(duration, (2, 3), (7, 10))
+            intervals = self.get_random_intervals(duration, (2, 3), (14, 21))
             for interval in intervals:
                 clip_duration = interval[1] - interval[0]
-                filename = os.path.basename(file_path)
                 output_file = os.path.join(
                     self.save_to_path, f"{interval[0]}_{interval[1]}_{filename}")
                 try:
@@ -67,13 +80,24 @@ class MemoriesGenerator():
                         ffmpeg
                         .input(file_path, ss=interval[0], t=clip_duration)
                         # '-c copy' copies streams without re-encoding
-                        .output(output_file, c='copy')
+                        .output(output_file, c='copy', loglevel="quiet")
                         .run(overwrite_output=True)
                     )
-                    print(f"Video clip copied successfully to {output_file}")
+                    logger.debug(
+                        f"Video clip copied successfully to {output_file}"
+                    )
                 except ffmpeg.Error as e:
-                    print(f"Error: {e.stderr.decode()}")
+                    logger.error(f"Error: {e.stderr.decode()}")
                     continue
+
+            logger.debug(f"Finished processing path number {index}")
+            index += 1
+
+            if index >= self.max_files_for_memories:
+                logger.info(
+                    f"Max number of files to process reached: {index}, returning"
+                )
+                break
 
         return
 

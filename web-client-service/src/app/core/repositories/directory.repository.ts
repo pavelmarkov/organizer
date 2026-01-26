@@ -4,22 +4,26 @@ import { CardModel, DirectoryModel } from '../domain';
 export abstract class DirectoryRepository {
   abstract getDirectory(
     params: Partial<DirectoryModel>,
-    pagination: { offset: number; limit: number }
+    pagination: { offset: number; limit: number },
   ): Observable<DirectoryModel[]>;
 
   abstract count(): Observable<number>;
 
   abstract processDirectory(
-    directoryGuids: string[]
+    directoryGuids: string[],
   ): Observable<{ message: string }>;
 
   abstract importDirectory(
-    directories: Partial<DirectoryModel>[]
+    directories: Partial<DirectoryModel>[],
   ): Observable<Partial<DirectoryModel>[]>;
 
   abstract update(
-    directories: Partial<DirectoryModel>[]
+    directories: Partial<DirectoryModel>[],
   ): Observable<Partial<DirectoryModel>[]>;
 
   abstract view(directoryId: string): Observable<CardModel>;
+
+  abstract remove(
+    directories: Partial<DirectoryModel>[],
+  ): Observable<Partial<DirectoryModel>[]>;
 }
