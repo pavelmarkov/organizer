@@ -1,7 +1,14 @@
-import { ArrayType, Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import {
+  ArrayType,
+  Entity,
+  PrimaryKey,
+  Property,
+  Unique,
+} from "@mikro-orm/core";
 import { WithProjectIdBaseEntity } from "./base";
 
 @Entity({ tableName: "directory" })
+@Unique({ properties: ["path", "projectId"] as never })
 export class DirectoryEntity extends WithProjectIdBaseEntity {
   @PrimaryKey({ type: "uuid" })
   directoryId: string;
@@ -21,7 +28,7 @@ export class DirectoryEntity extends WithProjectIdBaseEntity {
   @Property()
   size: number;
 
-  @Property({ unique: true })
+  @Property({ unique: false, nullable: true })
   path: string;
 
   @Property({

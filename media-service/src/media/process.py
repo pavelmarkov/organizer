@@ -1,4 +1,5 @@
 
+from pprint import pprint
 import av
 import os
 from src.config.files import get_settings
@@ -79,6 +80,8 @@ class VideoProcessor():
         container = av.open(self.path)
         video_stream = container.streams.video[0]
 
+        pprint(video_stream)
+
         self.duration = video_stream.duration
         if (self.duration is None):
             self.duration = container.duration // 1000
@@ -116,8 +119,8 @@ class VideoProcessor():
         if not self.path:
             print('Path is not provided')
             return
-        if not os.path.isfile(self.path):
-            print('Directory element is not file')
+        if not os.path.isfile('/' + self.path):
+            print(f"Directory element with path={'/' + self.path} is not file")
             return
         if not self.unique_name:
             print('No unique name provided. Run prepare.')

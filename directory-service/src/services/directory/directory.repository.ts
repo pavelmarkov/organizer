@@ -157,7 +157,7 @@ export class DirectoryRepository
     });
 
     return await this.directoryRepository.upsertMany(directories, {
-      onConflictFields: ["path"],
+      onConflictFields: ["path", "projectId"],
       onConflictAction: "ignore",
     });
   }
