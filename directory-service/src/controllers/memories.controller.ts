@@ -7,7 +7,7 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
-import { GenerateMemoriesDto, ViewDto } from "../dtos";
+import { GenerateMemoriesDto, GetMemorySourcesDto, ViewDto } from "../dtos";
 import { MemoriesService, DirectoryService } from "../services";
 import { MemoryEntity } from "../entities";
 
@@ -57,7 +57,9 @@ export class MemoriesController {
   }
 
   @Get("sources")
-  getSources(@Query("memoryId") memoryId: string): Promise<string[]> {
+  getSources(
+    @Query("memoryId") memoryId: string,
+  ): Promise<GetMemorySourcesDto[]> {
     return this.memoriesService.getSources(memoryId);
   }
 }

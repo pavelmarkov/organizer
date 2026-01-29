@@ -1,17 +1,26 @@
-export class RoundRobin {
-  private sources: string[] = [];
-  private currentIndex: number = 0;
+import { MemorySourceModel } from '../../../core/domain';
 
-  constructor(sources: string[]) {
+export class RoundRobin {
+  private sources: MemorySourceModel[] = [];
+  private currentIndex: number | undefined = undefined;
+
+  constructor(sources: MemorySourceModel[]) {
     this.sources = sources;
   }
 
-  add(element: string): void {
+  getLength(): number {
+    return this.sources.length;
+  }
+
+  add(element: MemorySourceModel): void {
     this.sources.push(element);
   }
 
-  getNext(): string {
-    const currentIndex = this.currentIndex;
+  getNext(): MemorySourceModel {
+    if (this.currentIndex === undefined) {
+      this.currentIndex = 0;
+      return this.sources[this.currentIndex];
+    }
 
     this.currentIndex += 1;
 
@@ -19,6 +28,29 @@ export class RoundRobin {
       this.currentIndex = 0;
     }
 
-    return this.sources[currentIndex];
+    console.log('returning index: ', this.currentIndex);
+
+    return this.sources[this.currentIndex];
+  }
+
+  getPrevious(): MemorySourceModel {
+    if (this.currentIndex === undefined) {
+      this.currentIndex = 0;
+      return this.sources[this.currentIndex];
+    }
+
+    this.currentIndex -= 1;
+
+    if (this.currentIndex < 0) {
+      this.currentIndex = this.getLength() - 1;
+    }
+
+    console.log('returning index: ', this.currentIndex);
+
+    return this.sources[this.currentIndex];
+  }
+
+  getCurrent(): MemorySourceModel {
+    return this.sources[this.currentIndex ?? 0];
   }
 }

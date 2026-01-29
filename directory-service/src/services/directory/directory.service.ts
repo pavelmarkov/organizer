@@ -1,4 +1,9 @@
-import { Inject, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { DirectoryEntity } from "../../entities";
 import { MediaService } from "../../infrastructure/media/media.service";
 import { v4 as uuidv4 } from "uuid";
@@ -99,8 +104,12 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
   }
 
   async generateMemories(
-    params?: GenerateMemoriesDto,
+    params: GenerateMemoriesDto,
   ): Promise<{ message: string }> {
+    if (!params.directoryGuids?.length) {
+      return { message: "nothing to process" };
+    }
+
     const chosenDirectories =
       await this.directoryRepository.getAllSubdirectories(
         params.directoryGuids,
@@ -108,8 +117,12 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
     const files = chosenDirectories.filter((directory) => !directory.isFolder);
 
-    const directoryGuids = files.map((file) => file.directoryId);
-    const paths = files.map((file) => file.path);
+    const directories = files.map((file) => {
+      return {
+        directoryId: file.directoryId,
+        path: file.path,
+      };
+    });
 
     const memory = await this.memoriesRepository.upsertMany([
       {
@@ -119,9 +132,8 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     ]);
 
     await this.mediaClient.generateMemories({
-      directoryGuids,
+      directories,
       memoryGuid: memory[0].id,
-      paths,
     });
 
     return { message: "ok" };
@@ -203,6 +215,10 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
   async view(directoryId: string): Promise<View> {
     const directory = await this.directoryRepository.findOne(directoryId);
+
+    if (!directory) {
+      throw new NotFoundException("Directory not found");
+    }
 
     const view: View = {
       rowIdentifier: directory.directoryId,

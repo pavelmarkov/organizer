@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { MemoriesService } from '../core/services/';
 import { inject } from '@angular/core';
 import { MemoriesRepository } from '../core/repositories/memories.repository';
-import { MemoriesModel } from '../core/domain';
+import { MemoriesModel, MemorySourceModel } from '../core/domain';
 
 export class MemoriesServiceImpl implements MemoriesService {
   private memoriesRepository = inject(MemoriesRepository);
@@ -39,11 +39,15 @@ export class MemoriesServiceImpl implements MemoriesService {
     return this.memoriesRepository.generate(directoryGuids);
   }
 
-  getSources(memoryId: string): Observable<string[]> {
+  getSources(memoryId: string): Observable<MemorySourceModel[]> {
     return this.memoriesRepository.getSources(memoryId);
   }
 
   getStreamUrl(pathToFile: string): string {
     return this.memoriesRepository.getStreamUrl(pathToFile);
+  }
+
+  getDirectoryUrl(params: { directoryId: string; projectId: string }): string {
+    return this.memoriesRepository.getDirectoryUrl(params);
   }
 }

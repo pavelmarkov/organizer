@@ -7,12 +7,10 @@ from fastapi import APIRouter, HTTPException, Response, Header
 
 from fastapi.responses import FileResponse, JSONResponse
 
-from src.media.preview import Preview
-from src.media.info import MediaInfo
-from src.media.stream import Stream
-from src.media.memories_generator import MemoriesGenerator
+from src.services.media.preview import Preview
+from src.services.media.info import MediaInfo
 
-from src.messaging.rabbitmq_producer import RabbitMQProducer
+from src.dtos.memories_generator import GenerateMemoriesDto
 
 from fastapi.encoders import jsonable_encoder
 
@@ -63,44 +61,3 @@ async def get_info(
         return JSONResponse({"error": True})
 
     return JSONResponse({"info": jsonable_encoder(media.info)})
-
-
-@router.get("/stream")
-async def video_endpoint(
-    path_to_file: str,
-    directory_id: Optional[str],
-    range: str = Header(None)
-):
-    print(path_to_file)
-
-    stream = Stream(None, path_to_file)
-    start, end, filesize, data = await stream.get_chunk(range)
-    print(start, end, filesize)
-
-    print(start, end, filesize)
-
-    headers = {
-        'Content-Range': f'bytes {str(start)}-{str(end - 1)}/{filesize}',
-        'Content-Length': f'{end - start}',
-        'Accept-Ranges': 'bytes',
-        'Content-Type': 'video/mp4'
-    }
-    return Response(data, status_code=206, headers=headers, media_type="video/mp4")
-
-
-@router.get("/sources")
-async def video_endpoint(
-    memory_id: str,
-) -> List[str]:
-    memories = MemoriesGenerator(memory_id, [])
-    sources = memories.get_memory_sources()
-    return JSONResponse(sources)
-
-
-@router.delete("/memories")
-async def video_endpoint(
-    memory_id: str,
-) -> List[str]:
-    memories = MemoriesGenerator(memory_id, [])
-    messages = memories.remove()
-    return JSONResponse(messages)

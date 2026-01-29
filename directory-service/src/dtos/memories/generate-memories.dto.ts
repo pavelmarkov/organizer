@@ -1,5 +1,7 @@
+import { DirectoryEntity } from "src/entities";
+
 export class GenerateMemoriesDto {
-  directoryGuids: string[];
+  directoryGuids?: string[];
+  directories: Pick<DirectoryEntity, "directoryId" | "path">[];
   memoryGuid: string;
-  paths?: string[];
 }

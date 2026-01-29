@@ -60,7 +60,7 @@ export class DirectoryRepository
 
     const whereCondition = this.formWhereCondition(filter);
 
-    // console.dir(whereCondition, { depth: null });
+    console.dir(whereCondition, { depth: null });
 
     return await this.directoryRepository.findAll({
       where: whereCondition,
@@ -85,9 +85,10 @@ export class DirectoryRepository
   }
 
   async findOne(id: string): Promise<DirectoryEntity> {
-    return await this.directoryRepository.findOne({
+    const whereCondition = this.formWhereCondition({
       directoryId: id,
     });
+    return await this.directoryRepository.findOne(whereCondition);
   }
 
   async update(

@@ -24,6 +24,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { Dialog, DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
+import { ButtonGroup } from 'primeng/buttongroup';
 
 @Component({
   selector: 'app-memories-layout',
@@ -41,6 +42,7 @@ import { ButtonModule } from 'primeng/button';
 
     DialogModule,
     ButtonModule,
+    ButtonGroup,
     InputTextModule,
     TextareaModule,
     CommonModule,
@@ -108,6 +110,18 @@ export class MemoriesLayoutComponent {
   }
 
   view(): void {}
+
+  goToDirectory(): void {
+    const currentMemoryPart = this.roundRobin.getCurrent();
+    const directoryUrl: string = this.memoriesService.getDirectoryUrl({
+      directoryId: currentMemoryPart.directoryId,
+      projectId: this.dataService.getProject() ?? 'undefined',
+    });
+    console.log(directoryUrl);
+
+    window.open(directoryUrl, '_blank');
+  }
+
   edit(): void {
     this.createDialogVisible = true;
   }
@@ -127,6 +141,8 @@ export class MemoriesLayoutComponent {
   hideCreateDialog(): void {
     this.createDialogVisible = false;
   }
+  nextMemoryPart(): void {}
+  previousMemoryPart(): void {}
 
   onMemorySelectionChange(event: any) {
     console.log(this.selectedMemoryId);
@@ -148,7 +164,43 @@ export class MemoriesLayoutComponent {
   }
 
   playNext(videoplayer: HTMLVideoElement, secondVideoplayer: HTMLVideoElement) {
-    secondVideoplayer.src = this.roundRobin.getNext();
+    if (!this.roundRobin.getLength()) {
+      return;
+    }
+
+    const nextMemoryPart = this.roundRobin.getNext();
+
+    if (!nextMemoryPart.source) {
+      return;
+    }
+
+    secondVideoplayer.src = nextMemoryPart.source;
+
+    this.switchPlayers(videoplayer, secondVideoplayer);
+  }
+
+  playPrevious(
+    videoplayer: HTMLVideoElement,
+    secondVideoplayer: HTMLVideoElement,
+  ) {
+    if (!this.roundRobin.getLength()) {
+      return;
+    }
+    const previousMemoryPart = this.roundRobin.getPrevious();
+
+    if (!previousMemoryPart.source) {
+      return;
+    }
+
+    secondVideoplayer.src = previousMemoryPart.source;
+
+    this.switchPlayers(videoplayer, secondVideoplayer);
+  }
+
+  switchPlayers(
+    videoplayer: HTMLVideoElement,
+    secondVideoplayer: HTMLVideoElement,
+  ) {
     secondVideoplayer.load();
 
     videoplayer.pause();
@@ -161,12 +213,7 @@ export class MemoriesLayoutComponent {
     // secondVideoplayer.style.maxWidth = '100%';
   }
 
-  chooseMemory($event: any) {
-    console.log($event);
-  }
-
   start() {
-    console.log('selectedMemoryId: ', this.selectedMemoryId);
     this.memoriesService.getSources(this.selectedMemoryId).subscribe((data) => {
       console.log(data);
 
@@ -180,15 +227,15 @@ export class MemoriesLayoutComponent {
         data.push(data[0]);
       }
 
-      data.forEach((path) => {
-        this.roundRobin.add(this.memoriesService.getStreamUrl(path));
+      data.forEach((memoryPart) => {
+        this.roundRobin.add({
+          ...memoryPart,
+          source: this.memoriesService.getStreamUrl(memoryPart.path),
+        });
       });
 
       this.videoPlayer1.nativeElement.muted = this.muted;
       this.videoPlayer2.nativeElement.muted = this.muted;
-
-      this.videoPlayer2.nativeElement.src = this.roundRobin.getNext();
-      this.videoPlayer2.nativeElement.load();
 
       this.playNext(
         this.videoPlayer2.nativeElement,

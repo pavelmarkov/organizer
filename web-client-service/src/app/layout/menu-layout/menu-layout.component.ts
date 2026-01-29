@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { MenuItem, MenuItemCommandEvent } from 'primeng/api';
 import { Menubar } from 'primeng/menubar';
 import { ProjectsService } from '../../core/services';
 import { DataService } from '../../shared/services/data.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-menu-layout',
@@ -12,13 +13,15 @@ import { DataService } from '../../shared/services/data.service';
 })
 export class MenuLayoutComponent implements OnInit {
   items: MenuItem[] = [];
-  projectId: string | null = null;
+  projectName: string | null = null;
   section: string | undefined;
+
+  private route = inject(ActivatedRoute);
 
   constructor(
     private projectsService: ProjectsService,
     private dataService: DataService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -64,7 +67,7 @@ export class MenuLayoutComponent implements OnInit {
           label: project.name,
           icon: 'pi pi-bolt',
           command: (event: MenuItemCommandEvent) => {
-            this.projectId = project.name;
+            this.projectName = project.name;
             this.dataService.setProject(project.projectId);
           },
           state: {
@@ -75,7 +78,7 @@ export class MenuLayoutComponent implements OnInit {
 
       const defaultProject = data.find((project) => project.default);
       if (defaultProject) {
-        this.dataService.setProject(defaultProject.projectId);
+        this.dataService.setProjectIfNotSet(defaultProject.projectId);
       }
 
       this.items = [

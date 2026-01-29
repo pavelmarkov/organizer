@@ -7,7 +7,17 @@
   max-height: 100vh; */
 }
 
+.controls-panel {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
 #videoContainer {
   display: flex;
   justify-content: center;
+}
+
+.step-control {
+  margin: auto 0.9rem;
 }

@@ -8,14 +8,17 @@ from pprint import pprint
 
 from src.logger.log import logger
 
+from src.dtos.clips_entity import ClipsInfo, UpsertClipsEntityDto
+from src.dtos.memories_generator import GenerateMemoriesDto
+
 
 class MemoriesGenerator():
-    def __init__(self, memory_guid: str, paths: List[str]):
+    def __init__(self, params: GenerateMemoriesDto):
         config = get_settings()
         self.max_files_for_memories = 50
-        self.memory_guid = memory_guid
+        self.memory_guid = params.memory_guid
         self.save_to_path = config.memories_path + '/' + self.memory_guid
-        self.paths: List[str] = paths
+        self.directories = params.directories
 
     def prepare(self):
         if not os.path.exists(self.save_to_path):
@@ -53,17 +56,24 @@ class MemoriesGenerator():
 
         return intervals
 
-    def get_summary_video(self):
-        random_paths: List[str] = self.paths.copy()
-        random.shuffle(random_paths)
+    def generate_memories(self) -> List[UpsertClipsEntityDto]:
+        random_files = self.directories.copy()
+        random.shuffle(random_files)
 
         index = 1
 
         logger.info(
-            f"Star generating memories from {len(random_paths)} files"
+            f"Star generating memories from {len(random_files)} files"
         )
 
-        for file_path in random_paths:
+        clips: List[UpsertClipsEntityDto] = []
+
+        for file in random_files:
+            file_path = file.path
+            try:
+                ffmpeg.probe(file_path)
+            except:
+                continue
             video_file = ffmpeg.probe(file_path)
             filename = os.path.basename(file_path)
             logger.debug(f"Processing file {filename}")
@@ -78,7 +88,7 @@ class MemoriesGenerator():
                 try:
                     (
                         ffmpeg
-                        .input(file_path, ss=interval[0], t=clip_duration)
+                        .input(file.path, ss=interval[0], t=clip_duration)
                         # '-c copy' copies streams without re-encoding
                         .output(output_file, c='copy', loglevel="quiet")
                         .run(overwrite_output=True)
@@ -86,6 +96,17 @@ class MemoriesGenerator():
                     logger.debug(
                         f"Video clip copied successfully to {output_file}"
                     )
+                    clips.append(UpsertClipsEntityDto(
+                        name=filename,
+                        directory_id=file.id,
+                        memory_id=self.memory_guid,
+                        path=os.path.abspath(output_file),
+                        info=ClipsInfo(
+                            duration_in_seconds=clip_duration,
+                            start_time_in_seconds=interval[0],
+                            end_time_in_seconds=interval[1]
+                        )
+                    ))
                 except ffmpeg.Error as e:
                     logger.error(f"Error: {e.stderr.decode()}")
                     continue
@@ -99,7 +120,7 @@ class MemoriesGenerator():
                 )
                 break
 
-        return
+        return clips
 
     def get_memory_sources(self) -> List[str]:
         paths = []
@@ -115,20 +136,3 @@ class MemoriesGenerator():
                 )
 
         return paths
-
-    def remove(self) -> List[str]:
-        messages = []
-        dir_path = os.path.join(self.save_to_path)
-
-        if not os.path.isdir(dir_path):
-            messages.append("Nothing to delete")
-            return messages
-
-        for entry in os.listdir(dir_path):
-            os.remove(os.path.join(dir_path, entry))
-            messages.append(f'Removed file {entry}')
-
-        os.rmdir(dir_path)
-        messages.append(f'Removed folder {dir_path}')
-
-        return messages

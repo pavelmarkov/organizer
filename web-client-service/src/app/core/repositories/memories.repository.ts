@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { MemoriesModel } from '../domain';
+import { MemoriesModel, MemorySourceModel } from '../domain';
 
 export abstract class MemoriesRepository {
   abstract get(): Observable<MemoriesModel[]>;
@@ -15,6 +15,11 @@ export abstract class MemoriesRepository {
   ): Observable<Partial<MemoriesModel>[]>;
 
   abstract generate(directoryGuids: string[]): Observable<{ message: string }>;
-  abstract getSources(memoryId: string): Observable<string[]>;
+  abstract getSources(memoryId: string): Observable<MemorySourceModel[]>;
+
   abstract getStreamUrl(pathToFile: string): string;
+  abstract getDirectoryUrl(params: {
+    directoryId: string;
+    projectId: string;
+  }): string;
 }

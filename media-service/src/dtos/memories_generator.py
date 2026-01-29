@@ -3,10 +3,14 @@
 from pydantic import BaseModel, Field
 
 
+class DirectoryDto(BaseModel):
+    id: str = Field(alias='directoryId')
+    path: str
+
+
 class GenerateMemoriesDto(BaseModel):
-    directory_guids: list[str] = Field(alias='directoryGuids')
+    directories: list[DirectoryDto]
     memory_guid: str = Field(alias='memoryGuid')
-    paths: list[str] = Field(alias='paths')
 
 
 class GenerateMemoriesMessageBodyDto(BaseModel):

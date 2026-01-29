@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { GenerateMemoriesDto } from "../../dtos";
+import { GenerateMemoriesDto, GetMemorySourcesDto } from "../../dtos";
 import { MediaService } from "../../infrastructure/media/media.service";
 import { MemoriesRepository } from "../../persistence/repositories";
 import { MemoryEntity } from "../../entities";
@@ -12,12 +12,7 @@ export class MemoriesService {
     private readonly memoriesRepository: MemoriesRepository,
   ) {}
 
-  async generate(params?: GenerateMemoriesDto): Promise<{ message: string }> {
-    await this.mediaClient.generateMemories(params);
-    return { message: "ok" };
-  }
-
-  async getSources(memoryId: string): Promise<string[]> {
+  async getSources(memoryId: string): Promise<GetMemorySourcesDto[]> {
     return await this.mediaClient.getMemorySources(memoryId);
   }
 

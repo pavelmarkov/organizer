@@ -1,6 +1,6 @@
 
 import asyncio
-from src.media.process import VideoProcessor
+from src.services.media.process import VideoProcessor
 import time
 from src.data.repositories.media_async import MediaRepositoryAsync
 from aio_pika.abc import AbstractIncomingMessage

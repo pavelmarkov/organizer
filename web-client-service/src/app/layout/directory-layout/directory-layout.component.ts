@@ -1,4 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 
 import { TreeTableModule } from 'primeng/treetable';
 import { TreeNode, TreeTableNode } from 'primeng/api';
@@ -19,6 +25,7 @@ import { CardLayoutComponent } from '../card-layout/card-layout.component';
 import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
 import { TreeTableLayoutComponent } from '../tree-table-layout/tree-table-layout.component';
 import { PaginatorState } from 'primeng/paginator';
+import { ActivatedRoute } from '@angular/router';
 
 interface Column {
   field: keyof DirectoryModel | '';
@@ -61,6 +68,8 @@ export class DirectoryLayoutComponent implements OnInit {
   limit: number = 10;
   offset: number = 0;
 
+  private route = inject(ActivatedRoute);
+
   constructor(
     private cd: ChangeDetectorRef,
     private directoryService: DirectoryService,
@@ -80,6 +89,16 @@ export class DirectoryLayoutComponent implements OnInit {
     this.totalRecords = 0;
 
     this.loading = true;
+
+    const projectIdRouteParam = this.route.snapshot.paramMap.get('projectId');
+    if (projectIdRouteParam) {
+      this.dataService.setProject(projectIdRouteParam);
+    }
+
+    const directoryIdRouteParam = this.route.snapshot.paramMap.get('id');
+    if (directoryIdRouteParam) {
+      this.showDialog({ directoryId: directoryIdRouteParam });
+    }
 
     this.dataService.currentProject.subscribe((data) => {
       this.loadNodes(null);
@@ -144,7 +163,7 @@ export class DirectoryLayoutComponent implements OnInit {
       });
   }
 
-  showDialog(directory: DirectoryModel) {
+  showDialog(directory: Pick<DirectoryModel, 'directoryId'>) {
     this.directoryService.view(directory.directoryId).subscribe((viewData) => {
       this.cardData = viewData;
       this.dialogPanelVisible = true;

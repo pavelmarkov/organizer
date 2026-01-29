@@ -3,10 +3,11 @@ import { environment } from '../../../config/environment';
 import { inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MemoriesRepository } from '../../core/repositories/memories.repository';
-import { MemoriesModel } from '../../core/domain';
+import { MemoriesModel, MemorySourceModel } from '../../core/domain';
 
 export class MemoriesRepositoryImpl implements MemoriesRepository {
   private baseUrl: string = `${environment.apiUrl}/memories`;
+  private frontendUrl: string = `${environment.frontendUrl}`;
   private mediaUrl: string = environment.mediaUrl;
   private http: HttpClient = inject(HttpClient);
 
@@ -52,16 +53,21 @@ export class MemoriesRepositoryImpl implements MemoriesRepository {
     });
   }
 
-  getSources(memoryId: string): Observable<string[]> {
+  getSources(memoryId: string): Observable<MemorySourceModel[]> {
     let queryParams = new HttpParams();
 
     queryParams = queryParams.set('memoryId', memoryId);
-    return this.http.get<string[]>(`${this.baseUrl}/sources`, {
+    return this.http.get<MemorySourceModel[]>(`${this.baseUrl}/sources`, {
       params: queryParams,
     });
   }
 
   getStreamUrl(pathToFile: string): string {
-    return `${this.mediaUrl}/api/v1/media/stream?path_to_file=${encodeURIComponent(pathToFile)}&directory_id=k`;
+    return `${this.mediaUrl}/api/v1/clips/stream?path_to_file=${encodeURIComponent(pathToFile)}&directory_id=k`;
+  }
+
+  getDirectoryUrl(params: { directoryId: string; projectId: string }): string {
+    const { directoryId, projectId } = params;
+    return `${this.frontendUrl}/directory/${directoryId};projectId=${projectId}`;
   }
 }

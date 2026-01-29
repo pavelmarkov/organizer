@@ -1,6 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import {
   GenerateMemoriesDto,
+  GetMemorySourcesDto,
   MediaInfoDto,
   ProcessMediaMessageRequestDto,
 } from "../../dtos";
@@ -11,6 +12,7 @@ import {
   MEMORIES_SERVICE_CLIENT,
 } from "../../consts/infrastructure";
 import { ConfigService } from "../../shared/config";
+import { mapMemorySources } from "./mappers/map-memory-sources-response";
 
 @Injectable()
 export class MediaService implements OnModuleInit {
@@ -25,7 +27,7 @@ export class MediaService implements OnModuleInit {
 
   async onModuleInit() {
     const config = await this.configService.getConfig();
-    this.httpUrl = `http://${config.mediaServiceHttp.host}:${config.mediaServiceHttp.port}/api/v1/media`;
+    this.httpUrl = `http://${config.mediaServiceHttp.host}:${config.mediaServiceHttp.port}/api/v1`;
   }
 
   async processDirectory(
@@ -47,7 +49,7 @@ export class MediaService implements OnModuleInit {
   }
 
   async getThumbnails(directoryId: string, path: string): Promise<string> {
-    const url = new URL(`${this.httpUrl}/preview`);
+    const url = new URL(`${this.httpUrl}/media/preview`);
 
     url.searchParams.set("path_to_file", path);
     url.searchParams.set("directory_id", directoryId);
@@ -76,7 +78,7 @@ export class MediaService implements OnModuleInit {
     error?: boolean;
     info?: MediaInfoDto;
   }> {
-    const url = new URL(`${this.httpUrl}/info`);
+    const url = new URL(`${this.httpUrl}/media/info`);
 
     url.searchParams.set("path_to_file", path);
     url.searchParams.set("directory_id", directoryId);
@@ -104,8 +106,8 @@ export class MediaService implements OnModuleInit {
     return { message: "ok" };
   }
 
-  async getMemorySources(memoryId: string): Promise<string[]> {
-    const url = new URL(`${this.httpUrl}/sources`);
+  async getMemorySources(memoryId: string): Promise<GetMemorySourcesDto[]> {
+    const url = new URL(`${this.httpUrl}/clips`);
 
     url.searchParams.set("memory_id", memoryId);
 
@@ -114,14 +116,14 @@ export class MediaService implements OnModuleInit {
     const result = await sources.json();
 
     if (Array.isArray(result)) {
-      return result;
+      return mapMemorySources(result);
     }
 
     return [];
   }
 
   async removeMemory(memoryId: string): Promise<string[]> {
-    const url = new URL(`${this.httpUrl}/memories`);
+    const url = new URL(`${this.httpUrl}/clips`);
 
     url.searchParams.set("memory_id", memoryId);
 
