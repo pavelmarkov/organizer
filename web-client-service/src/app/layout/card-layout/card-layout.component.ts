@@ -21,10 +21,19 @@ import { ScrollerLazyLoadEvent } from 'primeng/scroller';
 import { CardModel, TagModel } from '../../core/domain';
 
 import { Clipboard } from '@angular/cdk/clipboard';
+import { AccordionModule } from 'primeng/accordion';
 
 @Component({
   selector: 'app-card-layout',
-  imports: [DialogModule, CardModule, ButtonModule, FormsModule, Listbox],
+  imports: [
+    DialogModule,
+    CardModule,
+    ButtonModule,
+    FormsModule,
+    Listbox,
+
+    AccordionModule,
+  ],
   templateUrl: './card-layout.component.html',
   styleUrl: './card-layout.component.css',
 })
@@ -51,7 +60,7 @@ export class CardLayoutComponent implements OnInit {
   constructor(
     private cd: ChangeDetectorRef,
     private tagsService: TagsService,
-    private clipboard: Clipboard
+    private clipboard: Clipboard,
   ) {}
 
   ngOnInit() {}

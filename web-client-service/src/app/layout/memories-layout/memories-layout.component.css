@@ -1,7 +1,7 @@
 .player {
   display: inline-block;
   max-height: 100%;
-  max-width: 100%;
+  max-width: 80%;
   display: none;
   /* width: 100%;
   max-height: 100vh; */

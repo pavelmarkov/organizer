@@ -39,12 +39,12 @@
   <ng-template #panel>
     <div class="flex items-center justify-center h-full">
       <!-- <p-panel #videoContainer> -->
-        <video class="player" controls muted="muted" (ended)="playNext(videoPlayer1, videoPlayer2)"
+        <video class="player" controls muted="muted" (ended)="onVideoEnded(videoPlayer1, videoPlayer2)"
           (error)="error($event, videoPlayer1, videoPlayer2)" #videoPlayer1>
           <source type="video/mp4">
           Your browser does not support the video tag.
         </video>
-        <video class="player" controls muted="muted" (ended)="playNext(videoPlayer1, videoPlayer2)"
+        <video class="player" controls muted="muted" (ended)="onVideoEnded(videoPlayer2, videoPlayer1)"
           (error)="error($event, videoPlayer1, videoPlayer2)" #videoPlayer2>
           <source type="video/mp4">
           Your browser does not support the video tag.
@@ -52,7 +52,7 @@
         <div class="card" class="controls-panel">
           <p-buttongroup>
             <p-button class="step-control" (click)="playPrevious(videoPlayer1, videoPlayer2)" icon="pi pi-chevron-circle-left" [rounded]="true" [text]="true" [raised]="true" />
-            <p-button icon="pi pi-replay" [rounded]="true" [text]="true" [raised]="true" />
+            <p-button icon="pi pi-replay" (click)="toggleRepeat()" [rounded]="true" [text]="true" [raised]="true" [severity]="doRepeat ? 'danger' : 'success'"/>
             <p-button icon="pi pi-external-link" (click)="goToDirectory()" [rounded]="true" [text]="true" [raised]="true" />
             <p-button class="step-control" (click)="playNext(videoPlayer1, videoPlayer2)" icon="pi pi-chevron-circle-right" [rounded]="true" [text]="true" [raised]="true" />
           </p-buttongroup>

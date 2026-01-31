@@ -1,3 +1,5 @@
+export enum SourceTypes {}
+
 export interface CardModel {
   title?: string;
   subtitle?: string;
@@ -8,4 +10,8 @@ export interface CardModel {
   next?: string;
   previous?: string;
   details?: string;
+  attachments?: {
+    type?: SourceTypes;
+    path: string;
+  }[];
 }

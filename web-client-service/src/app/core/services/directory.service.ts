@@ -26,4 +26,6 @@ export abstract class DirectoryService {
   abstract remove(
     directories: Partial<DirectoryModel>[],
   ): Observable<Partial<DirectoryModel>[]>;
+
+  abstract getStreamUrl(pathToFile: string): string;
 }

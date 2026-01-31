@@ -163,9 +163,15 @@ export class DirectoryLayoutComponent implements OnInit {
       });
   }
 
-  showDialog(directory: Pick<DirectoryModel, 'directoryId'>) {
+  showDialog(
+    directory: Pick<DirectoryModel, 'directoryId'> & Partial<DirectoryModel>,
+  ) {
     this.directoryService.view(directory.directoryId).subscribe((viewData) => {
       this.cardData = viewData;
+      this.cardData.attachments = [];
+      this.cardData.attachments.push({
+        path: this.directoryService.getStreamUrl(viewData.subtitle ?? ''),
+      });
       this.dialogPanelVisible = true;
     });
   }
@@ -177,6 +183,10 @@ export class DirectoryLayoutComponent implements OnInit {
 
     this.directoryService.view(this.cardData.next).subscribe((viewData) => {
       this.cardData = viewData;
+      this.cardData.attachments = [];
+      this.cardData.attachments.push({
+        path: this.directoryService.getStreamUrl(viewData.subtitle ?? ''),
+      });
       this.dialogPanelVisible = true;
     });
   }
@@ -188,6 +198,12 @@ export class DirectoryLayoutComponent implements OnInit {
 
     this.directoryService.view(this.cardData.previous).subscribe((viewData) => {
       this.cardData = viewData;
+      if (!directory.isFolder) {
+        this.cardData.attachments = [];
+        this.cardData.attachments.push({
+          path: this.directoryService.getStreamUrl(viewData.subtitle ?? ''),
+        });
+      }
       this.dialogPanelVisible = true;
     });
   }

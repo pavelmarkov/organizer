@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  HostListener,
   ViewChild,
 } from '@angular/core';
 import { CardModule } from 'primeng/card';
@@ -80,6 +81,8 @@ export class MemoriesLayoutComponent {
 
   items!: MenuItem[];
 
+  doRepeat: boolean = false;
+
   ngOnInit() {
     this.items = [
       {
@@ -107,6 +110,10 @@ export class MemoriesLayoutComponent {
     this.dataService.currentProject.subscribe((data) => {
       this.get();
     });
+  }
+
+  toggleRepeat(): void {
+    this.doRepeat = !this.doRepeat;
   }
 
   view(): void {}
@@ -161,6 +168,19 @@ export class MemoriesLayoutComponent {
       this.memories = data;
       console.log(this.memories);
     });
+  }
+
+  onVideoEnded(
+    videoplayer: HTMLVideoElement,
+    secondVideoplayer: HTMLVideoElement,
+  ) {
+    if (this.doRepeat) {
+      videoplayer.currentTime = 0;
+      videoplayer.play();
+      return;
+    }
+
+    this.playNext(videoplayer, secondVideoplayer);
   }
 
   playNext(videoplayer: HTMLVideoElement, secondVideoplayer: HTMLVideoElement) {

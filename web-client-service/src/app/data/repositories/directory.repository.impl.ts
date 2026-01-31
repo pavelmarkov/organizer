@@ -7,6 +7,7 @@ import { CardModel, DirectoryModel } from '../../core/domain';
 
 export class DirectoryRepositoryImpl implements DirectoryRepository {
   private baseUrl: string = environment.apiUrl;
+  private mediaUrl: string = environment.mediaUrl;
   private http: HttpClient = inject(HttpClient);
 
   constructor() {}
@@ -87,5 +88,9 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
         body: directories,
       },
     );
+  }
+
+  getStreamUrl(pathToFile: string): string {
+    return `${this.mediaUrl}/api/v1/clips/stream?path_to_file=${encodeURIComponent(pathToFile)}&directory_id=k`;
   }
 }

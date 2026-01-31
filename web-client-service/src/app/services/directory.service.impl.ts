@@ -45,4 +45,8 @@ export class DirectoryServiceImpl implements DirectoryService {
   ): Observable<Partial<DirectoryModel>[]> {
     return this.directoryRepository.remove(directories);
   }
+
+  getStreamUrl(pathToFile: string): string {
+    return this.directoryRepository.getStreamUrl(pathToFile);
+  }
 }

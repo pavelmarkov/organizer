@@ -5,6 +5,28 @@
       @if(cardData && cardData.image) {
         <img alt="Card" [style]="{ height: '25rem' }" class="w-full" src="data:image/jpeg;base64, {{cardData.image}}" />
       }
+      @if(cardData && cardData.attachments) {
+      <div class="card flex justify-center">
+        <p-accordion value="1">
+        @for (item of cardData.attachments; track $index) {
+          <p-accordion-panel value="{{$index}}">
+            <p-accordion-header>Attachment {{$index + 1}}</p-accordion-header>
+            <p-accordion-content>
+              <div class="flex items-center justify-center h-full">
+                <video class="player" controls muted="{{true}}" #videoPlayer src="{{item.path}}" preload="none">
+                  <source type="video/mp4" src="{{item.path}}">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </p-accordion-content>
+          </p-accordion-panel>
+        } 
+        @empty {
+        <span>No attachments.</span>
+        }
+      </p-accordion>
+      </div>
+      }
     </ng-template>
     <ng-template #title>{{cardData.title}}</ng-template>
     <ng-template #subtitle><p style="cursor: pointer" (click)="copyMessage(cardData.subtitle)">{{cardData.subtitle}}</p></ng-template>
