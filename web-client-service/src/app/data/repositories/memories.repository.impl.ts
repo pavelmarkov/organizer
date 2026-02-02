@@ -8,7 +8,6 @@ import { MemoriesModel, MemorySourceModel } from '../../core/domain';
 export class MemoriesRepositoryImpl implements MemoriesRepository {
   private baseUrl: string = `${environment.apiUrl}/memories`;
   private frontendUrl: string = `${environment.frontendUrl}`;
-  private mediaUrl: string = environment.mediaUrl;
   private http: HttpClient = inject(HttpClient);
 
   constructor() {}
@@ -62,12 +61,12 @@ export class MemoriesRepositoryImpl implements MemoriesRepository {
     });
   }
 
-  getStreamUrl(pathToFile: string): string {
-    return `${this.mediaUrl}/api/v1/clips/stream?path_to_file=${encodeURIComponent(pathToFile)}&directory_id=k`;
-  }
-
-  getDirectoryUrl(params: { directoryId: string; projectId: string }): string {
-    const { directoryId, projectId } = params;
-    return `${this.frontendUrl}/directory/${directoryId};projectId=${projectId}`;
+  getDirectoryUrl(params: {
+    directoryId: string;
+    projectId: string;
+    startTime: number;
+  }): string {
+    const { directoryId, projectId, startTime } = params;
+    return `${this.frontendUrl}/directory/${directoryId};projectId=${projectId};startTime=${startTime}`;
   }
 }

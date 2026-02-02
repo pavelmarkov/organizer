@@ -8,6 +8,8 @@ import {
   SimpleChanges,
   SimpleChange,
   HostListener,
+  ElementRef,
+  inject,
 } from '@angular/core';
 
 import { DialogModule } from 'primeng/dialog';
@@ -21,7 +23,9 @@ import { ScrollerLazyLoadEvent } from 'primeng/scroller';
 import { CardModel, TagModel } from '../../core/domain';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { AccordionModule } from 'primeng/accordion';
+import { AccordionModule, AccordionTabOpenEvent } from 'primeng/accordion';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-card-layout',
@@ -33,6 +37,8 @@ import { AccordionModule } from 'primeng/accordion';
     Listbox,
 
     AccordionModule,
+
+    CommonModule,
   ],
   templateUrl: './card-layout.component.html',
   styleUrl: './card-layout.component.css',
@@ -41,6 +47,7 @@ export class CardLayoutComponent implements OnInit {
   @Input() cardData: CardModel = {
     rowIdentifier: null,
     tags: [],
+    attachments: [],
   };
 
   @Input() visible: boolean = false;
@@ -57,18 +64,39 @@ export class CardLayoutComponent implements OnInit {
 
   filterValue: string | null = null;
 
+  activeTabIndex: number = -1;
+
+  attachmentStartTime!: number;
+
+  loading!: boolean;
+
+  private route = inject(ActivatedRoute);
+
   constructor(
     private cd: ChangeDetectorRef,
     private tagsService: TagsService,
     private clipboard: Clipboard,
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    const startTimeRouteParam = this.route.snapshot.paramMap.get('startTime');
+    if (startTimeRouteParam) {
+      this.attachmentStartTime = Number.parseInt(startTimeRouteParam);
+      this.activeTabIndex = 0;
+      this.loadVideoPlayer();
+    }
+  }
 
   ngOnChanges(changes: SimpleChanges & { visible: SimpleChange }): void {
     if (changes.visible?.currentValue) {
       this.loadTags();
     }
+  }
+
+  setDefaults(): void {
+    this.attachmentStartTime = 0;
+    this.activeTabIndex = -1;
+    this.loading = false;
   }
 
   loadTags(event?: ScrollerLazyLoadEvent) {
@@ -82,17 +110,43 @@ export class CardLayoutComponent implements OnInit {
   }
 
   dialogClosed() {
+    this.setDefaults();
     this.dialogPanelCloseEvent.emit();
   }
 
   @HostListener('window:keydown.ArrowRight', ['$event'])
   next($event: MouseEvent | KeyboardEvent) {
+    this.setDefaults();
     this.nextItemEvent.emit();
   }
 
   @HostListener('window:keydown.ArrowLeft', ['$event'])
   previous($event: MouseEvent | KeyboardEvent) {
+    this.setDefaults();
     this.previousItemEvent.emit();
+  }
+
+  onAttachmentOpen($event: AccordionTabOpenEvent) {
+    this.activeTabIndex = $event.index;
+    if (!this.loading) {
+      this.loadVideoPlayer();
+    }
+  }
+
+  loadVideoPlayer(): void {
+    const videoElements = document.getElementsByClassName('player');
+    for (let videoElement of videoElements) {
+      const element = videoElement as HTMLVideoElement;
+      if (this.attachmentStartTime) {
+        element.src = `${element.src}#t=${this.attachmentStartTime}`;
+      }
+      // element.style.display = 'inline-block';
+      this.loading = true;
+      element.load();
+      element.onloadeddata = () => {
+        this.loading = false;
+      };
+    }
   }
 
   newTag($event: MouseEvent): void {

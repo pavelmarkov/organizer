@@ -9,6 +9,6 @@ export class GetMemorySourcesDto {
   name: string;
   directoryId: string;
   memoryId: string;
-  path: string;
+  source: string;
   info: ClipInfoDto;
 }

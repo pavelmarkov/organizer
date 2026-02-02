@@ -10,7 +10,7 @@ export class NoteService implements BaseAbstractService<NoteEntity> {
 
   async get(
     filter?: Partial<NoteEntity>,
-    pagination?: { limit: number; offset: number }
+    pagination?: { limit: number; offset: number },
   ): Promise<NoteEntity[]> {
     return await this.noteRepository.findAll({
       filter,
@@ -48,6 +48,7 @@ export class NoteService implements BaseAbstractService<NoteEntity> {
       next: null,
       previous: null,
       details: null,
+      attachments: [],
     };
 
     view.next = await this.noteRepository.getNextItemId(note);

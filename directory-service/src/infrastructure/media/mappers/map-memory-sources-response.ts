@@ -30,7 +30,7 @@ export function mapMemorySources(
       name: source.name,
       directoryId: source.directory_id,
       memoryId: source.memory_id,
-      path: source.path,
+      source: source.path,
       info: info,
     };
 

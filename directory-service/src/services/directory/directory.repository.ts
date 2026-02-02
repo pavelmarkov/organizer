@@ -60,7 +60,7 @@ export class DirectoryRepository
 
     const whereCondition = this.formWhereCondition(filter);
 
-    console.dir(whereCondition, { depth: null });
+    // console.dir(whereCondition, { depth: null });
 
     return await this.directoryRepository.findAll({
       where: whereCondition,

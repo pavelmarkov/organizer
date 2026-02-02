@@ -10,8 +10,8 @@ export interface CardModel {
   next?: string;
   previous?: string;
   details?: string;
-  attachments?: {
+  attachments: {
     type?: SourceTypes;
-    path: string;
+    source: string;
   }[];
 }

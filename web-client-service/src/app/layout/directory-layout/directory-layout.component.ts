@@ -63,6 +63,7 @@ export class DirectoryLayoutComponent implements OnInit {
   cardData: CardModel = {
     rowIdentifier: null,
     tags: [],
+    attachments: [],
   };
 
   limit: number = 10;
@@ -168,10 +169,7 @@ export class DirectoryLayoutComponent implements OnInit {
   ) {
     this.directoryService.view(directory.directoryId).subscribe((viewData) => {
       this.cardData = viewData;
-      this.cardData.attachments = [];
-      this.cardData.attachments.push({
-        path: this.directoryService.getStreamUrl(viewData.subtitle ?? ''),
-      });
+      this.cardData.attachments = viewData.attachments;
       this.dialogPanelVisible = true;
     });
   }
@@ -183,10 +181,7 @@ export class DirectoryLayoutComponent implements OnInit {
 
     this.directoryService.view(this.cardData.next).subscribe((viewData) => {
       this.cardData = viewData;
-      this.cardData.attachments = [];
-      this.cardData.attachments.push({
-        path: this.directoryService.getStreamUrl(viewData.subtitle ?? ''),
-      });
+      this.cardData.attachments = viewData.attachments;
       this.dialogPanelVisible = true;
     });
   }
@@ -198,12 +193,7 @@ export class DirectoryLayoutComponent implements OnInit {
 
     this.directoryService.view(this.cardData.previous).subscribe((viewData) => {
       this.cardData = viewData;
-      if (!directory.isFolder) {
-        this.cardData.attachments = [];
-        this.cardData.attachments.push({
-          path: this.directoryService.getStreamUrl(viewData.subtitle ?? ''),
-        });
-      }
+      this.cardData.attachments = viewData.attachments;
       this.dialogPanelVisible = true;
     });
   }

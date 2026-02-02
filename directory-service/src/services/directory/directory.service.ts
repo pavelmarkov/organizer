@@ -230,6 +230,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       next: null,
       previous: null,
       details: null,
+      attachments: [],
     };
 
     view.next = await this.directoryRepository.getNextItemId(directory);
@@ -256,6 +257,9 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       const durationSeconds = `${String(info.seconds).padStart(2, "0")}`;
       const resolution = `${info.width}x${info.height}`;
       view.text = `${size} ${durationMinutes}:${durationSeconds} ${resolution}`;
+      view.attachments.push({
+        source: this.mediaClient.getStreamUrl(directory.path),
+      });
     }
 
     return view;

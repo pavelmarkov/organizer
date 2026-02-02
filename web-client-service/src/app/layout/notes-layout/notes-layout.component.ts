@@ -57,12 +57,13 @@ export class NotesLayoutComponent {
   cardData: CardModel = {
     rowIdentifier: null,
     tags: [],
+    attachments: [],
   };
 
   constructor(
     private cd: ChangeDetectorRef,
     private notesService: NotesService,
-    private dataService: DataService
+    private dataService: DataService,
   ) {}
 
   ngOnInit() {

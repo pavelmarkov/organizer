@@ -1,3 +1,5 @@
+export enum SourceTypes {}
+
 export interface View {
   rowIdentifier: string;
   title: string;
@@ -8,4 +10,8 @@ export interface View {
   next: string;
   previous: string;
   details: string;
+  attachments: {
+    type?: SourceTypes;
+    source: string;
+  }[];
 }

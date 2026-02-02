@@ -1,4 +1,4 @@
-import { View } from "../../domain/types";
+import { SourceTypes, View } from "../../domain/types";
 
 export class ViewDto implements View {
   rowIdentifier: string;
@@ -10,4 +10,8 @@ export class ViewDto implements View {
   next: string;
   previous: string;
   details: string;
+  attachments: {
+    type?: SourceTypes;
+    source: string;
+  }[];
 }

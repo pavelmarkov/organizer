@@ -8,7 +8,6 @@ export interface MemorySourceModel {
   name: string;
   directoryId: string;
   memoryId: string;
-  path: string;
-  source?: string;
+  source: string;
   info: MemoryInfo;
 }

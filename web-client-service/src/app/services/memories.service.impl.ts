@@ -43,11 +43,11 @@ export class MemoriesServiceImpl implements MemoriesService {
     return this.memoriesRepository.getSources(memoryId);
   }
 
-  getStreamUrl(pathToFile: string): string {
-    return this.memoriesRepository.getStreamUrl(pathToFile);
-  }
-
-  getDirectoryUrl(params: { directoryId: string; projectId: string }): string {
+  getDirectoryUrl(params: {
+    directoryId: string;
+    projectId: string;
+    startTime: number;
+  }): string {
     return this.memoriesRepository.getDirectoryUrl(params);
   }
 }

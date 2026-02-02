@@ -123,6 +123,7 @@ export class MemoriesLayoutComponent {
     const directoryUrl: string = this.memoriesService.getDirectoryUrl({
       directoryId: currentMemoryPart.directoryId,
       projectId: this.dataService.getProject() ?? 'undefined',
+      startTime: currentMemoryPart.info.startTimeInSeconds,
     });
     console.log(directoryUrl);
 
@@ -227,6 +228,7 @@ export class MemoriesLayoutComponent {
     videoplayer.style.display = 'none';
 
     secondVideoplayer.muted = videoplayer.muted;
+
     secondVideoplayer.play();
     secondVideoplayer.style.display = 'inline-block';
     // secondVideoplayer.style.height = '98vh';
@@ -250,7 +252,6 @@ export class MemoriesLayoutComponent {
       data.forEach((memoryPart) => {
         this.roundRobin.add({
           ...memoryPart,
-          source: this.memoriesService.getStreamUrl(memoryPart.path),
         });
       });
 

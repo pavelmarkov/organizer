@@ -3,18 +3,24 @@
   <p-card [style]="{  overflow: 'hidden' }">
     <ng-template #header>
       @if(cardData && cardData.image) {
-        <img alt="Card" [style]="{ height: '25rem' }" class="w-full" src="data:image/jpeg;base64, {{cardData.image}}" />
+        <img alt="Card" [style]="{ height: '25rem', display: 'block', 'margin-left': 'auto', 'margin-right': 'auto' }" class="w-full" src="data:image/jpeg;base64, {{cardData.image}}" />
       }
-      @if(cardData && cardData.attachments) {
+      @if(cardData && cardData.attachments.length) {
       <div class="card flex justify-center">
-        <p-accordion value="1">
+        <p-accordion value="activeTabIndex" (onOpen)="onAttachmentOpen($event)">
         @for (item of cardData.attachments; track $index) {
           <p-accordion-panel value="{{$index}}">
             <p-accordion-header>Attachment {{$index + 1}}</p-accordion-header>
             <p-accordion-content>
               <div class="flex items-center justify-center h-full">
-                <video class="player" controls muted="{{true}}" #videoPlayer src="{{item.path}}" preload="none">
-                  <source type="video/mp4" src="{{item.path}}">
+                <video
+                  class="player"
+                  controls
+                  muted="{{true}}"
+                  src="{{item.source}}"
+                  preload="none"
+                  [ngClass]="{ 'active-player': activeTabIndex == $index}">
+                  <source type="video/mp4" src="{{item.source}}">
                   Your browser does not support the video tag.
                 </video>
               </div>

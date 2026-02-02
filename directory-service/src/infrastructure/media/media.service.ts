@@ -30,6 +30,12 @@ export class MediaService implements OnModuleInit {
     this.httpUrl = `http://${config.mediaServiceHttp.host}:${config.mediaServiceHttp.port}/api/v1`;
   }
 
+  getStreamUrl(pathToFile: string): string {
+    return `${this.httpUrl}/clips/stream?path_to_file=${encodeURIComponent(
+      pathToFile,
+    )}&directory_id=k`;
+  }
+
   async processDirectory(
     params: ProcessMediaMessageRequestDto,
   ): Promise<ProcessMediaMessageRequestDto> {
@@ -116,6 +122,9 @@ export class MediaService implements OnModuleInit {
     const result = await sources.json();
 
     if (Array.isArray(result)) {
+      result.forEach(
+        (memory) => (memory.path = this.getStreamUrl(memory.path)),
+      );
       return mapMemorySources(result);
     }
 

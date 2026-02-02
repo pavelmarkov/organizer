@@ -56,6 +56,7 @@ export class MemoriesService {
       next: null,
       previous: null,
       details: null,
+      attachments: [],
     };
 
     view.next = await this.memoriesRepository.getNextItemId(memory);

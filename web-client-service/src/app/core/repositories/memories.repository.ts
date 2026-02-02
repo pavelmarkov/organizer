@@ -17,9 +17,9 @@ export abstract class MemoriesRepository {
   abstract generate(directoryGuids: string[]): Observable<{ message: string }>;
   abstract getSources(memoryId: string): Observable<MemorySourceModel[]>;
 
-  abstract getStreamUrl(pathToFile: string): string;
   abstract getDirectoryUrl(params: {
     directoryId: string;
     projectId: string;
+    startTime: number;
   }): string;
 }
