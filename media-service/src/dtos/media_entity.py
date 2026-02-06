@@ -1,17 +1,23 @@
 
 
 import uuid
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class MediaInfo(BaseModel):
-    duration_in_seconds: int
+    duration_in_seconds: int = Field(
+        serialization_alias='durationInSeconds'
+    )
     minutes: int
     seconds: int
     width: int
     height: int
-    codec_name: str
-    unique_name: str
+    codec_name: str = Field(
+        serialization_alias='codecName'
+    )
+    unique_name: str = Field(
+        serialization_alias='uniqueName'
+    )
     size: int
 
 

@@ -1,10 +1,13 @@
 
+from fractions import Fraction
 from pprint import pprint
+from typing import List
 import av
 import os
 from src.config.files import get_settings
 from PIL import Image
 from src.dtos.media_entity import MediaInfo
+from src.logger.log import logger
 
 
 class VideoProcessor():
@@ -16,15 +19,21 @@ class VideoProcessor():
 
         self.filename = None
 
+        self.container = None
+
         self.duration = None
         self.duration_in_seconds = None
         self.codec_name = None
         self.width = None
         self.height = None
         self.size: int = None
+        self.number_of_frames: int = None
+        self.frame_rate: Fraction = None
 
         self.unique_name = None
         self.full_preview_path = None
+
+        self.errors: List[str] = []
 
     def findExisting(self, path, fileToCheck):
         for entry in os.listdir(path):
@@ -37,6 +46,9 @@ class VideoProcessor():
                 if entry == fileToCheck:
                     return os.path.join(path, entry)
         return None
+
+    def has_errors(self):
+        return len(self.errors) > 0
 
     def allocSubfolder(self):
         start = self.max_files_in_folder
@@ -77,14 +89,34 @@ class VideoProcessor():
 
         self.size = os.path.getsize(self.path)
 
-        container = av.open(self.path)
-        video_stream = container.streams.video[0]
+        try:
+            self.container = av.open(self.path)
+        except:
+            self.errors.append('Error opening file')
+            return
 
-        pprint(video_stream)
+        if len(self.container.streams.video) < 1:
+            self.errors.append('No video stream found in file')
+            return
+
+        video_stream = self.container.streams.video[0]
 
         self.duration = video_stream.duration
-        if (self.duration is None):
-            self.duration = container.duration // 1000
+        if video_stream.duration:
+            self.duration = video_stream.duration
+        elif self.container.duration:
+            self.duration = self.container.duration // 1000
+        else:
+            self.errors.append('Duration is not defined')
+            return
+
+        if not video_stream.codec_context:
+            self.errors.append('Codec context is not defined')
+            return
+
+        if not video_stream.time_base:
+            self.errors.append('Time base is not defined')
+            return
 
         self.codec_name = video_stream.codec_context.name
         self.width = video_stream.codec_context.width
@@ -94,11 +126,27 @@ class VideoProcessor():
         minutes = self.duration_in_seconds // 60
         seconds = self.duration_in_seconds % 60
 
-        print('Video info: ', self.duration, video_stream.time_base,
-              self.duration_in_seconds, minutes, seconds)
+        self.frame_rate = video_stream.average_rate  # get the frame rate
+        if not self.frame_rate:
+            self.frame_rate = video_stream.codec_context.rate
+
+        if not self.frame_rate:
+            self.errors.append('Framerate is not defined')
+            return
+
+        self.number_of_frames = video_stream.frames
+        if self.number_of_frames <= 0:
+            self.number_of_frames = round(
+                self.duration_in_seconds * float(self.frame_rate)
+            )
+
+        logger.debug(
+            f"Video info: duration={self.duration_in_seconds}, time_base={video_stream.time_base}")
 
         self.unique_name = f"{self.filename}_{minutes}m{seconds}s_{self.width}x{self.height}.jpeg"
+
         subfolder = self.allocSubfolder()
+
         self.full_preview_path = os.path.join(
             self.save_to_path, subfolder, self.unique_name
         )
@@ -116,28 +164,39 @@ class VideoProcessor():
         )
 
     def process_video_file(self):
+        if len(self.errors):
+            logger.error('There are errors during prepare phase')
+            return
         if not self.path:
-            print('Path is not provided')
+            logger.error('Path is not provided')
             return
         if not os.path.isfile('/' + self.path):
-            print(f"Directory element with path={'/' + self.path} is not file")
+            logger.error(
+                f"Directory element with path={'/' + self.path} is not file")
             return
         if not self.unique_name:
-            print('No unique name provided. Run prepare.')
+            logger.error('No unique name provided. Run prepare.')
             return
         if os.path.isfile(self.full_preview_path):
-            print('File exists, skipping.')
+            logger.info('File exists, skipping.')
             return
 
         existing_preview_path = self.findExisting(
             self.save_to_path, self.unique_name)
+
         if existing_preview_path:
             self.full_preview_path = existing_preview_path
-            print('File exists in subdir, skipping.')
+            logger.info('File exists in subdir, skipping.')
             return
 
         percentiles = [10, 20, 30, 40, 50, 60, 70, 80, 90]
         frames = self.__extract_frames(percentiles)
+
+        if len(frames) != len(percentiles):
+            self.errors.append(
+                f"Expected number of frames is {len(percentiles)}, but received {len(frames)}"
+            )
+            return
 
         preview = self.makeSummary(frames)
 
@@ -173,54 +232,46 @@ class VideoProcessor():
         return percentileValues
 
     def __extract_frames(self, percentiles):
-        container = av.open(self.path)
-        video_stream = container.streams.video[0]
-
-        framerate = video_stream.average_rate  # get the frame rate
-        if not framerate:
-            framerate = video_stream.codec_context.rate
-
-        print('duration: ', container.duration)
-
-        total_frame_cnt = video_stream.frames
-        if total_frame_cnt <= 0:
-            duration = float(self.duration *
-                             video_stream.time_base)  # seconds
-            total_frame_cnt = round(duration * float(framerate))
-
-        print('total_frames: ', total_frame_cnt)
         frame_indices = self.__findPercentileValues(
-            total_frame_cnt, percentiles)
-        print('frame_indices: ', frame_indices)
+            self.number_of_frames, percentiles
+        )
 
         frames = []
 
         for index in frame_indices:
             # timestamp for that frame_num
-            frame_time_in_seconds = int(index / framerate)
+            frame_time_in_seconds = int(index / self.frame_rate)
             frame_time_in_microseconds = frame_time_in_seconds * \
                 1000000  # 1 second → 1,000,000 μs
 
             minutes = frame_time_in_seconds // 60
             seconds = frame_time_in_seconds % 60
-            print(f"{minutes}m{seconds}s{index}i")
+            logger.debug(f"{minutes}m{seconds}s{index}i")
 
             # backward=True = seek to that nearest timestamp
-            container.seek(frame_time_in_microseconds, backward=True)
+            try:
+                self.container.seek(frame_time_in_microseconds, backward=True)
+            except:
+                self.errors.append(f"Error seeking frame at index {i}")
+                continue
 
             # get the next available frame
             max_try = 3
             for i in range(1, max_try):
                 try:
-                    frame = next(container.decode(video=0))
+                    frame = next(self.container.decode(video=0))
                     break
                 except:
                     if i >= max_try:
                         raise 'Max trials has been reached'
-                    print('failed getting frame, retry: ', i+2)
+                    logger.error('failed getting frame, retry: ', i+2)
 
-            frames.append({"image": frame.to_image(
-            ), "minutes": minutes, "seconds": seconds, "index": index})
+            frames.append({
+                "image": frame.to_image(),
+                "minutes": minutes,
+                "seconds": seconds,
+                "index": index
+            })
 
-        container.close()
+        self.container.close()
         return frames

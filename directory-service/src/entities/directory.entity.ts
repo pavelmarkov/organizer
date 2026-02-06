@@ -1,11 +1,14 @@
 import {
   ArrayType,
   Entity,
+  Enum,
   PrimaryKey,
   Property,
   Unique,
 } from "@mikro-orm/core";
 import { WithProjectIdBaseEntity } from "./base";
+import { MediaInfo } from "src/domain/types";
+import { FileStateEnum } from "src/domain/enums";
 
 @Entity({ tableName: "directory" })
 @Unique({ properties: ["path", "projectId"] as never })
@@ -37,4 +40,18 @@ export class DirectoryEntity extends WithProjectIdBaseEntity {
     nullable: true,
   })
   tags: string[];
+
+  @Property({
+    type: "json",
+    default: "{}",
+    nullable: true,
+  })
+  info?: MediaInfo;
+
+  @Enum({
+    items: () => FileStateEnum,
+    nullable: false,
+    default: FileStateEnum.CREATED,
+  })
+  state?: FileStateEnum;
 }

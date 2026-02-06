@@ -9,12 +9,13 @@ import { MediaService } from "../../infrastructure/media/media.service";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "path";
 import { BaseAbstractService } from "../../domain/services";
-import { View } from "../../domain/types";
+import { MediaInfo, View } from "../../domain/types";
 import { DirectoryRepository } from "./directory.repository";
 import { convertSizeInBytes } from "./utils/convert-size-in-bytes";
 import { AsyncLocalStorage } from "async_hooks";
 import { GenerateMemoriesDto } from "../../dtos";
 import { MemoriesRepository } from "../../persistence/repositories";
+import { FileStateEnum } from "src/domain/enums";
 
 @Injectable()
 export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
@@ -88,15 +89,35 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
     const processing = chosenFiles.map(async (file) => {
       const response = await this.mediaClient.processDirectory({
-        directory: [{ directoryId: file.directoryId, path: file.path }],
+        directories: [{ directoryId: file.directoryId, path: file.path }],
       });
-      console.log(response);
-      return response;
+      // console.dir(response, { depth: null });
+
+      file.info = new MediaInfo();
+
+      if (!response?.directories?.length) {
+        const error = "File wan't processed";
+        file.info.errors.push(error);
+      } else {
+        const processingResult = response.directories[0];
+        file.info = processingResult.info;
+        file.info.errors = processingResult.errors;
+      }
+
+      file.state = FileStateEnum.PROCESSED;
+
+      if (file.info.errors.length) {
+        file.state = FileStateEnum.ERROR;
+      }
+
+      const updatedFileData = await this.directoryRepository.update([file]);
+
+      console.dir(updatedFileData[0].info, { depth: null });
+
+      return updatedFileData;
     });
 
-    Promise.all(processing).then((responses) => {
-      console.log("mediaServiceAnswer 2: ", responses);
-    });
+    Promise.all(processing);
 
     return {
       message: "ok",
@@ -237,10 +258,19 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     view.previous = await this.directoryRepository.getPreviousItemId(directory);
 
     if (!directory.isFolder) {
-      const media = await this.mediaClient.getInfo(
-        directory.directoryId,
-        directory.path,
-      );
+      const media = directory.info?.durationInSeconds
+        ? {
+            info: {
+              duration_in_seconds: directory.info.durationInSeconds,
+              minutes: directory.info.minutes,
+              seconds: directory.info.seconds,
+              width: directory.info.width,
+              height: directory.info.height,
+              codec_name: directory.info.codecName,
+              size: directory.info.size,
+            },
+          }
+        : await this.mediaClient.getInfo(directory.directoryId, directory.path);
 
       if (!media?.info) {
         return view;

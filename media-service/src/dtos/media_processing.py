@@ -1,6 +1,8 @@
 
 
+from typing import List
 from pydantic import BaseModel, Field
+from src.dtos.media_entity import MediaInfo
 
 
 class DirectoryEntityModel(BaseModel):
@@ -9,10 +11,23 @@ class DirectoryEntityModel(BaseModel):
 
 
 class DirectoryMessageModel(BaseModel):
-    directory: list[DirectoryEntityModel]
+    directories: list[DirectoryEntityModel]
 
 
 class ProcessMediaMessageBodyDto(BaseModel):
     id: str
     pattern: str
     data: DirectoryMessageModel
+
+
+class ProcessMediaResponseDataDto(BaseModel):
+    directory_id: str = Field(
+        serialization_alias='directoryId'
+    )
+    path: str = Field()
+    info: MediaInfo | None
+    errors: List[str]
+
+
+class ProcessMediaResponseDto(BaseModel):
+    directories: List[ProcessMediaResponseDataDto]

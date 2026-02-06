@@ -4,6 +4,7 @@ import {
   GetMemorySourcesDto,
   MediaInfoDto,
   ProcessMediaMessageRequestDto,
+  ProcessMediaMessageResponseDto,
 } from "../../dtos";
 import { ClientProxy } from "@nestjs/microservices";
 import { lastValueFrom } from "rxjs";
@@ -38,19 +39,24 @@ export class MediaService implements OnModuleInit {
 
   async processDirectory(
     params: ProcessMediaMessageRequestDto,
-  ): Promise<ProcessMediaMessageRequestDto> {
+  ): Promise<ProcessMediaMessageResponseDto> {
     try {
-      console.log("params to media service 1: ", params);
-      const mediaServiceAnswer = await lastValueFrom(
-        this.mediaClient.send("media_queue", params),
-      );
+      const mediaServiceAnswer =
+        await lastValueFrom<ProcessMediaMessageResponseDto>(
+          this.mediaClient.send("media_queue", params),
+        );
 
-      console.log("mediaServiceAnswer 1: ", mediaServiceAnswer);
-
-      return mediaServiceAnswer.data;
+      return mediaServiceAnswer;
     } catch (error) {
       console.log(error);
-      return { directory: [] };
+      return {
+        directories: [
+          {
+            ...params[0],
+            errors: [error.message],
+          },
+        ],
+      };
     }
   }
 
