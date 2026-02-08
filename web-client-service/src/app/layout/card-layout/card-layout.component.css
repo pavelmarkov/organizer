@@ -8,3 +8,7 @@
 .active-player {
   display: inline-block;
 }
+
+.memory-selector {
+  max-width: 28%;
+}

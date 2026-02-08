@@ -82,7 +82,7 @@ class VideoProcessor():
             os.makedirs(self.save_to_path)
 
         if not os.path.isfile(self.path):
-            print('Directory element is not file')
+            self.errors.append('Directory element is not file')
             return
 
         self.filename = os.path.basename(self.path)
@@ -152,6 +152,12 @@ class VideoProcessor():
         )
 
     def get_media_info(self) -> MediaInfo:
+        if len(self.errors):
+            logger.error('There are errors while processing file')
+            for error in self.errors:
+                logger.error(error)
+            return None
+
         return MediaInfo(
             duration_in_seconds=self.duration_in_seconds,
             minutes=self.duration_in_seconds // 60,

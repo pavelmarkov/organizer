@@ -18,14 +18,24 @@ import { ButtonModule } from 'primeng/button';
 
 import { FormsModule } from '@angular/forms';
 import { Listbox, ListboxFilterEvent } from 'primeng/listbox';
-import { TagsService } from '../../core/services';
+import { MemoriesService, TagsService } from '../../core/services';
 import { ScrollerLazyLoadEvent } from 'primeng/scroller';
-import { CardModel, TagModel } from '../../core/domain';
+import {
+  CardModel,
+  MemoriesModel,
+  MemorySourceModel,
+  TagModel,
+} from '../../core/domain';
 
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AccordionModule, AccordionTabOpenEvent } from 'primeng/accordion';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+
+import { InputMaskModule } from 'primeng/inputmask';
+import { InputTextModule } from 'primeng/inputtext';
+
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-card-layout',
@@ -39,6 +49,11 @@ import { ActivatedRoute } from '@angular/router';
     AccordionModule,
 
     CommonModule,
+
+    InputTextModule,
+    InputMaskModule,
+    FormsModule,
+    SelectModule,
   ],
   templateUrl: './card-layout.component.html',
   styleUrl: './card-layout.component.css',
@@ -70,12 +85,21 @@ export class CardLayoutComponent implements OnInit {
 
   loading!: boolean;
 
+  clipStartTimeString: string | undefined;
+  clipEndTimeString: string | undefined;
+  clipStartTimeInSeconds: number | undefined;
+  clipEndTimeInSeconds: number | undefined;
+
+  memoriesList: MemoriesModel[] = [];
+  selectedMemory: string | undefined;
+
   private route = inject(ActivatedRoute);
 
   constructor(
     private cd: ChangeDetectorRef,
     private tagsService: TagsService,
     private clipboard: Clipboard,
+    private memoriesService: MemoriesService,
   ) {}
 
   ngOnInit() {
@@ -85,6 +109,13 @@ export class CardLayoutComponent implements OnInit {
       this.activeTabIndex = 0;
       this.loadVideoPlayer();
     }
+  }
+
+  loadMemoriesList(): void {
+    this.memoriesService.get().subscribe((data) => {
+      this.memoriesList = data;
+      console.log(this.memoriesList);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges & { visible: SimpleChange }): void {
@@ -131,6 +162,87 @@ export class CardLayoutComponent implements OnInit {
     if (!this.loading) {
       this.loadVideoPlayer();
     }
+    this.loadMemoriesList();
+  }
+
+  private convertSecondsToTimeString = (totalSeconds: number) => {
+    totalSeconds = Math.floor(totalSeconds);
+
+    const seconds = totalSeconds % 60;
+
+    const totalMinutes = (totalSeconds - seconds) / 60;
+    const minutes = totalMinutes % 60;
+
+    const hours = (totalMinutes - minutes) / 60;
+
+    const hourString = hours.toString().padStart(2, '0');
+    const minuteString = minutes.toString().padStart(2, '0');
+    const secondString = seconds.toString().padStart(2, '0');
+
+    return `${hourString}:${minuteString}:${secondString}`;
+  };
+
+  clipStart(attachmentId: string) {
+    const videoElement = document.getElementById(
+      attachmentId,
+    ) as HTMLVideoElement | null;
+    if (!videoElement) {
+      return;
+    }
+    this.clipStartTimeInSeconds = Math.floor(videoElement.currentTime);
+    this.clipStartTimeString = this.convertSecondsToTimeString(
+      videoElement.currentTime,
+    );
+  }
+
+  clipEnd(attachmentId: string) {
+    const videoElement = document.getElementById(
+      attachmentId,
+    ) as HTMLVideoElement | null;
+    if (!videoElement) {
+      return;
+    }
+    this.clipEndTimeInSeconds = Math.floor(videoElement.currentTime);
+    this.clipEndTimeString = this.convertSecondsToTimeString(
+      videoElement.currentTime,
+    );
+  }
+
+  generateClip() {
+    if (!this.cardData.rowIdentifier) {
+      return;
+    }
+    if (!this.clipStartTimeInSeconds) {
+      return;
+    }
+    if (!this.clipEndTimeInSeconds) {
+      return;
+    }
+    if (!this.selectedMemory) {
+      return;
+    }
+
+    console.log(this.cardData.rowIdentifier);
+    console.log(this.clipStartTimeInSeconds);
+    console.log(this.clipEndTimeInSeconds);
+    console.log(this.selectedMemory);
+
+    this.memoriesService
+      .generate({
+        directories: [
+          {
+            directoryId: this.cardData.rowIdentifier,
+            interval: {
+              start: this.clipStartTimeInSeconds,
+              end: this.clipEndTimeInSeconds,
+            },
+          },
+        ],
+        memoryGuid: this.selectedMemory,
+      })
+      .subscribe((data) => {
+        console.log(data);
+      });
   }
 
   loadVideoPlayer(): void {

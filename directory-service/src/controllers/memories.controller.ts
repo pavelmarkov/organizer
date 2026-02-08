@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -27,17 +28,17 @@ export class MemoriesController {
   }
 
   @Get("count")
-  countNotes(): Promise<number> {
+  countMemories(): Promise<number> {
     return this.memoriesService.count();
   }
 
   @Post()
-  createNotes(@Body() params: MemoryEntity[]): Promise<MemoryEntity[]> {
+  createMemories(@Body() params: MemoryEntity[]): Promise<MemoryEntity[]> {
     return this.memoriesService.create(params);
   }
 
   @Put()
-  updateNotes(@Body() params: MemoryEntity[]): Promise<MemoryEntity[]> {
+  updateMemories(@Body() params: MemoryEntity[]): Promise<MemoryEntity[]> {
     return this.memoriesService.update(params);
   }
 
@@ -47,7 +48,7 @@ export class MemoriesController {
   }
 
   @Delete()
-  deleteNotes(@Body() params: MemoryEntity[]): Promise<MemoryEntity[]> {
+  deleteMemories(@Body() params: MemoryEntity[]): Promise<MemoryEntity[]> {
     return this.memoriesService.delete(params);
   }
 

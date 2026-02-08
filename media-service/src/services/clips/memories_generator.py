@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Tuple
 from src.config.files import get_settings
 import random
 import os
@@ -24,8 +24,8 @@ class MemoriesGenerator():
         if not os.path.exists(self.save_to_path):
             os.makedirs(self.save_to_path)
 
-    def get_random_intervals(self, full_length, numer_of_intervals_range, interval_length_range):
-        intervals = []
+    def get_random_intervals(self, full_length, numer_of_intervals_range, interval_length_range) -> List[Tuple[int, int]]:
+        intervals: List[Tuple[int, int]] = []
 
         max_interval_length = interval_length_range[1]
         max_numer_of_intervals = numer_of_intervals_range[1]
@@ -80,36 +80,40 @@ class MemoriesGenerator():
             # print("video info: ")
             # pprint(video_file, indent=2)
             duration = int(float(video_file["format"]["duration"]))
-            intervals = self.get_random_intervals(duration, (2, 3), (14, 21))
+
+            intervals: List[Tuple[int, int]] = []
+            if file.interval:
+                intervals.append((file.interval.start, file.interval.end))
+            else:
+                intervals = self.get_random_intervals(
+                    duration, (2, 3), (14, 21)
+                )
+
             for interval in intervals:
-                clip_duration = interval[1] - interval[0]
                 output_file = os.path.join(
                     self.save_to_path, f"{interval[0]}_{interval[1]}_{filename}")
-                try:
-                    (
-                        ffmpeg
-                        .input(file.path, ss=interval[0], t=clip_duration)
-                        # '-c copy' copies streams without re-encoding
-                        .output(output_file, c='copy', loglevel="quiet")
-                        .run(overwrite_output=True)
-                    )
-                    logger.debug(
-                        f"Video clip copied successfully to {output_file}"
-                    )
-                    clips.append(UpsertClipsEntityDto(
-                        name=filename,
-                        directory_id=file.id,
-                        memory_id=self.memory_guid,
-                        path=os.path.abspath(output_file),
-                        info=ClipsInfo(
-                            duration_in_seconds=clip_duration,
-                            start_time_in_seconds=interval[0],
-                            end_time_in_seconds=interval[1]
-                        )
-                    ))
-                except ffmpeg.Error as e:
-                    logger.error(f"Error: {e.stderr.decode()}")
+
+                clip_duration = self.make_clip(
+                    input_file_path=file.path,
+                    output_file_path=output_file,
+                    start_time_in_seconds=interval[0],
+                    end_time_in_seconds=interval[1]
+                )
+
+                if not clip_duration:
                     continue
+
+                clips.append(UpsertClipsEntityDto(
+                    name=filename,
+                    directory_id=file.id,
+                    memory_id=self.memory_guid,
+                    path=os.path.abspath(output_file),
+                    info=ClipsInfo(
+                        duration_in_seconds=clip_duration,
+                        start_time_in_seconds=interval[0],
+                        end_time_in_seconds=interval[1]
+                    )
+                ))
 
             logger.debug(f"Finished processing path number {index}")
             index += 1
@@ -136,3 +140,27 @@ class MemoriesGenerator():
                 )
 
         return paths
+
+    def make_clip(
+        self,
+        input_file_path: str,
+        output_file_path: str,
+        start_time_in_seconds: int,
+        end_time_in_seconds: int,
+    ):
+        clip_duration = end_time_in_seconds - start_time_in_seconds
+        try:
+            (
+                ffmpeg
+                .input(input_file_path, ss=start_time_in_seconds, t=clip_duration)
+                # '-c copy' copies streams without re-encoding
+                .output(output_file_path, c='copy', loglevel="quiet")
+                .run(overwrite_output=True)
+            )
+            logger.debug(
+                f"Video clip copied successfully to {output_file_path}"
+            )
+            return clip_duration
+        except ffmpeg.Error as e:
+            logger.error(f"Error: {e.stderr.decode()}")
+            return None

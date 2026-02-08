@@ -1,5 +1,6 @@
 
 import logging
+from src.logger.formatter import CustomLogFormatter
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -9,9 +10,9 @@ formatter = logging.Formatter(
 )
 
 file_handler = logging.FileHandler('app.log')
-file_handler.setFormatter(formatter)
+file_handler.setFormatter(CustomLogFormatter())
 console_handler = logging.StreamHandler()
-console_handler.setFormatter(formatter)
+console_handler.setFormatter(CustomLogFormatter())
 
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)

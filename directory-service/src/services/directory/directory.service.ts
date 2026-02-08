@@ -2,9 +2,10 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
-import { DirectoryEntity } from "../../entities";
+import { DirectoryEntity, MemoryEntity } from "../../entities";
 import { MediaService } from "../../infrastructure/media/media.service";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "path";
@@ -13,7 +14,11 @@ import { MediaInfo, View } from "../../domain/types";
 import { DirectoryRepository } from "./directory.repository";
 import { convertSizeInBytes } from "./utils/convert-size-in-bytes";
 import { AsyncLocalStorage } from "async_hooks";
-import { GenerateMemoriesDto } from "../../dtos";
+import {
+  GenerateMemoriesDto,
+  GenerateMemoriesRequestDto,
+  TimeIntervalDto,
+} from "../../dtos";
 import { MemoriesRepository } from "../../persistence/repositories";
 import { FileStateEnum } from "src/domain/enums";
 
@@ -125,16 +130,27 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
   }
 
   async generateMemories(
-    params: GenerateMemoriesDto,
+    params: GenerateMemoriesRequestDto,
   ): Promise<{ message: string }> {
-    if (!params.directoryGuids?.length) {
+    if (!params.directories?.length) {
       return { message: "nothing to process" };
     }
 
+    console.dir(params);
+
+    const timeIntervalsMap = new Map<string, TimeIntervalDto>();
+    const directoryGuids: string[] = [];
+    const memory: MemoryEntity[] = [];
+
+    params.directories.forEach(({ directoryId, interval }) => {
+      directoryGuids.push(directoryId);
+      if (interval) {
+        timeIntervalsMap.set(directoryId, interval);
+      }
+    });
+
     const chosenDirectories =
-      await this.directoryRepository.getAllSubdirectories(
-        params.directoryGuids,
-      );
+      await this.directoryRepository.getAllSubdirectories(directoryGuids);
 
     const files = chosenDirectories.filter((directory) => !directory.isFolder);
 
@@ -142,19 +158,39 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       return {
         directoryId: file.directoryId,
         path: file.path,
+        interval: timeIntervalsMap.get(file.directoryId),
       };
     });
 
-    const memory = await this.memoriesRepository.upsertMany([
-      {
-        name: uuidv4(),
-        description: "",
-      },
-    ]);
+    if (params.memoryGuid) {
+      const existingMemory = await this.memoriesRepository.findOne(
+        params.memoryGuid,
+      );
+      memory.push(existingMemory);
+    } else {
+      const newMemory = await this.memoriesRepository.upsertMany([
+        {
+          name: uuidv4(),
+          description: "",
+        },
+      ]);
+      memory.push(newMemory[0]);
+    }
 
-    await this.mediaClient.generateMemories({
+    const memoryId = memory[0]?.id;
+
+    if (!memoryId) {
+      return new InternalServerErrorException("Memory is not defined");
+    }
+
+    console.log({
       directories,
-      memoryGuid: memory[0].id,
+      memoryGuid: memoryId,
+    });
+
+    this.mediaClient.generateMemories({
+      directories,
+      memoryGuid: memoryId,
     });
 
     return { message: "ok" };

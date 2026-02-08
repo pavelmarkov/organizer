@@ -4,6 +4,7 @@ import { inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MemoriesRepository } from '../../core/repositories/memories.repository';
 import { MemoriesModel, MemorySourceModel } from '../../core/domain';
+import { GenerateMemoriesRequestDto } from '../../core/dtos';
 
 export class MemoriesRepositoryImpl implements MemoriesRepository {
   private baseUrl: string = `${environment.apiUrl}/memories`;
@@ -46,10 +47,14 @@ export class MemoriesRepositoryImpl implements MemoriesRepository {
     });
   }
 
-  generate(directoryGuids: string[]): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.baseUrl}/generator`, {
-      directoryGuids,
-    });
+  generate(
+    params: GenerateMemoriesRequestDto,
+  ): Observable<{ message: string }> {
+    console.log(params);
+    return this.http.post<{ message: string }>(
+      `${this.baseUrl}/generator`,
+      params,
+    );
   }
 
   getSources(memoryId: string): Observable<MemorySourceModel[]> {

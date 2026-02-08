@@ -3,6 +3,7 @@ import { MemoriesService } from '../core/services/';
 import { inject } from '@angular/core';
 import { MemoriesRepository } from '../core/repositories/memories.repository';
 import { MemoriesModel, MemorySourceModel } from '../core/domain';
+import { GenerateMemoriesRequestDto } from '../core/dtos';
 
 export class MemoriesServiceImpl implements MemoriesService {
   private memoriesRepository = inject(MemoriesRepository);
@@ -35,8 +36,10 @@ export class MemoriesServiceImpl implements MemoriesService {
     return this.memoriesRepository.remove(memories);
   }
 
-  generate(directoryGuids: string[]): Observable<{ message: string }> {
-    return this.memoriesRepository.generate(directoryGuids);
+  generate(
+    params: GenerateMemoriesRequestDto,
+  ): Observable<{ message: string }> {
+    return this.memoriesRepository.generate(params);
   }
 
   getSources(memoryId: string): Observable<MemorySourceModel[]> {

@@ -8,7 +8,7 @@
       @if(cardData && cardData.attachments.length) {
       <div class="card flex justify-center">
         <p-accordion value="activeTabIndex" (onOpen)="onAttachmentOpen($event)">
-        @for (item of cardData.attachments; track $index) {
+        @for (item of cardData.attachments; track $index;) {
           <p-accordion-panel value="{{$index}}">
             <p-accordion-header>Attachment {{$index + 1}}</p-accordion-header>
             <p-accordion-content>
@@ -18,11 +18,23 @@
                   controls
                   muted="{{true}}"
                   src="{{item.source}}"
+                  id="attachment-{{$index}}"
                   preload="none"
                   [ngClass]="{ 'active-player': activeTabIndex == $index}">
                   <source type="video/mp4" src="{{item.source}}">
                   Your browser does not support the video tag.
                 </video>
+                <div class="flex-auto">
+                  <p-button (click)="clipStart('attachment-'+$index)" icon="pi pi-bookmark" severity="secondary" />
+                  <p-inputMask mask="99:99:99" placeholder="00:00:00" [(ngModel)]="clipStartTimeString" pSize="small"></p-inputMask>
+                  <span> - </span>
+                  <p-button (click)="clipEnd('attachment-'+$index)" icon="pi pi-bookmark" severity="secondary" />
+                  <p-inputMask mask="99:99:99" placeholder="00:00:00" [(ngModel)]="clipEndTimeString" pSize="small"></p-inputMask>
+                  <p-button icon="pi pi-inbox" text severity="secondary" (click)="generateClip()" pTooltip="Generate memory"
+                    tooltipPosition="bottom" showDelay="1000" hideDelay="300" />
+                  <p-select [showClear]="true" appendTo="body" [options]="memoriesList" [(ngModel)]="selectedMemory" optionValue="id" optionLabel="name"
+                    placeholder="Select a Memory" class="memory-selector"/>
+                </div>
               </div>
             </p-accordion-content>
           </p-accordion-panel>

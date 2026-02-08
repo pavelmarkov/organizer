@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import { MemoriesModel, MemorySourceModel } from '../domain';
+import { GenerateMemoriesRequestDto } from '../dtos';
 
 export abstract class MemoriesRepository {
   abstract get(): Observable<MemoriesModel[]>;
@@ -14,7 +15,10 @@ export abstract class MemoriesRepository {
     memories: Partial<MemoriesModel>[],
   ): Observable<Partial<MemoriesModel>[]>;
 
-  abstract generate(directoryGuids: string[]): Observable<{ message: string }>;
+  abstract generate(
+    params: GenerateMemoriesRequestDto,
+  ): Observable<{ message: string }>;
+
   abstract getSources(memoryId: string): Observable<MemorySourceModel[]>;
 
   abstract getDirectoryUrl(params: {

@@ -22,7 +22,10 @@ import { ButtonModule } from 'primeng/button';
 import { ActionsLayoutComponent } from '../actions-layout/actions-layout.component';
 
 import { CardLayoutComponent } from '../card-layout/card-layout.component';
-import { ImportDirectoryStructureRequestDto } from '../../core/dtos';
+import {
+  GenerateMemoriesRequestDto,
+  ImportDirectoryStructureRequestDto,
+} from '../../core/dtos';
 import { TreeTableLayoutComponent } from '../tree-table-layout/tree-table-layout.component';
 import { PaginatorState } from 'primeng/paginator';
 import { ActivatedRoute } from '@angular/router';
@@ -250,12 +253,23 @@ export class DirectoryLayoutComponent implements OnInit {
 
   generateMemory() {
     console.log('calling generateMemory');
-    const selectedDirectoryGuids = Object.keys(this.selectionKeys).filter(
-      (guid) => this.selectionKeys[guid].checked,
-    );
-    this.memoriesService.generate(selectedDirectoryGuids).subscribe((data) => {
-      console.log(data);
+
+    const directories: GenerateMemoriesRequestDto['directories'] = [];
+
+    Object.keys(this.selectionKeys).forEach((directoryId) => {
+      if (this.selectionKeys[directoryId].checked) {
+        directories.push({ directoryId });
+      }
     });
+
+    this.memoriesService
+      .generate({
+        directories,
+        memoryGuid: null,
+      })
+      .subscribe((data) => {
+        console.log(data);
+      });
   }
 
   remove(directory: DirectoryModel): void {
