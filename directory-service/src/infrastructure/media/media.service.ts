@@ -7,7 +7,7 @@ import {
   ProcessMediaMessageResponseDto,
 } from "../../dtos";
 import { ClientProxy } from "@nestjs/microservices";
-import { lastValueFrom } from "rxjs";
+import { catchError, lastValueFrom } from "rxjs";
 import {
   MEDIA_SERVICE_CLIENT,
   MEMORIES_SERVICE_CLIENT,
@@ -113,7 +113,10 @@ export class MediaService implements OnModuleInit {
   ): Promise<{ message: string }> {
     const memoriesServiceAnswer = await lastValueFrom(
       this.memoriesClient.send("memories_queue", params),
-    );
+    ).catch((error) => {
+      console.log(error.message);
+      return { message: "error" };
+    });
     console.log("memoriesServiceAnswer: ", memoriesServiceAnswer);
     return { message: "ok" };
   }

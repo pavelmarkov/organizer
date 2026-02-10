@@ -10,6 +10,8 @@ import {
   HostListener,
   ElementRef,
   inject,
+  ModelSignal,
+  model,
 } from '@angular/core';
 
 import { DialogModule } from 'primeng/dialog';
@@ -79,7 +81,7 @@ export class CardLayoutComponent implements OnInit {
 
   filterValue: string | null = null;
 
-  activeTabIndex: number = -1;
+  activeTabIndex: ModelSignal<number> = model(-1);
 
   attachmentStartTime!: number;
 
@@ -106,7 +108,7 @@ export class CardLayoutComponent implements OnInit {
     const startTimeRouteParam = this.route.snapshot.paramMap.get('startTime');
     if (startTimeRouteParam) {
       this.attachmentStartTime = Number.parseInt(startTimeRouteParam);
-      this.activeTabIndex = 0;
+      this.activeTabIndex.set(0);
       this.loadVideoPlayer();
     }
   }
@@ -126,7 +128,7 @@ export class CardLayoutComponent implements OnInit {
 
   setDefaults(): void {
     this.attachmentStartTime = 0;
-    this.activeTabIndex = -1;
+    this.activeTabIndex.set(-1);
     this.loading = false;
   }
 
@@ -158,7 +160,7 @@ export class CardLayoutComponent implements OnInit {
   }
 
   onAttachmentOpen($event: AccordionTabOpenEvent) {
-    this.activeTabIndex = $event.index;
+    this.activeTabIndex.set($event.index);
     if (!this.loading) {
       this.loadVideoPlayer();
     }
@@ -181,6 +183,10 @@ export class CardLayoutComponent implements OnInit {
 
     return `${hourString}:${minuteString}:${secondString}`;
   };
+
+  onSelectClick($event: MouseEvent): void {
+    this.loadMemoriesList();
+  }
 
   clipStart(attachmentId: string) {
     const videoElement = document.getElementById(
@@ -218,7 +224,7 @@ export class CardLayoutComponent implements OnInit {
     if (!this.clipEndTimeInSeconds) {
       return;
     }
-    if (!this.selectedMemory) {
+    if (this.clipStartTimeInSeconds >= this.clipEndTimeInSeconds) {
       return;
     }
 
@@ -238,7 +244,7 @@ export class CardLayoutComponent implements OnInit {
             },
           },
         ],
-        memoryGuid: this.selectedMemory,
+        memoryGuid: this.selectedMemory ?? null,
       })
       .subscribe((data) => {
         console.log(data);

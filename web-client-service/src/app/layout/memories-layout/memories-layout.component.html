@@ -39,25 +39,31 @@
   <ng-template #panel>
     <div class="flex items-center justify-center h-full">
       <div class="card" class="player-container">
-        <video class="player" controls muted="muted" (ended)="onVideoEnded(videoPlayer1, videoPlayer2)"
-          (error)="error($event, videoPlayer1, videoPlayer2)" id="videoPlayer1" #videoPlayer1>
+        <!-- <video class="player" controls muted="muted" (ended)="onVideoEnded(videoPlayer1, videoPlayer2)"
+          (error)="error($event, videoPlayer1, videoPlayer2)" id="{{firstVideoPlayerId}}" #videoPlayer1>
           <source type="video/mp4">
           Your browser does not support the video tag.
-        </video>
-        <video class="player" controls muted="muted" (ended)="onVideoEnded(videoPlayer1, videoPlayer2)"
-          (error)="error($event, videoPlayer1, videoPlayer2)" id="videoPlayer2" #videoPlayer2>
+        </video> -->
+        <video class="player" controls muted="muted" (ended)="onVideoEnded(videoPlayer2)"
+          (error)="error($event)" id="{{secondVideoPlayerId}}" #videoPlayer2>
           <source type="video/mp4">
           Your browser does not support the video tag.
         </video>
       </div>
-      <div class="card" class="controls-panel">
+      @if(roundRobin.getLength() > 1) {
+      <div class="card" id="controls-panel">
         <p-buttongroup>
-          <p-button class="step-control" (click)="playPrevious(videoPlayer1, videoPlayer2)" icon="pi pi-chevron-circle-left" [rounded]="true" [text]="true" [raised]="true" />
+          <p-button class="step-control" (click)="playPrevious()" icon="pi pi-chevron-circle-left" [rounded]="true" [text]="true" [raised]="true" />
           <p-button icon="pi pi-replay" (click)="toggleRepeat()" [rounded]="true" [text]="true" [raised]="true" [severity]="doRepeat ? 'danger' : 'success'"/>
           <p-button icon="pi pi-external-link" (click)="goToDirectory()" [rounded]="true" [text]="true" [raised]="true" />
-          <p-button class="step-control" (click)="playNext(videoPlayer1, videoPlayer2)" icon="pi pi-chevron-circle-right" [rounded]="true" [text]="true" [raised]="true" />
+          <p-button class="step-control" (click)="playNext()" icon="pi pi-chevron-circle-right" [rounded]="true" [text]="true" [raised]="true" />
         </p-buttongroup>
       </div>
+      } @else {
+      <div class="card">
+        <p-message severity="secondary">Nothing to play</p-message>
+      </div>
+      }
     </div>
   </ng-template>
 </p-splitter>

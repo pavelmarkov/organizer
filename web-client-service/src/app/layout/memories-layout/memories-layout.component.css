@@ -7,10 +7,15 @@
   max-height: 100vh; */
 }
 
-.controls-panel {
+#controls-panel {
   display: flex;
   /* width: 100%; */
   justify-content: center;
+  opacity: 0.3;
+}
+#controls-panel:hover {
+  opacity: 0.9;
+  transition: opacity .25s ease-in-out;
 }
 
 .player-container {
@@ -20,4 +25,8 @@
 
 .step-control {
   margin: auto 0.9rem;
+}
+
+video:focus {
+  outline: none;
 }

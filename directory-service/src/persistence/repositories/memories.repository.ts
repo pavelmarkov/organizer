@@ -24,7 +24,6 @@ export class MemoriesRepository
     filter?: FilterQuery<MemoryEntity>,
   ): FilterQuery<MemoryEntity> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
-    const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
 
     const projectIdCondition: FilterQuery<MemoryEntity> = [
       {
@@ -33,14 +32,6 @@ export class MemoriesRepository
     ];
 
     const searchValueCondition: FilterQuery<MemoryEntity> = [];
-    if (searchValue) {
-      searchValueCondition.push({
-        $or: [
-          { name: { $like: `%${searchValue}%` } },
-          { description: { $like: `%${searchValue}%` } },
-        ],
-      });
-    }
 
     const whereCondition: FilterQuery<MemoryEntity> = [
       ...projectIdCondition,

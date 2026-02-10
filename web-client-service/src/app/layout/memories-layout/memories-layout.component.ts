@@ -11,7 +11,7 @@ import { ActionsLayoutComponent } from '../actions-layout/actions-layout.compone
 import { MemoriesService } from '../../core/services';
 import { CommonModule } from '@angular/common';
 import { RoundRobin } from './utils/round-robin';
-import { MemoriesModel } from '../../core/domain';
+import { MemoriesModel, MemorySourceModel } from '../../core/domain';
 import { SplitterModule } from 'primeng/splitter';
 import { OrderListModule } from 'primeng/orderlist';
 import { Listbox, ListboxFilterEvent } from 'primeng/listbox';
@@ -26,6 +26,8 @@ import { TextareaModule } from 'primeng/textarea';
 import { Dialog, DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { ButtonGroup } from 'primeng/buttongroup';
+
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-memories-layout',
@@ -47,14 +49,16 @@ import { ButtonGroup } from 'primeng/buttongroup';
     InputTextModule,
     TextareaModule,
     CommonModule,
+
+    MessageModule,
   ],
   providers: [MessageService],
   templateUrl: './memories-layout.component.html',
   styleUrl: './memories-layout.component.css',
 })
 export class MemoriesLayoutComponent {
-  @ViewChild('videoPlayer1') videoPlayer1: ElementRef<HTMLVideoElement> =
-    new ElementRef<HTMLVideoElement>({} as HTMLVideoElement);
+  // @ViewChild('videoPlayer1') videoPlayer1: ElementRef<HTMLVideoElement> =
+  //   new ElementRef<HTMLVideoElement>({} as HTMLVideoElement);
   @ViewChild('videoPlayer2') videoPlayer2: ElementRef<HTMLVideoElement> =
     new ElementRef<HTMLVideoElement>({} as HTMLVideoElement);
 
@@ -82,6 +86,8 @@ export class MemoriesLayoutComponent {
   items!: MenuItem[];
 
   doRepeat: boolean = false;
+
+  secondVideoPlayerId: string = 'videoPlayer2';
 
   ngOnInit() {
     this.items = [
@@ -149,8 +155,6 @@ export class MemoriesLayoutComponent {
   hideCreateDialog(): void {
     this.createDialogVisible = false;
   }
-  nextMemoryPart(): void {}
-  previousMemoryPart(): void {}
 
   onMemorySelectionChange(event: any) {
     console.log(this.selectedMemoryId);
@@ -171,20 +175,18 @@ export class MemoriesLayoutComponent {
     });
   }
 
-  onVideoEnded(
-    videoplayer: HTMLVideoElement,
-    secondVideoplayer: HTMLVideoElement,
-  ) {
+  onVideoEnded(secondVideoplayer: HTMLVideoElement) {
     if (this.doRepeat) {
-      videoplayer.currentTime = 0;
-      videoplayer.play();
+      secondVideoplayer.currentTime = 0;
+      secondVideoplayer.play();
       return;
     }
 
-    this.playNext(videoplayer, secondVideoplayer);
+    this.playNext();
   }
 
-  playNext(videoplayer: HTMLVideoElement, secondVideoplayer: HTMLVideoElement) {
+  @HostListener('window:keydown.ArrowRight', ['$event'])
+  playNext() {
     if (!this.roundRobin.getLength()) {
       return;
     }
@@ -195,15 +197,11 @@ export class MemoriesLayoutComponent {
       return;
     }
 
-    secondVideoplayer.src = nextMemoryPart.source;
-
-    this.switchPlayers(videoplayer, secondVideoplayer);
+    this.switchPlayerSource(nextMemoryPart);
   }
 
-  playPrevious(
-    videoplayer: HTMLVideoElement,
-    secondVideoplayer: HTMLVideoElement,
-  ) {
+  @HostListener('window:keydown.ArrowLeft', ['$event'])
+  playPrevious() {
     if (!this.roundRobin.getLength()) {
       return;
     }
@@ -213,29 +211,22 @@ export class MemoriesLayoutComponent {
       return;
     }
 
-    secondVideoplayer.src = previousMemoryPart.source;
-
-    this.switchPlayers(videoplayer, secondVideoplayer);
+    this.switchPlayerSource(previousMemoryPart);
   }
 
-  switchPlayers(
-    videoplayer: HTMLVideoElement,
-    secondVideoplayer: HTMLVideoElement,
-  ) {
-    secondVideoplayer.load();
+  switchPlayerSource(memorySource: MemorySourceModel) {
+    this.videoPlayer2.nativeElement.src = memorySource.source;
 
-    videoplayer.pause();
-    videoplayer.style.display = 'none';
+    this.videoPlayer2.nativeElement.load();
 
-    secondVideoplayer.muted = videoplayer.muted;
-
-    secondVideoplayer.play();
-    secondVideoplayer.style.display = 'inline-block';
-    // secondVideoplayer.style.height = '98vh';
-    // secondVideoplayer.style.maxWidth = '100%';
+    this.videoPlayer2.nativeElement.play();
   }
 
   start() {
+    if (!this.selectedMemoryId) {
+      return;
+    }
+
     this.memoriesService.getSources(this.selectedMemoryId).subscribe((data) => {
       console.log(data);
 
@@ -255,22 +246,15 @@ export class MemoriesLayoutComponent {
         });
       });
 
-      this.videoPlayer1.nativeElement.muted = this.muted;
       this.videoPlayer2.nativeElement.muted = this.muted;
+      this.videoPlayer2.nativeElement.style.display = 'inline-block';
 
-      this.playNext(
-        this.videoPlayer2.nativeElement,
-        this.videoPlayer1.nativeElement,
-      );
+      this.playNext();
     });
   }
 
-  error(
-    error: unknown,
-    videoplayer: HTMLVideoElement,
-    secondVideoplayer: HTMLVideoElement,
-  ) {
+  error(error: unknown) {
     console.log('error', error);
-    setTimeout(() => this.playNext(videoplayer, secondVideoplayer), 3000);
+    setTimeout(() => this.playNext(), 3000);
   }
 }

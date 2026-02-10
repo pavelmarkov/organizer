@@ -9,7 +9,7 @@
       <div class="card flex justify-center">
         <p-accordion value="activeTabIndex" (onOpen)="onAttachmentOpen($event)">
         @for (item of cardData.attachments; track $index;) {
-          <p-accordion-panel value="{{$index}}">
+          <p-accordion-panel value="{{$index}}" active="false">
             <p-accordion-header>Attachment {{$index + 1}}</p-accordion-header>
             <p-accordion-content>
               <div class="flex items-center justify-center h-full">
@@ -19,8 +19,7 @@
                   muted="{{true}}"
                   src="{{item.source}}"
                   id="attachment-{{$index}}"
-                  preload="none"
-                  [ngClass]="{ 'active-player': activeTabIndex == $index}">
+                  preload="none">
                   <source type="video/mp4" src="{{item.source}}">
                   Your browser does not support the video tag.
                 </video>
@@ -32,7 +31,7 @@
                   <p-inputMask mask="99:99:99" placeholder="00:00:00" [(ngModel)]="clipEndTimeString" pSize="small"></p-inputMask>
                   <p-button icon="pi pi-inbox" text severity="secondary" (click)="generateClip()" pTooltip="Generate memory"
                     tooltipPosition="bottom" showDelay="1000" hideDelay="300" />
-                  <p-select [showClear]="true" appendTo="body" [options]="memoriesList" [(ngModel)]="selectedMemory" optionValue="id" optionLabel="name"
+                  <p-select (onClick)="onSelectClick($event)" [showClear]="true" appendTo="body" [options]="memoriesList" [(ngModel)]="selectedMemory" optionValue="id" optionLabel="name"
                     placeholder="Select a Memory" class="memory-selector"/>
                 </div>
               </div>
