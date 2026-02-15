@@ -4,11 +4,17 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
 } from "@nestjs/common";
-import { GenerateMemoriesDto, GetMemorySourcesDto, ViewDto } from "../dtos";
+import {
+  GenerateMemoriesDto,
+  GenerateMemoriesRequestDto,
+  MemorySourceDto,
+  ViewDto,
+} from "../dtos";
 import { MemoriesService, DirectoryService } from "../services";
 import { MemoryEntity } from "../entities";
 
@@ -53,14 +59,28 @@ export class MemoriesController {
   }
 
   @Post("generator")
-  generate(@Body() params: GenerateMemoriesDto): Promise<{ message: string }> {
+  generate(
+    @Body() params: GenerateMemoriesRequestDto,
+  ): Promise<{ message: string }> {
     return this.directoryService.generateMemories(params);
   }
 
   @Get("sources")
-  getSources(
-    @Query("memoryId") memoryId: string,
-  ): Promise<GetMemorySourcesDto[]> {
+  getSources(@Query("memoryId") memoryId: string): Promise<MemorySourceDto[]> {
     return this.memoriesService.getSources(memoryId);
+  }
+
+  @Patch("sources")
+  updateSources(
+    @Body() params: (Pick<MemorySourceDto, "id"> & Partial<MemorySourceDto>)[],
+  ): Promise<MemorySourceDto[]> {
+    return this.memoriesService.updateSources(params);
+  }
+
+  @Delete("sources")
+  deleteSources(
+    @Body() params: (Pick<MemorySourceDto, "id"> & Partial<MemorySourceDto>)[],
+  ): Promise<MemorySourceDto[]> {
+    return this.memoriesService.deleteSources(params);
   }
 }

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Response, Header
 
@@ -14,6 +14,8 @@ from src.dtos.memories_generator import GenerateMemoriesDto
 from src.services.clips.clips_service import ClipsService
 
 from src.data.models.clips import Clips
+
+from src.dtos.clips_entity import PatchClipsEntityDto, DeleteClipsEntityDto
 
 router = APIRouter(prefix="/clips", tags=["Clips"])
 
@@ -53,8 +55,25 @@ async def video_endpoint(
 
 @router.delete("/")
 async def video_endpoint(
-    memory_id: str,
+    memory_id: str | None = None,
+    body: DeleteClipsEntityDto | None = None,
 ) -> List[str]:
+    # return JSONResponse([])
     clips = ClipsService()
-    messages = await clips.remove_by_memory_id(memory_id)
+    messages = []
+    if memory_id:
+        messages = await clips.remove_by_memory_id(memory_id)
+    if body:
+        messages = await clips.remove(body.clip_ids)
+    return JSONResponse(messages)
+
+
+@router.patch("/")
+async def video_endpoint(
+    clips: List[PatchClipsEntityDto],
+) -> List[PatchClipsEntityDto]:
+    messages = []
+    clips_service = ClipsService()
+    await clips_service.patch(clips)
+    print('messages: ', clips)
     return JSONResponse(messages)

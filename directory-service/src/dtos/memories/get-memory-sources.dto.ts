@@ -4,7 +4,7 @@ class ClipInfoDto {
   endTimeInSeconds: number;
 }
 
-export class GetMemorySourcesDto {
+export class MemorySourceDto {
   id: string;
   name: string;
   directoryId: string;

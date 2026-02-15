@@ -29,6 +29,8 @@ import { ButtonGroup } from 'primeng/buttongroup';
 
 import { MessageModule } from 'primeng/message';
 
+import { InplaceModule } from 'primeng/inplace';
+
 @Component({
   selector: 'app-memories-layout',
   imports: [
@@ -51,6 +53,8 @@ import { MessageModule } from 'primeng/message';
     CommonModule,
 
     MessageModule,
+
+    InplaceModule,
   ],
   providers: [MessageService],
   templateUrl: './memories-layout.component.html',
@@ -79,6 +83,7 @@ export class MemoriesLayoutComponent {
     name: '',
     description: '',
   };
+  currentMemorySource: MemorySourceModel = new MemorySourceModel();
   filterValue: string | null = null;
 
   createDialogVisible: boolean = false;
@@ -88,6 +93,8 @@ export class MemoriesLayoutComponent {
   doRepeat: boolean = false;
 
   secondVideoPlayerId: string = 'videoPlayer2';
+
+  isSourceNameEditModeOn: boolean = false;
 
   ngOnInit() {
     this.items = [
@@ -191,13 +198,9 @@ export class MemoriesLayoutComponent {
       return;
     }
 
-    const nextMemoryPart = this.roundRobin.getNext();
+    this.currentMemorySource = this.roundRobin.getNext();
 
-    if (!nextMemoryPart.source) {
-      return;
-    }
-
-    this.switchPlayerSource(nextMemoryPart);
+    this.switchPlayerSource();
   }
 
   @HostListener('window:keydown.ArrowLeft', ['$event'])
@@ -205,17 +208,18 @@ export class MemoriesLayoutComponent {
     if (!this.roundRobin.getLength()) {
       return;
     }
-    const previousMemoryPart = this.roundRobin.getPrevious();
 
-    if (!previousMemoryPart.source) {
+    this.currentMemorySource = this.roundRobin.getPrevious();
+
+    this.switchPlayerSource();
+  }
+
+  switchPlayerSource() {
+    if (!this.currentMemorySource?.source) {
       return;
     }
 
-    this.switchPlayerSource(previousMemoryPart);
-  }
-
-  switchPlayerSource(memorySource: MemorySourceModel) {
-    this.videoPlayer2.nativeElement.src = memorySource.source;
+    this.videoPlayer2.nativeElement.src = this.currentMemorySource.source;
 
     this.videoPlayer2.nativeElement.load();
 
@@ -223,8 +227,12 @@ export class MemoriesLayoutComponent {
   }
 
   start() {
-    if (!this.selectedMemoryId) {
+    if (!this.memories.length) {
       return;
+    }
+
+    if (!this.selectedMemoryId) {
+      this.selectedMemoryId = this.memories[0].id;
     }
 
     this.memoriesService.getSources(this.selectedMemoryId).subscribe((data) => {
@@ -235,6 +243,7 @@ export class MemoriesLayoutComponent {
       }
 
       this.roundRobin = new RoundRobin([]);
+      this.currentMemorySource = new MemorySourceModel();
 
       if (data.length === 1) {
         data.push(data[0]);
@@ -256,5 +265,29 @@ export class MemoriesLayoutComponent {
   error(error: unknown) {
     console.log('error', error);
     setTimeout(() => this.playNext(), 3000);
+  }
+
+  updateSourceName(
+    $event: MouseEvent,
+    closeCallback: (event: MouseEvent) => void,
+  ): void {
+    console.log($event);
+    this.memoriesService
+      .updateSources([this.currentMemorySource])
+      .subscribe((data) => {
+        console.log(data);
+      });
+    closeCallback($event);
+  }
+
+  deleteSource(): void {
+    this.memoriesService
+      .deleteSources([this.currentMemorySource])
+      .subscribe((data) => {
+        console.log(data);
+        const currentIndex = this.roundRobin.getCurrentIndex();
+        this.playNext();
+        this.roundRobin.remove(currentIndex);
+      });
   }
 }

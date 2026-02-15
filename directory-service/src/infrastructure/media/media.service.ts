@@ -1,8 +1,8 @@
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import {
   GenerateMemoriesDto,
-  GetMemorySourcesDto,
   MediaInfoDto,
+  MemorySourceDto,
   ProcessMediaMessageRequestDto,
   ProcessMediaMessageResponseDto,
 } from "../../dtos";
@@ -121,7 +121,7 @@ export class MediaService implements OnModuleInit {
     return { message: "ok" };
   }
 
-  async getMemorySources(memoryId: string): Promise<GetMemorySourcesDto[]> {
+  async getMemorySources(memoryId: string): Promise<MemorySourceDto[]> {
     const url = new URL(`${this.httpUrl}/clips`);
 
     url.searchParams.set("memory_id", memoryId);
@@ -135,6 +135,64 @@ export class MediaService implements OnModuleInit {
         (memory) => (memory.path = this.getStreamUrl(memory.path)),
       );
       return mapMemorySources(result);
+    }
+
+    return [];
+  }
+
+  async updateMemorySources(
+    memorySources: (Pick<MemorySourceDto, "id"> &
+      Partial<Pick<MemorySourceDto, "name">>)[],
+  ): Promise<MemorySourceDto[]> {
+    const url = new URL(`${this.httpUrl}/clips`);
+
+    const patchData = memorySources.map((source) => {
+      return {
+        id: source.id,
+        name: source.name ?? "",
+      };
+    });
+
+    console.log(patchData);
+
+    const messages = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(patchData),
+    });
+
+    const result = await messages.json();
+
+    if (Array.isArray(result)) {
+      return result;
+    }
+
+    return [];
+  }
+
+  async removeMemorySources(
+    memorySourceIds: string[],
+  ): Promise<MemorySourceDto[]> {
+    const url = new URL(`${this.httpUrl}/clips`);
+
+    console.log("deleting: ", { memorySourceIds });
+
+    const messages = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ memorySourceIds }),
+    });
+
+    const result = await messages.json();
+
+    if (Array.isArray(result)) {
+      return result;
     }
 
     return [];

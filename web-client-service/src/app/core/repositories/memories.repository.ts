@@ -19,11 +19,17 @@ export abstract class MemoriesRepository {
     params: GenerateMemoriesRequestDto,
   ): Observable<{ message: string }>;
 
-  abstract getSources(memoryId: string): Observable<MemorySourceModel[]>;
-
   abstract getDirectoryUrl(params: {
     directoryId: string;
     projectId: string;
     startTime: number;
   }): string;
+
+  abstract getSources(memoryId: string): Observable<MemorySourceModel[]>;
+  abstract updateSources(
+    params: (Pick<MemorySourceModel, 'id'> & Partial<MemorySourceModel>)[],
+  ): Observable<Partial<MemorySourceModel>[]>;
+  abstract deleteSources(
+    params: (Pick<MemorySourceModel, 'id'> & Partial<MemorySourceModel>)[],
+  ): Observable<Partial<MemorySourceModel>[]>;
 }

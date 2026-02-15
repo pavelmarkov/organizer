@@ -1,4 +1,5 @@
 from typing import Optional
+from pydantic import BaseModel
 from sqlalchemy import Column, String, func
 from sqlalchemy.types import JSON, UUID
 from sqlalchemy.orm import Mapped

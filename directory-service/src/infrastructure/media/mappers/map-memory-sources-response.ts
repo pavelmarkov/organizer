@@ -1,4 +1,4 @@
-import { GetMemorySourcesDto } from "../../../dtos";
+import { MemorySourceDto } from "../../../dtos";
 
 class MediaServiceClipInfoDto {
   duration_in_seconds: number;
@@ -17,7 +17,7 @@ export class MediaServiceGetMemorySourcesDto {
 
 export function mapMemorySources(
   params: MediaServiceGetMemorySourcesDto[],
-): GetMemorySourcesDto[] {
+): MemorySourceDto[] {
   return params.map((source) => {
     const info = {
       durationInSeconds: source.info.duration_in_seconds,

@@ -8,6 +8,7 @@ import { GenerateMemoriesRequestDto } from '../../core/dtos';
 
 export class MemoriesRepositoryImpl implements MemoriesRepository {
   private baseUrl: string = `${environment.apiUrl}/memories`;
+  private sourcesBaseUrl: string = `${environment.apiUrl}/memories/sources`;
   private frontendUrl: string = `${environment.frontendUrl}`;
   private http: HttpClient = inject(HttpClient);
 
@@ -57,6 +58,15 @@ export class MemoriesRepositoryImpl implements MemoriesRepository {
     );
   }
 
+  getDirectoryUrl(params: {
+    directoryId: string;
+    projectId: string;
+    startTime: number;
+  }): string {
+    const { directoryId, projectId, startTime } = params;
+    return `${this.frontendUrl}/directory/${directoryId};projectId=${projectId};startTime=${startTime}`;
+  }
+
   getSources(memoryId: string): Observable<MemorySourceModel[]> {
     let queryParams = new HttpParams();
 
@@ -66,12 +76,22 @@ export class MemoriesRepositoryImpl implements MemoriesRepository {
     });
   }
 
-  getDirectoryUrl(params: {
-    directoryId: string;
-    projectId: string;
-    startTime: number;
-  }): string {
-    const { directoryId, projectId, startTime } = params;
-    return `${this.frontendUrl}/directory/${directoryId};projectId=${projectId};startTime=${startTime}`;
+  updateSources(
+    memorySources: (Pick<MemorySourceModel, 'id'> &
+      Partial<MemorySourceModel>)[],
+  ): Observable<Partial<MemorySourceModel>[]> {
+    return this.http.patch<Partial<MemorySourceModel>[]>(
+      this.sourcesBaseUrl,
+      memorySources,
+    );
+  }
+
+  deleteSources(
+    memorySources: (Pick<MemorySourceModel, 'id'> &
+      Partial<MemorySourceModel>)[],
+  ): Observable<Partial<MemorySourceModel>[]> {
+    return this.http.delete<Partial<MemorySourceModel>[]>(this.sourcesBaseUrl, {
+      body: memorySources,
+    });
   }
 }

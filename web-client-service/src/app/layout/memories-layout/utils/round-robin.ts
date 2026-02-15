@@ -16,6 +16,15 @@ export class RoundRobin {
     this.sources.push(element);
   }
 
+  remove(index: number | undefined): MemorySourceModel | null {
+    if (index === undefined) {
+      return null;
+    }
+    const removedElement = this.sources[index];
+    this.sources.splice(index, 1);
+    return removedElement;
+  }
+
   getNext(): MemorySourceModel {
     if (this.currentIndex === undefined) {
       this.currentIndex = 0;
@@ -52,5 +61,9 @@ export class RoundRobin {
 
   getCurrent(): MemorySourceModel {
     return this.sources[this.currentIndex ?? 0];
+  }
+
+  getCurrentIndex(): number | undefined {
+    return this.currentIndex;
   }
 }

@@ -51,10 +51,29 @@
         </video>
       </div>
       @if(roundRobin.getLength() > 1) {
+      <div class="card" id="memory-source-name-container">
+        <p-inplace [active]="isSourceNameEditModeOn">
+          <ng-template #display>
+            <span>{{currentMemorySource.name}}</span>
+          </ng-template>
+          <ng-template #content let-closeCallback="closeCallback">
+            <span>
+              <input style="width: 21rem;" type="text" pSize="small" pInputText pAutoFocus="true" [(ngModel)]="currentMemorySource.name" />
+              <button type="button" pButton (click)="closeCallback($event)" text severity="danger">
+                <i class="pi pi-times" pButtonIcon></i>
+              </button>
+              <button type="button" pButton (click)="updateSourceName($event, closeCallback)" text severity="success">
+                <i class="pi pi-check" pButtonIcon></i>
+              </button>
+            </span>
+          </ng-template>
+        </p-inplace>
+      </div>
       <div class="card" id="controls-panel">
         <p-buttongroup>
           <p-button class="step-control" (click)="playPrevious()" icon="pi pi-chevron-circle-left" [rounded]="true" [text]="true" [raised]="true" />
           <p-button icon="pi pi-replay" (click)="toggleRepeat()" [rounded]="true" [text]="true" [raised]="true" [severity]="doRepeat ? 'danger' : 'success'"/>
+          <p-button icon="pi pi-trash" (click)="deleteSource()" [rounded]="true" [text]="true" [raised]="true" [severity]="'danger'" />
           <p-button icon="pi pi-external-link" (click)="goToDirectory()" [rounded]="true" [text]="true" [raised]="true" />
           <p-button class="step-control" (click)="playNext()" icon="pi pi-chevron-circle-right" [rounded]="true" [text]="true" [raised]="true" />
         </p-buttongroup>

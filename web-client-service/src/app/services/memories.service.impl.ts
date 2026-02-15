@@ -46,6 +46,18 @@ export class MemoriesServiceImpl implements MemoriesService {
     return this.memoriesRepository.getSources(memoryId);
   }
 
+  updateSources(
+    params: (Pick<MemorySourceModel, 'id'> & Partial<MemorySourceModel>)[],
+  ): Observable<Partial<MemorySourceModel>[]> {
+    return this.memoriesRepository.updateSources(params);
+  }
+
+  deleteSources(
+    params: (Pick<MemorySourceModel, 'id'> & Partial<MemorySourceModel>)[],
+  ): Observable<Partial<MemorySourceModel>[]> {
+    return this.memoriesRepository.deleteSources(params);
+  }
+
   getDirectoryUrl(params: {
     directoryId: string;
     projectId: string;

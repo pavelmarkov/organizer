@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { GenerateMemoriesDto, GetMemorySourcesDto } from "../../dtos";
+import { GenerateMemoriesDto, MemorySourceDto } from "../../dtos";
 import { MediaService } from "../../infrastructure/media/media.service";
 import { MemoriesRepository } from "../../persistence/repositories";
 import { MemoryEntity } from "../../entities";
@@ -12,8 +12,22 @@ export class MemoriesService {
     private readonly memoriesRepository: MemoriesRepository,
   ) {}
 
-  async getSources(memoryId: string): Promise<GetMemorySourcesDto[]> {
+  async getSources(memoryId: string): Promise<MemorySourceDto[]> {
     return await this.mediaClient.getMemorySources(memoryId);
+  }
+
+  async updateSources(
+    memorySources: (Pick<MemorySourceDto, "id"> & Partial<MemorySourceDto>)[],
+  ): Promise<MemorySourceDto[]> {
+    return await this.mediaClient.updateMemorySources(memorySources);
+  }
+
+  async deleteSources(
+    memorySources: (Pick<MemorySourceDto, "id"> & Partial<MemorySourceDto>)[],
+  ): Promise<MemorySourceDto[]> {
+    return await this.mediaClient.removeMemorySources(
+      memorySources.map((source) => source.id),
+    );
   }
 
   async get(pagination?: {
