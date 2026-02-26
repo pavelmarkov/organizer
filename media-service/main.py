@@ -4,13 +4,13 @@ import asyncio
 
 from src.messaging.rabbitmq_consumer import RabbitMQConsumer
 
-from src.api import main_router
+from src.router import main_router
 
 from contextlib import asynccontextmanager
 
-from src.middleware.monitoring import metrics_middleware
+from src.middleware import metrics_middleware
 
-from src.data.repositories.base_async import init_db
+from src.database import init_db
 
 
 @asynccontextmanager

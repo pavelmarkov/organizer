@@ -4,9 +4,9 @@ from pprint import pprint
 from typing import List
 import av
 import os
-from src.config.files import get_settings
+from src.config import get_settings
 from PIL import Image
-from src.dtos.media_entity import MediaInfo
+from src.media.schemas import MediaInfo
 from src.logger.log import logger
 
 

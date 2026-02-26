@@ -1,5 +1,4 @@
-from src.services.media.process import VideoProcessor
-from src.data.repositories.media_async import MediaRepositoryAsync
+from src.media.repository import MediaRepositoryAsync
 
 
 class Preview():
@@ -20,8 +19,5 @@ class Preview():
             self.unique_name = media.info['unique_name']
             return
 
-        file = VideoProcessor(self.path)
-        file.prepare()
-
         self.preview_path = None
-        self.unique_name = file.unique_name
+        self.unique_name = None

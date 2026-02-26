@@ -2,18 +2,15 @@
 import asyncio
 import time
 from typing import List
-from src.data.repositories.media_async import MediaRepositoryAsync
 from aio_pika.abc import AbstractIncomingMessage
 
 from src.logger.log import logger
 
-from src.dtos.memories_generator import GenerateMemoriesMessageBodyDto
+from src.clips.utils.generator import MemoriesGenerator
 
-from src.services.clips.memories_generator import MemoriesGenerator
+from src.clips.schemas import GenerateMemoriesMessageBodyDto, UpsertClipsEntityDto
 
-from src.dtos.clips_entity import ClipsInfo, UpsertClipsEntityDto
-
-from src.data.repositories.clips import ClipsRepository
+from src.clips.repository import ClipsRepository
 
 
 def parse_message_body(message: str) -> GenerateMemoriesMessageBodyDto:

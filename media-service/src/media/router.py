@@ -1,16 +1,11 @@
-from datetime import datetime
-import random
 import os
-from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, Response, Header
+from fastapi import APIRouter, HTTPException
 
 from fastapi.responses import FileResponse, JSONResponse
 
-from src.services.media.preview import Preview
-from src.services.media.info import MediaInfo
-
-from src.dtos.memories_generator import GenerateMemoriesDto
+from src.media.services.preview import Preview
+from src.media.services.info import MediaInfo
 
 from fastapi.encoders import jsonable_encoder
 

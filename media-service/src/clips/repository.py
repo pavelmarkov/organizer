@@ -6,13 +6,13 @@ from pydantic import BaseModel
 from sqlalchemy import delete, select, update
 from sqlalchemy.dialects.sqlite import insert as sqlite_upsert
 
-from src.data.repositories.base_async import get_async_db_session
+from src.database import get_async_db_session
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
 
-from src.data.models import Clips
-from src.dtos.clips_entity import UpsertClipsEntityDto
+from src.clips.models import Clips
+from src.clips.schemas import UpsertClipsEntityDto
 
 
 class ClipsRepository():
@@ -79,7 +79,6 @@ class ClipsRepository():
             )
 
             return results.one()
-        self.get()
 
     async def find(self, filter: dict):
         async for session in get_async_db_session():

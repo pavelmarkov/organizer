@@ -6,41 +6,12 @@ from fastapi import APIRouter, Response, Header
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
-from src.services.stream.stream_service import Stream
-from src.services.clips.memories_generator import MemoriesGenerator
+from src.clips.services.service import ClipsService
 
-from src.dtos.memories_generator import GenerateMemoriesDto
 
-from src.services.clips.clips_service import ClipsService
-
-from src.data.models.clips import Clips
-
-from src.dtos.clips_entity import PatchClipsEntityDto, DeleteClipsEntityDto
+from src.clips.schemas import PatchClipsEntityDto, DeleteClipsEntityDto
 
 router = APIRouter(prefix="/clips", tags=["Clips"])
-
-
-@router.get("/stream")
-async def video_endpoint(
-    path_to_file: str,
-    directory_id: Optional[str],
-    range: str = Header(None)
-):
-    print(path_to_file)
-
-    stream = Stream(None, path_to_file)
-    start, end, filesize, data = await stream.get_chunk(range)
-    print(start, end, filesize)
-
-    print(start, end, filesize)
-
-    headers = {
-        'Content-Range': f'bytes {str(start)}-{str(end - 1)}/{filesize}',
-        'Content-Length': f'{end - start}',
-        'Accept-Ranges': 'bytes',
-        'Content-Type': 'video/mp4'
-    }
-    return Response(data, status_code=206, headers=headers, media_type="video/mp4")
 
 
 @router.get("/")

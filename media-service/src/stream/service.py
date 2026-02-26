@@ -1,6 +1,6 @@
 import os
 
-CHUNK_SIZE = 149 * 1024 * 1024
+CHUNK_SIZE = 149 * 1024 * 1024  # * 16
 
 
 class Stream():

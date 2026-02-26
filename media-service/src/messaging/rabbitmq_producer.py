@@ -1,5 +1,5 @@
 import pika
-from src.config.rabbitmq import get_settings
+from src.messaging.config import get_settings
 
 
 class RabbitMQProducer():

@@ -1,11 +1,10 @@
 
 import os
 from typing import List
-import uuid
-from src.data.models.clips import Clips
-from src.data.repositories.clips import ClipsRepository
-from src.config.files import get_settings
-from src.dtos.clips_entity import PatchClipsEntityDto, ClipsFilterSchema
+from src.clips.models import Clips
+from src.clips.repository import ClipsRepository
+from src.config import get_settings
+from src.clips.schemas import PatchClipsEntityDto, ClipsFilterSchema
 
 
 class ClipsService():

@@ -1,5 +1,7 @@
 
 
+from pydantic import BaseModel, Field
+from typing import List
 import uuid
 from pydantic import BaseModel, Field, field_validator
 
@@ -30,3 +32,31 @@ class UpsertMediaEntityDto(BaseModel):
     @classmethod
     def directory_id_to_guid(cls, v: str) -> str:
         return uuid.UUID(v)
+
+
+class DirectoryEntityModel(BaseModel):
+    directory_id: str = Field(alias='directoryId')
+    path: str = Field(alias='path')
+
+
+class DirectoryMessageModel(BaseModel):
+    directories: list[DirectoryEntityModel]
+
+
+class ProcessMediaMessageBodyDto(BaseModel):
+    id: str
+    pattern: str
+    data: DirectoryMessageModel
+
+
+class ProcessMediaResponseDataDto(BaseModel):
+    directory_id: str = Field(
+        serialization_alias='directoryId'
+    )
+    path: str = Field()
+    info: MediaInfo | None
+    errors: List[str]
+
+
+class ProcessMediaResponseDto(BaseModel):
+    directories: List[ProcessMediaResponseDataDto]

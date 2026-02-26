@@ -32,7 +32,7 @@ export class MediaService implements OnModuleInit {
   }
 
   getStreamUrl(pathToFile: string): string {
-    return `${this.httpUrl}/clips/stream?path_to_file=${encodeURIComponent(
+    return `${this.httpUrl}/stream?path_to_file=${encodeURIComponent(
       pathToFile,
     )}&directory_id=k`;
   }

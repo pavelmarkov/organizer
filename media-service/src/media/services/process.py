@@ -1,16 +1,15 @@
 
 import asyncio
 
-from src.services.media.process import VideoProcessor
+from src.media.utils.process import VideoProcessor
 import time
-from src.data.repositories.media_async import MediaRepositoryAsync
+from src.media.repository import MediaRepositoryAsync
 from aio_pika.abc import AbstractIncomingMessage
 from pamqp.commands import Basic
 
 from src.logger.log import logger
 
-from src.dtos.media_processing import ProcessMediaMessageBodyDto, ProcessMediaResponseDataDto, ProcessMediaResponseDto
-from src.dtos.media_entity import UpsertMediaEntityDto
+from src.media.schemas import ProcessMediaMessageBodyDto, ProcessMediaResponseDataDto, ProcessMediaResponseDto, UpsertMediaEntityDto
 
 from src.metrics import MEDIA_PROCESSING_DURATION_SECONDS
 

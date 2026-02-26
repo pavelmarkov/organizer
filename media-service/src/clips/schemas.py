@@ -1,5 +1,7 @@
 
 
+from pydantic import BaseModel, Field
+from typing import Optional
 from typing import List, Optional
 import uuid
 from pydantic import BaseModel, Field, field_validator
@@ -66,3 +68,25 @@ class ClipsFilterSchema(BaseModel):
     @classmethod
     def memory_id_to_guid(cls, v: str) -> uuid.UUID:
         return uuid.UUID(v)
+
+
+class TimeInterval(BaseModel):
+    start: int
+    end: int
+
+
+class DirectoryDto(BaseModel):
+    id: str = Field(alias='directoryId')
+    path: str
+    interval: Optional[TimeInterval] = None
+
+
+class GenerateMemoriesDto(BaseModel):
+    directories: list[DirectoryDto]
+    memory_guid: str = Field(alias='memoryGuid')
+
+
+class GenerateMemoriesMessageBodyDto(BaseModel):
+    id: str
+    pattern: str
+    data: GenerateMemoriesDto

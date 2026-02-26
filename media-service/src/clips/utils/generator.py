@@ -1,6 +1,6 @@
 import os
 from typing import List, Tuple
-from src.config.files import get_settings
+from src.config import get_settings
 import random
 import os
 import ffmpeg
@@ -8,8 +8,7 @@ from pprint import pprint
 
 from src.logger.log import logger
 
-from src.dtos.clips_entity import ClipsInfo, UpsertClipsEntityDto
-from src.dtos.memories_generator import GenerateMemoriesDto
+from src.clips.schemas import ClipsInfo, UpsertClipsEntityDto, GenerateMemoriesDto
 
 
 class MemoriesGenerator():

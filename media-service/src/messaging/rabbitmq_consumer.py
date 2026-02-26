@@ -1,7 +1,7 @@
 import aio_pika
-from src.config.rabbitmq import get_settings
-from src.event_handlers.process_media import on_process_media_message_received
-from src.event_handlers.generate_memories import on_generate_memories_message_received
+from src.messaging.config import get_settings
+from src.media.services.process import on_process_media_message_received
+from src.clips.services.generate import on_generate_memories_message_received
 from aio_pika import connect_robust
 import asyncio
 

@@ -1,5 +1,4 @@
-from src.services.media.process import VideoProcessor
-from src.data.repositories.media_async import MediaRepositoryAsync
+from src.media.repository import MediaRepositoryAsync
 
 
 class MediaInfo():
@@ -20,7 +19,4 @@ class MediaInfo():
             self.info = media.info
             return
 
-        file = VideoProcessor(self.path)
-        file.prepare()
-
-        self.info = file.get_media_info()
+        self.info = {}
