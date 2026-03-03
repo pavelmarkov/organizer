@@ -6,6 +6,7 @@ import { DirectoryEntity } from "../../entities";
 import { AsyncLocalStorageModule } from "../../storage/async-local-storage.module";
 import { DirectoryRepository } from "./directory.repository";
 import { RepositoriesModule } from "../../persistence/repositories";
+import { NotificationsModule } from "../notifications";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { RepositoriesModule } from "../../persistence/repositories";
     MediaModule,
     AsyncLocalStorageModule,
     RepositoriesModule,
+    NotificationsModule,
   ],
   providers: [DirectoryService, DirectoryRepository],
   exports: [DirectoryService],

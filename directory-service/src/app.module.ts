@@ -6,6 +6,7 @@ import {
   ProjectsModule,
   TagsModule,
   MemoriesModule,
+  NotificationsModule,
 } from "./services";
 import { MikroORM } from "@mikro-orm/sqlite";
 import { SqliteDriver } from "@mikro-orm/sqlite";
@@ -19,6 +20,7 @@ import {
   ProjectsController,
   TagsController,
   MemoriesController,
+  NotificationsController,
 } from "./controllers";
 import { AsyncLocalStorageModule } from "./storage/async-local-storage.module";
 import { AsyncLocalStorage } from "node:async_hooks";
@@ -30,6 +32,7 @@ const CONTROLLERS = [
   TagsController,
   ConnectionsController,
   MemoriesController,
+  NotificationsController,
 ];
 
 @Module({
@@ -48,6 +51,7 @@ const CONTROLLERS = [
     TagsModule,
     ConnectionsModule,
     MemoriesModule,
+    NotificationsModule,
   ],
   providers: [DirectoryModule, NoteModule, ProjectsModule],
   controllers: CONTROLLERS,
@@ -55,7 +59,7 @@ const CONTROLLERS = [
 export class AppModule implements OnModuleInit {
   constructor(
     private readonly orm: MikroORM,
-    private readonly asyncLocalStorage: AsyncLocalStorage<any>
+    private readonly asyncLocalStorage: AsyncLocalStorage<any>,
   ) {}
 
   configure(consumer: MiddlewareConsumer) {

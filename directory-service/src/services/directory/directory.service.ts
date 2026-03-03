@@ -17,10 +17,12 @@ import { AsyncLocalStorage } from "async_hooks";
 import {
   GenerateMemoriesDto,
   GenerateMemoriesRequestDto,
+  NotificationSeverityEnum,
   TimeIntervalDto,
 } from "../../dtos";
 import { MemoriesRepository } from "../../persistence/repositories";
 import { FileStateEnum } from "src/domain/enums";
+import { NotificationsService } from "../notifications";
 
 @Injectable()
 export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
@@ -29,6 +31,7 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     private readonly directoryRepository: DirectoryRepository,
     private readonly asyncLocalStorage: AsyncLocalStorage<any>,
     private readonly memoriesRepository: MemoriesRepository,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async get(
@@ -85,6 +88,11 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     );
 
     if (!chosenFiles.length) {
+      this.notificationsService.addNotification({
+        severity: NotificationSeverityEnum.INFO,
+        summary: "Nothing to process",
+        detail: "",
+      });
       return {
         message: "nothing to process",
       };
@@ -122,7 +130,13 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       return updatedFileData;
     });
 
-    Promise.all(processing);
+    Promise.all(processing).then((data) => {
+      this.notificationsService.addNotification({
+        severity: NotificationSeverityEnum.INFO,
+        summary: "Finished processing files",
+        detail: `Number of files processed: ${data.length}`,
+      });
+    });
 
     return {
       message: "ok",

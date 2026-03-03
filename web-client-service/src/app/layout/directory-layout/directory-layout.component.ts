@@ -16,6 +16,7 @@ import {
 } from '../../core/services';
 import { CardModel, DirectoryModel } from '../../core/domain';
 import { DataService } from '../../shared/services/data.service';
+import { NotificationsService } from '../../shared/services/notifications.service';
 import { SelectedNodesType } from '../../core/types';
 
 import { ButtonModule } from 'primeng/button';
@@ -29,6 +30,8 @@ import {
 import { TreeTableLayoutComponent } from '../tree-table-layout/tree-table-layout.component';
 import { PaginatorState } from 'primeng/paginator';
 import { ActivatedRoute } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 interface Column {
   field: keyof DirectoryModel | '';
@@ -44,9 +47,12 @@ interface Column {
     ButtonModule,
     CardLayoutComponent,
     TreeTableLayoutComponent,
+
+    ToastModule,
   ],
   templateUrl: './directory-layout.component.html',
   styleUrl: './directory-layout.component.css',
+  providers: [MessageService],
 })
 export class DirectoryLayoutComponent implements OnInit {
   dataKeyName: string = 'directoryId';
@@ -73,6 +79,7 @@ export class DirectoryLayoutComponent implements OnInit {
   offset: number = 0;
 
   private route = inject(ActivatedRoute);
+  private messageService = inject(MessageService);
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -80,6 +87,7 @@ export class DirectoryLayoutComponent implements OnInit {
     private connectionsService: ConnectionsService,
     private dataService: DataService,
     private memoriesService: MemoriesService,
+    private notificationsService: NotificationsService,
   ) {}
 
   ngOnInit() {
@@ -106,6 +114,16 @@ export class DirectoryLayoutComponent implements OnInit {
 
     this.dataService.currentProject.subscribe((data) => {
       this.loadNodes(null);
+    });
+
+    this.notificationsService.listenEvents();
+
+    this.dataService.newNotifications.subscribe((data) => {
+      this.messageService.clear();
+      this.messageService.add({
+        ...data,
+        life: 3000,
+      });
     });
   }
 
