@@ -49,11 +49,19 @@ export class MediaService implements OnModuleInit {
       return mediaServiceAnswer;
     } catch (error) {
       console.log(error);
+      const errorMessages = [];
+
+      if (error instanceof Error) {
+        errorMessages.push(error.message);
+      } else {
+        errorMessages.push("Error processing file");
+      }
+
       return {
         directories: [
           {
             ...params[0],
-            errors: [error.message],
+            errors: errorMessages,
           },
         ],
       };

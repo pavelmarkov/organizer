@@ -104,18 +104,26 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       const response = await this.mediaClient.processDirectory({
         directories: [{ directoryId: file.directoryId, path: file.path }],
       });
-      // console.dir(response, { depth: null });
 
       file.info = new MediaInfo();
 
+      const fileNotProcessedError = "File wan't processed";
+
       if (!response?.directories?.length) {
-        const error = "File wan't processed";
-        file.info.errors.push(error);
-      } else {
-        const processingResult = response.directories[0];
-        file.info = processingResult.info;
-        file.info.errors = processingResult.errors;
+        file.info.errors.push(fileNotProcessedError);
+        return file;
       }
+
+      console.dir(response.directories, { depth: null });
+
+      const processingResult = response.directories[0];
+
+      if (!processingResult?.info) {
+        file.info.errors.push(fileNotProcessedError);
+        return file;
+      }
+
+      file.info.errors = processingResult.errors;
 
       file.state = FileStateEnum.PROCESSED;
 
@@ -127,15 +135,29 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
 
       console.dir(updatedFileData[0].info, { depth: null });
 
-      return updatedFileData;
+      return updatedFileData[0];
     });
 
     Promise.all(processing).then((data) => {
+      const numberOfProcessedFiles = data.filter(
+        (file) => file?.info?.errors?.length === 0,
+      );
       this.notificationsService.addNotification({
         severity: NotificationSeverityEnum.INFO,
         summary: "Finished processing files",
-        detail: `Number of files processed: ${data.length}`,
+        detail: `Number of files processed: ${numberOfProcessedFiles.length}`,
       });
+
+      const numberOfErrorFiles = data.filter(
+        (file) => (file?.info?.errors?.length ?? 1) > 0,
+      );
+      if (numberOfErrorFiles.length) {
+        this.notificationsService.addNotification({
+          severity: NotificationSeverityEnum.WARN,
+          summary: "Finished processing files",
+          detail: `Number of error files: ${numberOfErrorFiles.length}`,
+        });
+      }
     });
 
     return {
