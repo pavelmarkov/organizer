@@ -34,3 +34,11 @@ $ docker compose up -d --build
 # end
 $ docker compose down
 ```
+
+## Run dev commands
+
+```bash
+$ nest start
+$ fastapi dev main.py
+$ ng serve --open
+```

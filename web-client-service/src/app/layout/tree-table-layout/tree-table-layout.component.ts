@@ -67,7 +67,7 @@ export class TreeTableLayoutComponent implements OnInit {
 
   loadNodes($event: any) {
     this.loadNodesEvent.emit();
-    this.cd.markForCheck();
+    // this.cd.markForCheck();
   }
 
   onNodeExpand(event: TreeNodeExpandEvent) {

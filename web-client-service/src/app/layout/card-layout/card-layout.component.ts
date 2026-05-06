@@ -258,11 +258,16 @@ export class CardLayoutComponent implements OnInit {
       if (this.attachmentStartTime) {
         element.src = `${element.src}#t=${this.attachmentStartTime}`;
       }
-      // element.style.display = 'inline-block';
       this.loading = true;
+      element.onerror = (event) => {
+        console.log('Error during video loading');
+        element.style.display = 'none';
+      };
+
       element.load();
       element.onloadeddata = () => {
         this.loading = false;
+        // element.style.display = 'inline-block';
       };
     }
   }

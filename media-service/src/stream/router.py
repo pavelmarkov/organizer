@@ -1,7 +1,8 @@
 from datetime import datetime
+import os
 from typing import Optional
 
-from fastapi import APIRouter, Response, Header
+from fastapi import APIRouter, HTTPException, Response, Header
 
 from src.stream.service import Stream
 
@@ -15,6 +16,9 @@ async def video_endpoint(
     range: str = Header(None)
 ):
     print(path_to_file)
+
+    if not os.path.isfile(path_to_file):
+        raise HTTPException(status_code=404, detail="Item not found")
 
     stream = Stream(None, path_to_file)
     start, end, filesize, data = await stream.get_chunk(range)

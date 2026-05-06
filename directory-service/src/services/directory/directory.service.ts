@@ -279,8 +279,6 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       newDirectories.push(nodes[path]);
     });
 
-    console.log(nodes);
-
     return await this.directoryRepository.upsertMany(newDirectories);
   }
 

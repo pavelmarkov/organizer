@@ -1,6 +1,7 @@
 import {
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   inject,
   OnInit,
   ViewChild,
@@ -32,6 +33,8 @@ import { PaginatorState } from 'primeng/paginator';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, timeout } from 'rxjs';
 
 interface Column {
   field: keyof DirectoryModel | '';
@@ -80,6 +83,7 @@ export class DirectoryLayoutComponent implements OnInit {
 
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -112,19 +116,23 @@ export class DirectoryLayoutComponent implements OnInit {
       this.showDialog({ directoryId: directoryIdRouteParam });
     }
 
-    this.dataService.currentProject.subscribe((data) => {
-      this.loadNodes(null);
-    });
+    this.dataService.currentProject
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.loadNodes(null);
+      });
 
     this.notificationsService.listenEvents();
 
-    this.dataService.newNotifications.subscribe((data) => {
-      this.messageService.clear();
-      this.messageService.add({
-        ...data,
-        life: 3000,
+    this.dataService.newNotifications
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.messageService.clear();
+        this.messageService.add({
+          ...data,
+          life: 3000,
+        });
       });
-    });
   }
 
   private mapDirectoriesToNodes(directories: DirectoryModel[]): TreeNode[] {
@@ -148,12 +156,20 @@ export class DirectoryLayoutComponent implements OnInit {
 
     this.directoryService
       .getDirectory({}, { offset: this.offset, limit: this.limit })
+      .pipe(
+        timeout(1000 * 60),
+        catchError((error) => {
+          console.log(error);
+          this.files = [];
+          this.loading = false;
+          return [];
+        }),
+      )
       .subscribe((directories) => {
         const nodes = this.mapDirectoriesToNodes(directories);
-        console.log(nodes);
         this.files = [...nodes];
         this.loading = false;
-        this.cd.markForCheck();
+        // this.cd.markForCheck();
       });
     this.getTotalCount();
   }
@@ -254,13 +270,11 @@ export class DirectoryLayoutComponent implements OnInit {
   }
 
   importDirectoryFromFile(fileContent: string) {
-    console.log('import from directory layout');
     const directoryStructure: ImportDirectoryStructureRequestDto =
       JSON.parse(fileContent);
     this.directoryService
       .importDirectory(directoryStructure.data)
       .subscribe((importResult) => {
-        console.log('import result ', importResult);
         this.loadNodes(null);
       });
   }

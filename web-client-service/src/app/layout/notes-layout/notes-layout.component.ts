@@ -1,4 +1,10 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { CardModel, NoteModel } from '../../core/domain';
 import { NotesService } from '../../core/services';
@@ -16,6 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { Dialog, DialogModule } from 'primeng/dialog';
 import { CommonModule } from '@angular/common';
 import { FluidModule } from 'primeng/fluid';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface Column {
   field: keyof NoteModel | '';
@@ -40,7 +47,7 @@ interface Column {
   templateUrl: './notes-layout.component.html',
   styleUrl: './notes-layout.component.css',
 })
-export class NotesLayoutComponent {
+export class NotesLayoutComponent implements OnInit {
   dataKeyName: string = 'noteId';
   notes!: TreeNode<NoteModel>[];
   cols!: Column[];
@@ -59,6 +66,8 @@ export class NotesLayoutComponent {
     tags: [],
     attachments: [],
   };
+
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -80,10 +89,12 @@ export class NotesLayoutComponent {
 
     this.loadNodes();
 
-    this.dataService.currentProject.subscribe((data) => {
-      this.loadNodes();
-      this.loading = false;
-    });
+    this.dataService.currentProject
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.loadNodes();
+        this.loading = false;
+      });
   }
 
   loadNodes(event?: any) {
