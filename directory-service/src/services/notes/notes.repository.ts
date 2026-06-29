@@ -163,6 +163,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
     const nextItem = await this.noteRepository.findOne(
       this.formWhereCondition({
         name: { $gt: currentItem.name },
+        parentId: currentItem.parentId,
       }),
       { orderBy: { name: "asc" } },
     );
@@ -172,7 +173,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
     }
 
     const firstItem = await this.noteRepository.findOne(
-      this.formWhereCondition(),
+      this.formWhereCondition({ parentId: currentItem.parentId }),
       { orderBy: { name: "asc" } },
     );
 
@@ -187,6 +188,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
     const previousItem = await this.noteRepository.findOne(
       this.formWhereCondition({
         name: { $lt: currentItem.name },
+        parentId: currentItem.parentId,
       }),
       { orderBy: { name: "desc" } },
     );
@@ -196,7 +198,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
     }
 
     const lastItem = await this.noteRepository.findOne(
-      this.formWhereCondition(),
+      this.formWhereCondition({ parentId: currentItem.parentId }),
       { orderBy: { name: "desc" } },
     );
 
