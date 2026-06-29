@@ -11,7 +11,7 @@ export class NotesServiceImpl implements NotesService {
 
   getNotes(
     params: Partial<NoteModel>,
-    pagination: { offset: number; limit: number }
+    pagination: { offset?: number; limit?: number },
   ): Observable<NoteModel[]> {
     return this.notesRepository.getNotes(params, pagination);
   }

@@ -15,11 +15,11 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
   constructor(
     @InjectRepository(NoteEntity)
     private readonly noteRepository: EntityRepository<NoteEntity>,
-    private readonly asyncLocalStorage: AsyncLocalStorage<any>
+    private readonly asyncLocalStorage: AsyncLocalStorage<any>,
   ) {}
 
   private formWhereCondition(
-    filter?: FilterQuery<NoteEntity>
+    filter?: FilterQuery<NoteEntity>,
   ): FilterQuery<NoteEntity> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
     const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
@@ -64,12 +64,15 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
     return await this.noteRepository.findAll({
       where: whereCondition,
       orderBy: order,
-      offset: pagination?.offset ?? 0,
-      limit: pagination?.limit ?? 10,
+      offset: pagination?.offset ?? null,
+      limit: pagination?.limit ?? null,
     });
   }
 
   async count(filter?: Partial<NoteEntity>): Promise<number> {
+    filter = filter ?? {};
+    filter.parentId = filter.parentId ?? null;
+
     const whereCondition = this.formWhereCondition(filter);
 
     return await this.noteRepository.count(whereCondition);
@@ -82,7 +85,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
   }
 
   async update(
-    notes: (Partial<NoteEntity> & Pick<NoteEntity, "noteId">)[]
+    notes: (Partial<NoteEntity> & Pick<NoteEntity, "noteId">)[],
   ): Promise<NoteEntity[]> {
     if (!notes.length) {
       return [];
@@ -98,7 +101,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
 
     currentNotes.forEach((note) => {
       const updateData = notes.find(
-        (updateDataNote) => updateDataNote.noteId === note.noteId
+        (updateDataNote) => updateDataNote.noteId === note.noteId,
       );
       Object.assign(note, updateData);
     });
@@ -106,12 +109,18 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
     return await this.noteRepository.upsertMany(currentNotes, {
       onConflictFields: ["noteId"],
       onConflictAction: "merge",
-      onConflictMergeFields: ["description", "type", "source", "tags"],
+      onConflictMergeFields: [
+        "description",
+        "type",
+        "source",
+        "tags",
+        "parentId",
+      ],
     });
   }
 
   async delete(
-    notes: (Partial<NoteEntity> & Pick<NoteEntity, "noteId">)[]
+    notes: (Partial<NoteEntity> & Pick<NoteEntity, "noteId">)[],
   ): Promise<NoteEntity[]> {
     if (!notes.length) {
       return [];
@@ -133,7 +142,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
   }
 
   async upsertMany(
-    notes: (Partial<NoteEntity> & Pick<NoteEntity, "name">)[]
+    notes: (Partial<NoteEntity> & Pick<NoteEntity, "name">)[],
   ): Promise<NoteEntity[]> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
 
@@ -155,7 +164,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
       this.formWhereCondition({
         name: { $gt: currentItem.name },
       }),
-      { orderBy: { name: "asc" } }
+      { orderBy: { name: "asc" } },
     );
 
     if (nextItem) {
@@ -164,7 +173,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
 
     const firstItem = await this.noteRepository.findOne(
       this.formWhereCondition(),
-      { orderBy: { name: "asc" } }
+      { orderBy: { name: "asc" } },
     );
 
     if (firstItem) {
@@ -179,7 +188,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
       this.formWhereCondition({
         name: { $lt: currentItem.name },
       }),
-      { orderBy: { name: "desc" } }
+      { orderBy: { name: "desc" } },
     );
 
     if (previousItem) {
@@ -188,7 +197,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
 
     const lastItem = await this.noteRepository.findOne(
       this.formWhereCondition(),
-      { orderBy: { name: "desc" } }
+      { orderBy: { name: "desc" } },
     );
 
     if (lastItem) {

@@ -41,6 +41,7 @@ export class ActionsLayoutComponent implements OnInit {
   @Output() importEvent = new EventEmitter<string>();
   @Output() searchEvent = new EventEmitter();
   @Output() createEvent = new EventEmitter();
+  @Output() attachToParentEvent = new EventEmitter();
   @Output() generateEvent = new EventEmitter();
 
   constructor(private dataService: DataService) {}
@@ -60,6 +61,10 @@ export class ActionsLayoutComponent implements OnInit {
 
   create(event: MouseEvent) {
     this.createEvent.emit();
+  }
+
+  attachToParent(event: MouseEvent) {
+    this.attachToParentEvent.emit();
   }
 
   import(event: FileUploadHandlerEvent) {

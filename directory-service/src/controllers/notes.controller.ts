@@ -17,10 +17,11 @@ export class NoteController {
 
   @Get()
   getNotes(
+    @Query("parentId") parentId: string,
     @Query("limit") limit: number,
-    @Query("offset") offset: number
+    @Query("offset") offset: number,
   ): Promise<NoteEntity[]> {
-    return this.noteService.get(null, { limit, offset });
+    return this.noteService.get({ parentId }, { limit, offset });
   }
 
   @Get("count")

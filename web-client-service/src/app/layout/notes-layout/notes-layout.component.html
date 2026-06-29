@@ -2,7 +2,8 @@
   (processEvent)="processNotes()"
   (importEvent)="importNotes($event)"
   (searchEvent)="searchNotes()"
-  (createEvent)="createNoteDialog()">
+  (createEvent)="createNoteDialog()"
+  (attachToParentEvent)="attachToParentDialog()">
 </app-actions-layout>
 
 <tree-table-layout
@@ -44,5 +45,17 @@
   <ng-template #footer>
     <p-button label="Cancel" icon="pi pi-times" text (click)="hideCreateDialog()" />
     <p-button label="Save" icon="pi pi-check" (click)="saveNote()" />
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="attachToParentDialogVisible" [style]="{ width: '450px' }" header="Note" [modal]="true">
+  <ng-template #content>
+    <p-select (onClick)="onSelectParentClick($event)" [showClear]="true" appendTo="body" [options]="parentNotesList"
+    [(ngModel)]="selectedParentNoteId" optionValue="noteId" optionLabel="name" placeholder="Select a Note"/>
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button label="Cancel" icon="pi pi-times" text (click)="hideAttachToParentDialog()" />
+    <p-button label="Save" icon="pi pi-check" (click)="attachToParent()" />
   </ng-template>
 </p-dialog>

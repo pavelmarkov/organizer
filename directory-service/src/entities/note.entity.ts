@@ -6,6 +6,9 @@ export class NoteEntity extends WithProjectIdBaseEntity {
   @PrimaryKey({ type: "uuid" })
   noteId: string;
 
+  @Property({ type: "uuid", nullable: true })
+  parentId: string;
+
   @Property({ unique: true })
   name: string;
 

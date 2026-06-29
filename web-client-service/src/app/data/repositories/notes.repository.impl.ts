@@ -11,15 +11,23 @@ export class NotesRepositoryImpl implements NotesRepository {
 
   getNotes(
     params: Partial<NoteModel>,
-    pagination: { offset: number; limit: number }
+    pagination: { offset?: number; limit?: number },
   ): Observable<NoteModel[]> {
-    const httpParams: Partial<{ offset: number; limit: number }> = {};
+    const httpParams: Partial<{
+      offset: number;
+      limit: number;
+      parentId: string;
+    }> = {};
     if (pagination.offset || pagination.offset === 0) {
       httpParams.offset = pagination.offset;
     }
     if (pagination.limit) {
       httpParams.limit = pagination.limit;
     }
+    if (params.parentId) {
+      httpParams.parentId = params.parentId;
+    }
+
     return this.http.get<NoteModel[]>(`${this.baseUrl}/notes`, {
       params: httpParams,
     });

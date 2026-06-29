@@ -23,6 +23,7 @@ import { Dialog, DialogModule } from 'primeng/dialog';
 import { CommonModule } from '@angular/common';
 import { FluidModule } from 'primeng/fluid';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SelectModule } from 'primeng/select';
 
 interface Column {
   field: keyof NoteModel | '';
@@ -43,6 +44,8 @@ interface Column {
     InputTextModule,
     TextareaModule,
     CommonModule,
+
+    SelectModule,
   ],
   templateUrl: './notes-layout.component.html',
   styleUrl: './notes-layout.component.css',
@@ -60,6 +63,10 @@ export class NotesLayoutComponent implements OnInit {
   selected: string[] = [];
 
   dialogPanelVisible: boolean = false;
+
+  attachToParentDialogVisible: boolean = false;
+  selectedParentNoteId: string | undefined = undefined;
+  parentNotesList: NoteModel[] = [];
 
   cardData: CardModel = {
     rowIdentifier: null,
@@ -127,7 +134,7 @@ export class NotesLayoutComponent implements OnInit {
     notes.forEach((notesElement) => {
       let node: TreeNode = {
         data: notesElement,
-        leaf: true,
+        leaf: notesElement.type !== 'folder',
         children: [],
       };
 
@@ -137,8 +144,19 @@ export class NotesLayoutComponent implements OnInit {
     return nodes;
   }
 
-  onNodeExpand(node: TreeNode) {
-    return;
+  onNodeExpand(node: TreeNode<NoteModel>) {
+    this.loading = true;
+    const nodeId = node.data?.noteId;
+
+    this.notesService
+      .getNotes({ parentId: nodeId }, {})
+      .subscribe((nodeChildren) => {
+        console.log(nodeChildren);
+        node.children = this.mapNotesToNodes(nodeChildren);
+        this.loading = false;
+        this.notes = [...this.notes];
+        this.cd.markForCheck();
+      });
   }
 
   showDialog(note: NoteModel) {
@@ -237,6 +255,47 @@ export class NotesLayoutComponent implements OnInit {
     this.createMode = true;
     this.editMode = false;
   }
+
+  attachToParentDialog() {
+    this.attachToParentDialogVisible = true;
+  }
+  hideAttachToParentDialog() {
+    this.attachToParentDialogVisible = false;
+  }
+  onSelectParentClick($event: MouseEvent) {
+    this.notesService.getNotes({}, {}).subscribe((data) => {
+      this.parentNotesList = data;
+    });
+  }
+  attachToParent() {
+    const selectedNoteGuids = Object.keys(this.selectionKeys).filter(
+      (guid) => this.selectionKeys[guid].checked,
+    );
+
+    const selectedParentNoteGuid = this.selectedParentNoteId ?? null;
+
+    if (!selectedNoteGuids.length) {
+      this.attachToParentDialogVisible = false;
+      return;
+    }
+
+    const updateNotesData: Pick<NoteModel, 'noteId' | 'parentId'>[] =
+      selectedNoteGuids.map((selectedNoteGuid) => {
+        return {
+          noteId: selectedNoteGuid,
+          parentId: selectedParentNoteGuid,
+        };
+      });
+
+    this.notesService.update(updateNotesData).subscribe((data) => {
+      console.log(data);
+      this.attachToParentDialogVisible = false;
+      this.loadNodes();
+    });
+
+    this.attachToParentDialogVisible = false;
+  }
+
   editNote(note: NoteModel) {
     this.note = {};
 

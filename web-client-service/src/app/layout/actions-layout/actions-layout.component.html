@@ -3,6 +3,7 @@
 <p-toolbar>
   <ng-template #start>
     <p-button icon="pi pi-plus" (click)="create($event)" class="mr-2" text severity="secondary" />
+    <p-button icon="pi pi-link" (click)="attachToParent($event)" class="mr-2" text severity="secondary" />
     <p-fileupload
         mode="advanced"
         class="file-upload-advanced"

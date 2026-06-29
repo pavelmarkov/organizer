@@ -47,7 +47,7 @@
     </ng-template>
     <ng-template #title>{{cardData.title}}</ng-template>
     <ng-template #subtitle><p style="cursor: pointer" (click)="copyMessage(cardData.subtitle)">{{cardData.subtitle}}</p></ng-template>
-    <p>{{cardData.text}}</p>
+    <p style="white-space: pre-line;">{{cardData.text}}</p>
     <ng-template #footer>
       <div class="flex gap-4 mt-1">
         <!-- <p-button label="Cancel" (click)="dialogClosed()" severity="secondary" (click)="dialogClosed()" /> -->

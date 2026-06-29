@@ -1,0 +1,13 @@
+.ng-star-inserted {
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   /* max-width: 150px; */
+   /* color: aquamarine; */
+}
+
+td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
