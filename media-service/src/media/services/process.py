@@ -71,6 +71,14 @@ async def on_process_media_message_received(
 
     processing_media_info.errors = videoProcessor.errors
 
+    if len(processing_media_info.errors):
+        processing_media_result = ProcessMediaResponseDto(
+            directories=[processing_media_info],
+        )
+        await send_response_message(incoming_message, processing_media_result)
+        await incoming_message.ack()
+        return
+
     processing_media_result = ProcessMediaResponseDto(
         directories=[processing_media_info],
     )

@@ -239,9 +239,12 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       [path: string]: DirectoryEntity;
     } = {};
 
+    const projectId = this.asyncLocalStorage.getStore()["projectId"];
+
     const existingFolders = await this.directoryRepository.findAll({
       filter: {
         isFolder: true,
+        projectId: projectId,
       },
     });
 

@@ -9,11 +9,11 @@ import { BaseAbstractService } from "../../domain/services";
 export class ProjectsService implements BaseAbstractService<ProjectEntity> {
   constructor(
     @InjectRepository(ProjectEntity)
-    private readonly projectRepository: EntityRepository<ProjectEntity>
+    private readonly projectRepository: EntityRepository<ProjectEntity>,
   ) {}
 
   async get(): Promise<ProjectEntity[]> {
-    return await this.projectRepository.findAll();
+    return await this.projectRepository.findAll({ where: { deletedAt: null } });
   }
 
   async create(projects: Partial<ProjectEntity[]>): Promise<ProjectEntity[]> {

@@ -24,6 +24,7 @@ import { CommonModule } from '@angular/common';
 import { FluidModule } from 'primeng/fluid';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SelectModule } from 'primeng/select';
+import { copySelectedNoteData } from './utils/copy-selected-note-data-to-form';
 
 interface Column {
   field: keyof NoteModel | '';
@@ -151,7 +152,6 @@ export class NotesLayoutComponent implements OnInit {
     this.notesService
       .getNotes({ parentId: nodeId }, {})
       .subscribe((nodeChildren) => {
-        console.log(nodeChildren);
         node.children = this.mapNotesToNodes(nodeChildren);
         this.loading = false;
         this.notes = [...this.notes];
@@ -248,7 +248,8 @@ export class NotesLayoutComponent implements OnInit {
     this.createMode = false;
   }
   createNoteDialog() {
-    this.note = {};
+    this.note = copySelectedNoteData(this.notes, this.selectionKeys);
+
     this.submitted = false;
     this.createDialogVisible = true;
 
@@ -288,10 +289,11 @@ export class NotesLayoutComponent implements OnInit {
       });
 
     this.notesService.update(updateNotesData).subscribe((data) => {
-      console.log(data);
       this.attachToParentDialogVisible = false;
       this.loadNodes();
     });
+
+    this.selectionKeys = {};
 
     this.attachToParentDialogVisible = false;
   }

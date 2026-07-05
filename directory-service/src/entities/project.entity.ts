@@ -11,6 +11,9 @@ export class ProjectEntity {
   @Property({ default: false })
   default: boolean;
 
+  @Property({ default: null, nullable: true })
+  deletedAt: Date;
+
   @Property({ type: "array" })
   participants: string[];
 }
