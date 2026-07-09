@@ -331,6 +331,11 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
     view.previous = await this.directoryRepository.getPreviousItemId(directory);
 
     if (!directory.isFolder) {
+      view.image = await this.mediaClient.getThumbnails(
+        directory.directoryId,
+        directory.path,
+      );
+
       const media = directory.info?.durationInSeconds
         ? {
             info: {
@@ -348,11 +353,6 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       if (!media?.info) {
         return view;
       }
-
-      view.image = await this.mediaClient.getThumbnails(
-        directory.directoryId,
-        directory.path,
-      );
 
       const info = media.info;
       const size = convertSizeInBytes(info.size);

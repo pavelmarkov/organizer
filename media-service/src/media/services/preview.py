@@ -1,6 +1,13 @@
 from src.media.repository import MediaRepositoryAsync
 
 
+def isImageFormat(full_path: str):
+    return full_path.endswith('.jpg') \
+        or full_path.endswith('.jpeg') \
+        or full_path.endswith('.png') \
+        or full_path.endswith('.heic')
+
+
 class Preview():
     directory_id: str
     path: str
@@ -12,6 +19,10 @@ class Preview():
         self.path = path
 
     async def get_preview(self):
+        if isImageFormat(self.path):
+            self.preview_path = self.path
+            return
+
         media_repository = MediaRepositoryAsync()
         media = await media_repository.get_madia_by_directory_id(self.directory_id)
         if media:
