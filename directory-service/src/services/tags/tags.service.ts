@@ -1,39 +1,60 @@
 import { Injectable } from "@nestjs/common";
 import { TagEntity } from "../../entities";
-import { InjectRepository } from "@mikro-orm/nestjs";
-import { EntityRepository } from "@mikro-orm/sqlite";
-import { v4 as uuidv4 } from "uuid";
-import { AsyncLocalStorage } from "node:async_hooks";
 import { BaseAbstractService } from "../../domain/services";
+import { TagRepository } from "./tags.repository";
+import { View } from "src/domain/types";
 
 @Injectable()
 export class TagsService implements BaseAbstractService<TagEntity> {
-  constructor(
-    @InjectRepository(TagEntity)
-    private readonly tagsRepository: EntityRepository<TagEntity>,
-    private readonly asyncLocalStorage: AsyncLocalStorage<any>
-  ) {}
+  constructor(private readonly tagsRepository: TagRepository) {}
 
-  async get(): Promise<TagEntity[]> {
-    const projectId = this.asyncLocalStorage.getStore()["projectId"];
+  async get(
+    filter?: Partial<TagEntity>,
+    pagination?: { limit: number; offset: number },
+  ): Promise<TagEntity[]> {
     return await this.tagsRepository.findAll({
-      where: {
-        projectId: projectId ?? null,
-      },
+      filter,
+      order: { name: "asc" },
+      pagination,
     });
   }
 
+  async count(filter?: Partial<TagEntity>): Promise<number> {
+    return await this.tagsRepository.count(filter);
+  }
+
   async create(tags: Partial<TagEntity[]>): Promise<TagEntity[]> {
-    const projectId = this.asyncLocalStorage.getStore()["projectId"];
+    return await this.tagsRepository.upsertMany(tags);
+  }
 
-    tags.forEach((tag) => {
-      tag.tagId = uuidv4();
-      tag.projectId = projectId;
-    });
+  async update(tags: Partial<TagEntity[]>): Promise<TagEntity[]> {
+    return await this.tagsRepository.update(tags);
+  }
 
-    return await this.tagsRepository.upsertMany(tags, {
-      onConflictFields: ["name"],
-      onConflictAction: "ignore",
-    });
+  async delete(tags: Partial<TagEntity[]>): Promise<TagEntity[]> {
+    return await this.tagsRepository.delete(tags);
+  }
+
+  async view(tagId: string): Promise<View> {
+    const tag = await this.tagsRepository.findOne(tagId);
+
+    const view: View = {
+      rowIdentifier: tag.tagId,
+      title: tag.name,
+      subtitle: null,
+      text: tag.description,
+      tags: [],
+      image: null,
+      next: null,
+      previous: null,
+      details: null,
+      attachments: [],
+    };
+
+    view.next = await this.tagsRepository.getNextItemId(tag);
+
+    view.previous = await this.tagsRepository.getPreviousItemId(tag);
+
+    return view;
   }
 }

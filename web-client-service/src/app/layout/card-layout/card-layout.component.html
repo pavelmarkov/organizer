@@ -4,6 +4,28 @@
     <ng-template #header>
       @if(cardData && cardData.image) {
         <img alt="Card" [style]="{ height: '25rem', display: 'block', 'margin-left': 'auto', 'margin-right': 'auto' }" class="w-full" src="data:image/jpeg;base64, {{cardData.image}}" />
+      } @else {
+        <p-fileupload
+            mode="advanced"
+            class="file-upload-advanced"
+            accept="image/*"
+            maxFileSize="1000000"
+            [customUpload]="true"
+            (uploadHandler)="import($event)"
+            (onUpload)="import($event)"
+            [auto]="true"
+          >
+          <ng-template #header let-chooseCallback="chooseCallback">
+            <p-button icon="pi pi-upload" text severity="secondary" (onClick)="choose($event, chooseCallback)"
+              pTooltip="Import from JSON" tooltipPosition="bottom" showDelay="1000" hideDelay="300" />
+          </ng-template>
+          <ng-template #empty>
+            <div class="flex items-center justify-center flex-col">
+              <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color"></i>
+              <p class="mt-6 mb-0">Drag and drop preview to here to upload.</p>
+            </div>
+          </ng-template>
+        </p-fileupload>
       }
       @if(cardData && cardData.attachments.length) {
       <div class="card flex justify-center">
@@ -57,6 +79,7 @@
       </div>
     </ng-template>
   </p-card>
+  @if(showTags) {
   <div class="card flex justify-center">
     <p-listbox focusOnHover="true"
       (onFilter)="onFilter($event)"
@@ -67,4 +90,5 @@
       (onChange)="onTagSelectionChange($event)" scrollHeight="250px" [striped]="true" class="w-full md:w-56" />
   </div>
   <button pButton severity="secondary" (click)="newTag($event)"><span pButtonLabel>New Tag</span></button>
+  }
 </p-dialog>

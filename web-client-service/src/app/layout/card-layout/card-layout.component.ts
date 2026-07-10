@@ -38,6 +38,7 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
 
 import { SelectModule } from 'primeng/select';
+import { FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
 
 @Component({
   selector: 'app-card-layout',
@@ -56,6 +57,8 @@ import { SelectModule } from 'primeng/select';
     InputMaskModule,
     FormsModule,
     SelectModule,
+
+    FileUpload,
   ],
   templateUrl: './card-layout.component.html',
   styleUrl: './card-layout.component.css',
@@ -68,6 +71,7 @@ export class CardLayoutComponent implements OnInit {
   };
 
   @Input() visible: boolean = false;
+  @Input() showTags: boolean = true;
 
   @Output() dialogPanelCloseEvent = new EventEmitter();
 
@@ -120,9 +124,14 @@ export class CardLayoutComponent implements OnInit {
     });
   }
 
-  ngOnChanges(changes: SimpleChanges & { visible: SimpleChange }): void {
+  ngOnChanges(
+    changes: SimpleChanges & { visible: SimpleChange; cardData: CardModel },
+  ): void {
     if (changes.visible?.currentValue) {
       this.loadTags();
+    }
+    if (changes.cardData) {
+      this.sortTags();
     }
   }
 
@@ -132,9 +141,25 @@ export class CardLayoutComponent implements OnInit {
     this.loading = false;
   }
 
+  sortTags() {
+    if (!this.cardData?.tags?.length) {
+      return;
+    }
+    this.tags = this.tags.sort((a, b) => {
+      const av = Number(this.cardData.tags.includes(b.tagId));
+      const bv = Number(this.cardData.tags.includes(a.tagId));
+      return av - bv;
+    });
+  }
+
   loadTags(event?: ScrollerLazyLoadEvent) {
-    this.tagsService.getTags().subscribe((data) => {
+    if (!this.showTags) {
+      return;
+    }
+    this.tagsService.getTags({}, {}).subscribe((data) => {
+      this.cardData.tags;
       this.tags = data;
+      this.sortTags();
     });
   }
 
@@ -305,5 +330,23 @@ export class CardLayoutComponent implements OnInit {
       }
     };
     attempt();
+  }
+
+  choose(event: MouseEvent, callback: VoidFunction) {
+    callback();
+  }
+  import(event: FileUploadHandlerEvent) {
+    event.files.forEach((file) => {
+      const reader: FileReader = new FileReader();
+
+      reader.onload = () => {
+        const fileContent = reader.result;
+        if (typeof fileContent === 'string') {
+          console.log(fileContent);
+        }
+      };
+
+      reader.readAsText(file);
+    });
   }
 }

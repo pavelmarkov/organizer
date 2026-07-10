@@ -95,7 +95,7 @@ export class NotesLayoutComponent implements OnInit {
 
     this.loading = false;
 
-    this.loadNodes();
+    // this.loadNodes();
 
     this.dataService.currentProject
       .pipe(takeUntilDestroyed(this.destroyRef))

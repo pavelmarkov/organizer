@@ -1,16 +1,61 @@
-<div class="card">
-  <p-table [value]="tags" [tableStyle]="{ 'min-width': '50rem' }">
-    <ng-template #header>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-tag>
-      <tr>
-        <td>{{ tag.name }}</td>
-        <td>{{ tag.description }}</td>
-      </tr>
-    </ng-template>
-  </p-table>
-</div>
+<app-actions-layout
+  (searchEvent)="searchTags()"
+  (attachToParentEvent)="attachToParentDialog()">
+</app-actions-layout>
+
+<tree-table-layout
+  [rows]="tags"
+  [columns]="cols"
+  [totalRecords]="totalRecords"
+  [loading]="loading"
+  [dataKeyName]="dataKeyName"
+  [selectionKeys]="selectionKeys"
+  (nodeExpandEvent)="onNodeExpand($event)"
+  (showDialogEvent)="showDialog($event)"
+  (loadNodesEvent)="loadNodes($event)"
+  (paginationEvent)="paginate($event)"
+  (editEvent)="editTag($event)"
+  (removeEvent)="removeTag($event)">
+</tree-table-layout>
+
+<app-card-layout
+  (dialogPanelCloseEvent)="closeDialog()"
+  (nextItemEvent)="nextItem($event)"
+  (previousItemEvent)="previousItem($event)"
+  [cardData]="cardData"
+  [visible]="dialogPanelVisible"
+  [showTags]="false"
+  >
+</app-card-layout>
+
+<p-dialog [(visible)]="createDialogVisible" [style]="{ width: '450px' }" header="Tag" [modal]="true">
+  <ng-template #content>
+    <div class="inputs-container">
+
+      <label pLabel for="name">Name</label>
+      <input class="form-input" type="text" placeholder="Name" pInputText id="name" [(ngModel)]="tag.name" required
+        autofocus fluid />
+
+      <label pLabel for="description">Description</label>
+      <textarea placeholder="Description" id="description" pTextarea [(ngModel)]="tag.description" required rows="5"
+        cols="20" fluid></textarea>
+    </div>
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button label="Cancel" icon="pi pi-times" text (click)="hideCreateDialog()" />
+    <p-button label="Save" icon="pi pi-check" (click)="saveTag()" />
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="attachToParentDialogVisible" [style]="{ width: '450px' }" header="Tag" [modal]="true">
+  <ng-template #content>
+    <p-select (onClick)="onSelectParentClick($event)" [showClear]="true" appendTo="body" [options]="parentTagsList"
+      [(ngModel)]="selectedParentTagId" optionValue="tagId" optionLabel="name" placeholder="Select a Tag" />
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button label="Cancel" icon="pi pi-times" text (click)="hideAttachToParentDialog()" />
+    <p-button label="Save" icon="pi pi-check" (click)="attachToParent()" />
+  </ng-template>
+</p-dialog>
