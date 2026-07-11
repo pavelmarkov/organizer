@@ -10,6 +10,8 @@ __pycache__
 
 *.png
 *.jpeg
+*.jpg
+*.gif
 *.mp4
 *.mp3
 *.mkv

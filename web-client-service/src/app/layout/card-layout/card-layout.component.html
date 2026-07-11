@@ -4,15 +4,16 @@
     <ng-template #header>
       @if(cardData && cardData.image) {
         <img alt="Card" [style]="{ height: '25rem', display: 'block', 'margin-left': 'auto', 'margin-right': 'auto' }" class="w-full" src="data:image/jpeg;base64, {{cardData.image}}" />
+        <p-button label="Change preview" [link]="true" (onClick)="initChangePreview()"/>
       } @else {
         <p-fileupload
             mode="advanced"
             class="file-upload-advanced"
             accept="image/*"
-            maxFileSize="1000000"
+            maxFileSize="2000000"
             [customUpload]="true"
-            (uploadHandler)="import($event)"
-            (onUpload)="import($event)"
+            (uploadHandler)="uploadPreview($event)"
+            (onUpload)="uploadPreview($event)"
             [auto]="true"
           >
           <ng-template #header let-chooseCallback="chooseCallback">

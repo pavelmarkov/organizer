@@ -1,12 +1,16 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { TagEntity } from "../../entities";
 import { BaseAbstractService } from "../../domain/services";
 import { TagRepository } from "./tags.repository";
 import { View } from "src/domain/types";
+import { MediaService } from "../../infrastructure/media/media.service";
 
 @Injectable()
 export class TagsService implements BaseAbstractService<TagEntity> {
-  constructor(private readonly tagsRepository: TagRepository) {}
+  constructor(
+    private readonly tagsRepository: TagRepository,
+    @Inject(MediaService) private readonly mediaClient: MediaService,
+  ) {}
 
   async get(
     filter?: Partial<TagEntity>,
@@ -50,6 +54,8 @@ export class TagsService implements BaseAbstractService<TagEntity> {
       details: null,
       attachments: [],
     };
+
+    view.image = await this.mediaClient.getThumbnails(tag.tagId, null);
 
     view.next = await this.tagsRepository.getNextItemId(tag);
 

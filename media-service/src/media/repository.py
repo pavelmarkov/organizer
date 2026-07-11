@@ -1,7 +1,7 @@
 import uuid
 
 from fastapi.params import Depends
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_upsert
 
 from src.database import get_async_db_session
@@ -49,6 +49,15 @@ class MediaRepositoryAsync():
                 preview_path=statement.excluded.preview_path,
                 info=statement.excluded.info
             )
+        )
+
+        async for session in get_async_db_session():
+            await session.execute(statement)
+            return
+
+    async def remove_by_directory_id(self, directory_id: str):
+        statement = delete(Media).where(
+            Media.directory_id == uuid.UUID(directory_id)
         )
 
         async for session in get_async_db_session():

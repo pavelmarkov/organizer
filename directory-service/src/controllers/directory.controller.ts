@@ -6,10 +6,14 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from "@nestjs/common";
 import { DirectoryService } from "../services/directory";
 import { DirectoryEntity } from "src/entities";
 import { ViewDto } from "../dtos";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { Express } from "express";
 
 @Controller("directory")
 export class DirectoryController {
@@ -62,5 +66,11 @@ export class DirectoryController {
   @Delete()
   deleteNotes(@Body() params: DirectoryEntity[]): Promise<DirectoryEntity[]> {
     return this.directoryService.delete(params);
+  }
+
+  @Post("preview")
+  @UseInterceptors(FileInterceptor("file"))
+  uploadPreview(@UploadedFile() file: Express.Multer.File) {
+    console.log(file);
   }
 }

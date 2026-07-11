@@ -221,4 +221,27 @@ export class MediaService implements OnModuleInit {
 
     return [];
   }
+
+  async addMedia(
+    entityId: string,
+    file: Express.Multer.File,
+  ): Promise<string[]> {
+    const url = new URL(`${this.httpUrl}/media/preview`);
+
+    const formData = new FormData();
+    const fileBlob = new Blob([file.buffer as BlobPart], {
+      type: file.mimetype,
+    });
+    formData.append("file", fileBlob, file.originalname);
+
+    url.searchParams.set("entity_id", entityId);
+
+    const messages = await fetch(url, { method: "POST", body: formData });
+
+    const result = await messages.json();
+
+    console.dir(result, { depth: null });
+
+    return result;
+  }
 }

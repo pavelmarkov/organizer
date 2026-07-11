@@ -20,7 +20,11 @@ import { ButtonModule } from 'primeng/button';
 
 import { FormsModule } from '@angular/forms';
 import { Listbox, ListboxFilterEvent } from 'primeng/listbox';
-import { MemoriesService, TagsService } from '../../core/services';
+import {
+  MemoriesService,
+  PreviewService,
+  TagsService,
+} from '../../core/services';
 import { ScrollerLazyLoadEvent } from 'primeng/scroller';
 import {
   CardModel,
@@ -106,6 +110,7 @@ export class CardLayoutComponent implements OnInit {
     private tagsService: TagsService,
     private clipboard: Clipboard,
     private memoriesService: MemoriesService,
+    private previewService: PreviewService,
   ) {}
 
   ngOnInit() {
@@ -253,11 +258,6 @@ export class CardLayoutComponent implements OnInit {
       return;
     }
 
-    console.log(this.cardData.rowIdentifier);
-    console.log(this.clipStartTimeInSeconds);
-    console.log(this.clipEndTimeInSeconds);
-    console.log(this.selectedMemory);
-
     this.memoriesService
       .generate({
         directories: [
@@ -332,21 +332,36 @@ export class CardLayoutComponent implements OnInit {
     attempt();
   }
 
+  initChangePreview(): void {
+    if (this.cardData.image) {
+      this.cardData.image = undefined;
+    }
+  }
   choose(event: MouseEvent, callback: VoidFunction) {
     callback();
   }
-  import(event: FileUploadHandlerEvent) {
+  uploadPreview(event: FileUploadHandlerEvent) {
     event.files.forEach((file) => {
       const reader: FileReader = new FileReader();
 
       reader.onload = () => {
         const fileContent = reader.result;
         if (typeof fileContent === 'string') {
-          console.log(fileContent);
+          if (!this.cardData?.rowIdentifier) {
+            return;
+          }
+          this.previewService
+            .add(this.cardData.rowIdentifier, file)
+            .subscribe((result) => {
+              this.cardData.image = fileContent.replace(
+                /data:image\/[a-zA-Z0-9+.-]+;base64,/,
+                '',
+              );
+            });
         }
       };
 
-      reader.readAsText(file);
+      reader.readAsDataURL(file);
     });
   }
 }

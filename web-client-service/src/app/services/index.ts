@@ -4,3 +4,4 @@ export * from './projects.service.impl';
 export * from './tags.service.impl';
 export * from './connections.service.impl';
 export * from './memories.service.impl';
+export * from './preview.service.impl';

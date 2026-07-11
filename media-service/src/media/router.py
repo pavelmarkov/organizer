@@ -1,6 +1,6 @@
 import os
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from fastapi.responses import FileResponse, JSONResponse
 
@@ -56,3 +56,21 @@ async def get_info(
         return JSONResponse({"error": True})
 
     return JSONResponse({"info": jsonable_encoder(media.info)})
+
+
+@router.post(
+    "/preview",
+    response_class=JSONResponse
+)
+async def add_preview(
+    entity_id: str,
+    file: UploadFile = File(...)
+):
+    preview = Preview(entity_id, None)
+    await preview.add_preview(file)
+    return {
+        "filename": file.filename,
+        "content_type": file.content_type,
+        "size": file.size,
+        "entity_id": entity_id,
+    }

@@ -4,3 +4,4 @@ export * from "./view/view.dto";
 export * from "./memories/generate-memories.dto";
 export * from "./memories/get-memory-sources.dto";
 export * from "./notifications/notification.dto";
+export * from "./previews/add-preview-response.dto";

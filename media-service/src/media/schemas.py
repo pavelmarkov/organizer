@@ -26,7 +26,7 @@ class MediaInfo(BaseModel):
 class UpsertMediaEntityDto(BaseModel):
     directory_id: uuid.UUID
     preview_path: str
-    info: MediaInfo
+    info: MediaInfo | None
 
     @field_validator('directory_id', mode='before')
     @classmethod

@@ -4,3 +4,4 @@ export * from './projects.repository';
 export * from './tags.repository';
 export * from './connections.repository';
 export * from './memories.repository';
+export * from './preview.repository';
