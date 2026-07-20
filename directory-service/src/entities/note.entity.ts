@@ -23,4 +23,7 @@ export class NoteEntity extends WithProjectIdBaseEntity {
 
   @Property({ type: "array" })
   tags: string[];
+
+  @Property({ default: 0 })
+  sortOrder: number;
 }

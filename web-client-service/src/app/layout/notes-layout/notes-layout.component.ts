@@ -75,6 +75,8 @@ export class NotesLayoutComponent implements OnInit {
     attachments: [],
   };
 
+  isSearchMode!: boolean;
+
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -102,6 +104,16 @@ export class NotesLayoutComponent implements OnInit {
       .subscribe((data) => {
         this.loadNodes();
         this.loading = false;
+      });
+
+    this.dataService.currentSearchValue
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((searchValue) => {
+        if (searchValue) {
+          this.isSearchMode = true;
+        } else {
+          this.isSearchMode = false;
+        }
       });
   }
 
@@ -135,7 +147,7 @@ export class NotesLayoutComponent implements OnInit {
     notes.forEach((notesElement) => {
       let node: TreeNode = {
         data: notesElement,
-        leaf: notesElement.type !== 'folder',
+        leaf: this.isSearchMode || notesElement.type !== 'folder',
         children: [],
       };
 
@@ -306,6 +318,7 @@ export class NotesLayoutComponent implements OnInit {
     this.note.description = note.description;
     this.note.source = note.source;
     this.note.type = note.type;
+    this.note.sortOrder = note.sortOrder;
 
     this.submitted = false;
     this.createDialogVisible = true;

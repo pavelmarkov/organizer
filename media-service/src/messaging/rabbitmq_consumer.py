@@ -50,8 +50,8 @@ class RabbitMQConsumer():
         except aio_pika.exceptions.AMQPConnectionError as e:
             print(f"Error connecting to RabbitMQ: {e}")
             self._retry_count += 1
-            # if (self._retry_count > 3):
-            #     return
+            if (self._retry_count > 3):
+                return
             print(f"Trying to reconnect to RabbitMQ: {self._retry_count}")
             await asyncio.sleep(5)
             await self.reconnect(loop)

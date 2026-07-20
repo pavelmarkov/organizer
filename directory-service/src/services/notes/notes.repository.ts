@@ -115,6 +115,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
         "source",
         "tags",
         "parentId",
+        "sortOrder",
       ],
     });
   }
@@ -155,7 +156,13 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
     return await this.noteRepository.upsertMany(notes, {
       onConflictFields: ["name"],
       onConflictAction: "merge",
-      onConflictMergeFields: ["description", "type", "source", "tags"],
+      onConflictMergeFields: [
+        "description",
+        "type",
+        "source",
+        "tags",
+        "sortOrder",
+      ],
     });
   }
 

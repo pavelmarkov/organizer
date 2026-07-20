@@ -60,8 +60,10 @@ class Preview():
         subfolder = alloc_subfolder(
             self.save_to_path, self.max_files_in_folder)
 
+        _, file_extension = os.path.splitext(uploaded_file.filename)
+        new_file_name = f"{self.directory_id}{file_extension}"
         full_preview_path = os.path.join(
-            self.save_to_path, subfolder, uploaded_file.filename
+            self.save_to_path, subfolder, new_file_name
         )
 
         with open(full_preview_path, "wb+") as file_object:

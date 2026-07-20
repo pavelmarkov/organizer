@@ -6,4 +6,5 @@ export interface NoteModel {
   type: string | 'folder';
   source: string;
   tags: string[];
+  sortOrder: number;
 }

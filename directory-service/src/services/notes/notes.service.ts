@@ -3,18 +3,35 @@ import { NoteEntity } from "../../entities";
 import { BaseAbstractService } from "../../domain/services";
 import { View } from "../../domain/types";
 import { NoteRepository } from "./notes.repository";
+import { AsyncLocalStorage } from "node:async_hooks";
 
 @Injectable()
 export class NoteService implements BaseAbstractService<NoteEntity> {
-  constructor(private readonly noteRepository: NoteRepository) {}
+  constructor(
+    private readonly noteRepository: NoteRepository,
+    private readonly asyncLocalStorage: AsyncLocalStorage<any>,
+  ) {}
 
   async get(
     filter?: Partial<NoteEntity>,
     pagination?: { limit: number; offset: number },
   ): Promise<NoteEntity[]> {
+    const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
+
+    let whereCondition: Partial<NoteEntity> = {};
+    let paginationValues = null;
+
+    if (!searchValue) {
+      whereCondition.parentId = filter.parentId ?? null;
+    }
+
+    if (searchValue || "parentId" in whereCondition) {
+      paginationValues = pagination;
+    }
+
     return await this.noteRepository.findAll({
-      filter,
-      order: { name: "asc" },
+      filter: whereCondition,
+      order: { sortOrder: "asc", name: "asc" },
       pagination,
     });
   }

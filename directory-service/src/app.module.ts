@@ -47,6 +47,7 @@ const CONTROLLERS = [
       dbName: "organizer.sqlite3",
       driver: SqliteDriver,
       extensions: [SeedManager],
+      // debug: ["query", "query-params"],
     }),
     DirectoryModule,
     NoteModule,
