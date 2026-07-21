@@ -68,6 +68,7 @@ export class NotesLayoutComponent implements OnInit {
   attachToParentDialogVisible: boolean = false;
   selectedParentNoteId: string | undefined = undefined;
   parentNotesList: NoteModel[] = [];
+  filteringParents: Boolean = false;
 
   cardData: CardModel = {
     rowIdentifier: null,
@@ -275,10 +276,30 @@ export class NotesLayoutComponent implements OnInit {
   hideAttachToParentDialog() {
     this.attachToParentDialogVisible = false;
   }
+  onParentsListFilter($event: { filter: string }) {
+    this.dataService.setSearchValue($event.filter);
+    if (this.filteringParents) {
+      return;
+    }
+    this.filteringParents = true;
+    setTimeout(() => {
+      this.notesService
+        .getNotes({}, { offset: 0, limit: 5 })
+        .subscribe((data) => {
+          this.parentNotesList = data;
+        });
+      this.filteringParents = false;
+    }, 1500);
+  }
   onSelectParentClick($event: MouseEvent) {
-    this.notesService.getNotes({}, {}).subscribe((data) => {
-      this.parentNotesList = data;
-    });
+    if (this.parentNotesList.length) {
+      return;
+    }
+    this.notesService
+      .getNotes({}, { offset: 0, limit: 5 })
+      .subscribe((data) => {
+        this.parentNotesList = data;
+      });
   }
   attachToParent() {
     const selectedNoteGuids = Object.keys(this.selectionKeys).filter(

@@ -61,8 +61,22 @@
 
 <p-dialog [(visible)]="attachToParentDialogVisible" [style]="{ width: '450px' }" header="Note" [modal]="true">
   <ng-template #content>
-    <p-select (onClick)="onSelectParentClick($event)" [showClear]="true" appendTo="body" [options]="parentNotesList"
-    [(ngModel)]="selectedParentNoteId" optionValue="noteId" optionLabel="name" placeholder="Select a Note"/>
+    <p-select
+      (onClick)="onSelectParentClick($event)"
+      
+      [filter]="true"
+      [lazy]="true"
+      (onFilter)="onParentsListFilter($event)"
+      filterBy="name"
+      [loading]="filteringParents"
+      
+      [showClear]="true"
+      appendTo="body"
+      [options]="parentNotesList"
+      [(ngModel)]="selectedParentNoteId"
+      optionValue="noteId"
+      optionLabel="name"
+      placeholder="Select a Note"/>
   </ng-template>
 
   <ng-template #footer>
