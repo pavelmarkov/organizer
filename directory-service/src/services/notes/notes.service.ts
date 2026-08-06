@@ -1,15 +1,17 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { NoteEntity } from "../../entities";
 import { BaseAbstractService } from "../../domain/services";
 import { View } from "../../domain/types";
 import { NoteRepository } from "./notes.repository";
 import { AsyncLocalStorage } from "node:async_hooks";
+import { MediaService } from "../../infrastructure/media/media.service";
 
 @Injectable()
 export class NoteService implements BaseAbstractService<NoteEntity> {
   constructor(
     private readonly noteRepository: NoteRepository,
     private readonly asyncLocalStorage: AsyncLocalStorage<any>,
+    @Inject(MediaService) private readonly mediaClient: MediaService,
   ) {}
 
   async get(
@@ -67,6 +69,8 @@ export class NoteService implements BaseAbstractService<NoteEntity> {
       details: null,
       attachments: [],
     };
+
+    view.image = await this.mediaClient.getThumbnails(note.noteId, null);
 
     view.next = await this.noteRepository.getNextItemId(note);
 

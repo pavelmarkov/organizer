@@ -57,7 +57,7 @@ export class NotesLayoutComponent implements OnInit {
   cols!: Column[];
   totalRecords!: number;
   loading: boolean = false;
-  selectionKeys: SelectedNodesType = {};
+  selectionKeys: SelectedNodesType<NoteModel> = [];
   limit: number = 10;
   offset: number = 0;
 
@@ -116,6 +116,10 @@ export class NotesLayoutComponent implements OnInit {
           this.isSearchMode = false;
         }
       });
+  }
+
+  selectionChanged(selectedNodes: SelectedNodesType<NoteModel>) {
+    this.selectionKeys = selectedNodes;
   }
 
   loadNodes(event?: any) {
@@ -261,7 +265,7 @@ export class NotesLayoutComponent implements OnInit {
     this.createMode = false;
   }
   createNoteDialog() {
-    this.note = copySelectedNoteData(this.notes, this.selectionKeys);
+    this.note = copySelectedNoteData(this.selectionKeys);
 
     this.submitted = false;
     this.createDialogVisible = true;
@@ -289,6 +293,7 @@ export class NotesLayoutComponent implements OnInit {
           this.parentNotesList = data;
         });
       this.filteringParents = false;
+      this.dataService.setSearchValue('');
     }, 1500);
   }
   onSelectParentClick($event: MouseEvent) {
@@ -302,8 +307,8 @@ export class NotesLayoutComponent implements OnInit {
       });
   }
   attachToParent() {
-    const selectedNoteGuids = Object.keys(this.selectionKeys).filter(
-      (guid) => this.selectionKeys[guid].checked,
+    const selectedNoteGuids = this.selectionKeys.map(
+      (node) => node.data?.noteId ?? '',
     );
 
     const selectedParentNoteGuid = this.selectedParentNoteId ?? null;
@@ -326,7 +331,7 @@ export class NotesLayoutComponent implements OnInit {
       this.loadNodes();
     });
 
-    this.selectionKeys = {};
+    this.selectionKeys = [];
 
     this.attachToParentDialogVisible = false;
   }

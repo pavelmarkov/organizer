@@ -1,8 +1,13 @@
+<!--
+  (onNodeSelect)="onNodeSelectHandler($event)" 
+-->
 <p-treetable
   [value]="rows"
   [columns]="columns"
-  selectionMode="checkbox"
+  selectionMode="multiple"
+  [(selection)]="selection"
   dataKey="{{ dataKeyName }}"
+  (selectionChange)="onNodeSelectHandler($event)"
   [paginator]="true"
   [rows]="10"
   [lazy]="true"
@@ -12,7 +17,6 @@
   (onNodeExpand)="onNodeExpand($event)"
   [scrollable]="true"
   [tableStyle]="{ 'min-width': '50rem' }"
-  [selectionKeys]="selectionKeys"
   (onPage)="onPage($event)"
   >
   <ng-template #header let-columns>
@@ -26,11 +30,11 @@
   <p-confirmdialog />
 
   <ng-template #body let-rowNode let-rowData="rowData" let-columns="columns">
-    <tr [ttRow]="rowNode">
+    <tr [ttRow]="rowNode" [ttSelectableRow]="rowNode"> <!-- [ttSelectableRow]="rowNode"-->
       <td *ngFor="let col of columns; let i = index; let last = last;">
 
         <p-treetable-toggler [rowNode]="rowNode" *ngIf="i === 0" />
-        <p-treetable-checkbox [value]="rowNode" *ngIf="i === 0" />
+        <!-- <p-treetable-checkbox [value]="rowNode" *ngIf="i === 0"/> -->
         <ng-container *ngIf="(col.field === 'name' && !rowData.isFolder)">
           <span class="pi pi-file" [style]="{ 'margin-left': '.5em' }"></span>
         </ng-container>
@@ -46,4 +50,22 @@
       </td>
     </tr>
   </ng-template>
+
+  <ng-template #footer>
+      <tr>
+        <td colspan="0">
+          Selected: {{ nodesSelectedCount > 0 ? nodesSelectedCount : '' }}
+          <p-button 
+            icon="pi pi-refresh"
+            variant="outlined"
+            severity="secondary"
+            label="Clear selected"
+            (onClick)="clearSelectedNodes($event)"
+          >
+          </p-button>
+        </td>
+      </tr>
+  </ng-template>
+
+  <ng-template #footer></ng-template>
 </p-treetable>

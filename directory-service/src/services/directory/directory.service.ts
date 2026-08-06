@@ -57,6 +57,10 @@ export class DirectoryService implements BaseAbstractService<DirectoryEntity> {
       };
     }
 
+    if (typeof params.isFolder == "boolean") {
+      whereCondition.isFolder = params.isFolder;
+    }
+
     return await this.directoryRepository.findAll({
       filter: whereCondition,
       pagination: paginationValues,

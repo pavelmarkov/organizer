@@ -1,6 +1,3 @@
-export interface SelectedNodesType {
-  [nodeId: string]: {
-    partialChecked: boolean;
-    checked: boolean;
-  };
-}
+import { TreeNode } from 'primeng/api';
+
+export type SelectedNodesType<T = any> = TreeNode<T>[];

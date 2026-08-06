@@ -25,6 +25,10 @@ export class DirectoryRepositoryImpl implements DirectoryRepository {
       queryParams = queryParams.set('directoryId', params.directoryId);
     }
 
+    if (params.isFolder) {
+      queryParams = queryParams.set('isFolder', params.isFolder);
+    }
+
     if (pagination.offset || pagination.offset === 0) {
       queryParams = queryParams.set('offset', pagination.offset);
     }

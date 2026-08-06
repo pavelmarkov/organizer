@@ -12,7 +12,7 @@
   [totalRecords]="totalRecords"
   [loading]="loading"
   [dataKeyName]="dataKeyName"
-  [selectionKeys]="selectionKeys"
+  (selectionChangedEvent)="selectionChanged($event)"
 
   (nodeExpandEvent)="onNodeExpand($event)"
   (showDialogEvent)="showDialog($event)"

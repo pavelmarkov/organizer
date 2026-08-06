@@ -4,6 +4,7 @@ import { InjectRepository } from "@mikro-orm/nestjs";
 import {
   EntityRepository,
   FilterQuery,
+  ObjectQuery,
   OrderDefinition,
 } from "@mikro-orm/sqlite";
 import { v4 as uuidv4 } from "uuid";
@@ -21,7 +22,7 @@ export class DirectoryRepository
   ) {}
 
   private formWhereCondition(
-    filter?: FilterQuery<DirectoryEntity>,
+    filter?: ObjectQuery<DirectoryEntity>,
   ): FilterQuery<DirectoryEntity> {
     const projectId = this.asyncLocalStorage.getStore()["projectId"];
     const searchValue = this.asyncLocalStorage.getStore()["searchValue"];
@@ -35,7 +36,10 @@ export class DirectoryRepository
     const searchValueCondition: FilterQuery<DirectoryEntity> = [];
     if (searchValue) {
       searchValueCondition.push(
-        ...[{ path: { $like: `%${searchValue}%` } }, { isFolder: false }],
+        ...[
+          { path: { $like: `%${searchValue}%` } },
+          { isFolder: filter?.isFolder ?? false },
+        ],
       );
     }
 

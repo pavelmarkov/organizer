@@ -49,7 +49,7 @@ export class TagsLayoutComponent {
   cols!: Column[];
   totalRecords!: number;
   loading: boolean = false;
-  selectionKeys: SelectedNodesType = {};
+  selectionKeys: SelectedNodesType<TagModel> = [];
 
   limit: number = 10;
   offset: number = 0;
@@ -89,6 +89,10 @@ export class TagsLayoutComponent {
     this.dataService.currentProject.subscribe((data) => {
       this.loadNodes();
     });
+  }
+
+  selectionChanged(selectedNodes: SelectedNodesType<TagModel>) {
+    this.selectionKeys = selectedNodes;
   }
 
   private mapTagsToNodes(tags: TagModel[]): TreeNode<TagModel>[] {
@@ -209,8 +213,8 @@ export class TagsLayoutComponent {
     });
   }
   attachToParent() {
-    const selectedTagGuids = Object.keys(this.selectionKeys).filter(
-      (guid) => this.selectionKeys[guid].checked,
+    const selectedTagGuids = this.selectionKeys.map(
+      (selectedRow) => selectedRow.data?.tagId ?? '',
     );
 
     const selectedParentTagGuid = this.selectedParentTagId ?? null;
@@ -233,7 +237,7 @@ export class TagsLayoutComponent {
       this.loadNodes();
     });
 
-    this.selectionKeys = {};
+    this.selectionKeys = [];
 
     this.attachToParentDialogVisible = false;
   }

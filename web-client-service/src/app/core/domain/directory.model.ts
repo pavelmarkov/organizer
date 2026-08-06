@@ -1,6 +1,6 @@
 export interface DirectoryModel {
   directoryId: string;
-  parentId: string;
+  parentId: string | null;
   name: string;
   isFolder: boolean;
   fileType: string;

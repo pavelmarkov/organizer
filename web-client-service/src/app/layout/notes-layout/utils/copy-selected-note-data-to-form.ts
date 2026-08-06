@@ -30,27 +30,15 @@ const findSelectedNodeRecursively = (
 };
 
 export const copySelectedNoteData = (
-  notes: TreeNode<NoteModel>[],
-  selectionKeys: SelectedNodesType,
+  selectionKeys: SelectedNodesType<NoteModel>,
 ): Partial<NoteModel> => {
   const note: Partial<NoteModel> = {};
 
-  const selectedNoteGuids = Object.keys(selectionKeys).filter(
-    (guid) =>
-      selectionKeys[guid].checked && !selectionKeys[guid].partialChecked,
-  );
-
-  if (!selectedNoteGuids.length) {
+  if (selectionKeys.length < 1) {
     return note;
   }
 
-  let selectedNote: Partial<NoteModel> | undefined = {};
-  notes.forEach((note) => {
-    if (selectedNote?.noteId) {
-      return;
-    }
-    selectedNote = findSelectedNodeRecursively(note, selectedNoteGuids);
-  });
+  const selectedNote: Partial<NoteModel> | undefined = selectionKeys[0].data;
 
   if (selectedNote) {
     note.parentId = selectedNote.parentId;

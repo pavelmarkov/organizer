@@ -8,8 +8,11 @@ import {
   Output,
 } from '@angular/core';
 
-import { TreeTableModule } from 'primeng/treetable';
-import { ConfirmationService, TreeNode } from 'primeng/api';
+import {
+  TreeTableHeaderCheckboxToggleEvent,
+  TreeTableModule,
+} from 'primeng/treetable';
+import { ConfirmationService, TreeNode, TreeTableNode } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { SelectedNodesType } from '../../core/types';
 
@@ -33,7 +36,7 @@ interface Column {
 export class TreeTableLayoutComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
 
-  @Input() selectionKeys: SelectedNodesType = {};
+  selection: SelectedNodesType = [];
 
   @Input() dataKeyName!: string;
 
@@ -47,6 +50,8 @@ export class TreeTableLayoutComponent implements OnInit {
 
   @Output() nodeExpandEvent = new EventEmitter<TreeNode>();
 
+  @Output() selectionChangedEvent = new EventEmitter<TreeNode[]>();
+
   @Output() showDialogEvent = new EventEmitter<TreeNode['data']>();
 
   @Output() loadNodesEvent = new EventEmitter<void>();
@@ -56,6 +61,8 @@ export class TreeTableLayoutComponent implements OnInit {
   @Output() editEvent = new EventEmitter<TreeNode['data']>();
 
   @Output() removeEvent = new EventEmitter<TreeNode['data']>();
+
+  nodesSelectedCount: number = 0;
 
   constructor(private cd: ChangeDetectorRef) {}
 
@@ -72,6 +79,18 @@ export class TreeTableLayoutComponent implements OnInit {
 
   onNodeExpand(event: TreeNodeExpandEvent) {
     this.nodeExpandEvent.emit(event.node);
+  }
+
+  onNodeSelectHandler(
+    $event: TreeTableNode<any> | TreeTableNode<any>[] | null,
+  ) {
+    this.selectionChangedEvent.emit(this.selection);
+    this.nodesSelectedCount = this.selection.length;
+  }
+
+  clearSelectedNodes($event: MouseEvent | null) {
+    this.selection = [];
+    this.nodesSelectedCount = 0;
   }
 
   showDialog(event: any) {

@@ -2,7 +2,8 @@
   (processEvent)="processDirectory()"
   (importEvent)="importDirectoryFromFile($event)"
   (searchEvent)="searchDirectory()"
-  (generateEvent)="generateMemory()">
+  (generateEvent)="generateMemory()"
+  (attachToParentEvent)="attachToParentDialog()">
 ></app-actions-layout>
 
 <p-toast position="bottom-right"></p-toast>
@@ -13,7 +14,7 @@
   [totalRecords]="totalRecords"
   [loading]="loading"
   [dataKeyName]="dataKeyName"
-  [selectionKeys]="selectionKeys"
+  (selectionChangedEvent)="selectionChanged($event)"
 
   (nodeExpandEvent)="onNodeExpand($event)"
   (showDialogEvent)="showDialog($event)"
@@ -30,3 +31,27 @@
   [cardData]="cardData"
   [visible]="dialogPanelVisible">
 </app-card-layout>
+
+<p-dialog [(visible)]="attachToParentDialogVisible" [style]="{ width: '450px' }" header="Directory" [modal]="true">
+  <ng-template #content>
+    <p-select
+      (onClick)="onSelectParentClick($event)"
+      [filter]="true"
+      [lazy]="true"
+      (onFilter)="onParentsListFilter($event)"
+      filterBy="name"
+      [loading]="filteringParents"
+      [showClear]="true"
+      appendTo="body"
+      [options]="parentDirectoriesList"
+      [(ngModel)]="selectedParentDirectoryId"
+      optionValue="directoryId"
+      optionLabel="name"
+      placeholder="Select a Directory" />
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button label="Cancel" icon="pi pi-times" text (click)="hideAttachToParentDialog()" />
+    <p-button label="Save" icon="pi pi-check" (click)="attachToParent()" />
+  </ng-template>
+</p-dialog>

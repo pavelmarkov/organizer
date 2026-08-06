@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  ParseBoolPipe,
   Post,
   Put,
   Query,
@@ -23,11 +24,12 @@ export class DirectoryController {
   getDirectory(
     @Query("directoryId") directoryId: string,
     @Query("parentId") parentId: string,
+    @Query("isFolder", new ParseBoolPipe({ optional: true })) isFolder: boolean,
     @Query("limit") limit: number,
     @Query("offset") offset: number,
   ): Promise<Partial<DirectoryEntity[]>> {
     return this.directoryService.get(
-      { parentId, directoryId },
+      { parentId, directoryId, isFolder },
       { limit, offset },
     );
   }

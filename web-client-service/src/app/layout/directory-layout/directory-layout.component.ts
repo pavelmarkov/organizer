@@ -4,11 +4,10 @@ import {
   DestroyRef,
   inject,
   OnInit,
-  ViewChild,
 } from '@angular/core';
 
 import { TreeTableModule } from 'primeng/treetable';
-import { TreeNode, TreeTableNode } from 'primeng/api';
+import { TreeNode } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import {
   ConnectionsService,
@@ -35,6 +34,11 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, timeout } from 'rxjs';
+import { SelectModule } from 'primeng/select';
+import { DialogModule } from 'primeng/dialog';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 
 interface Column {
   field: keyof DirectoryModel | '';
@@ -52,6 +56,10 @@ interface Column {
     TreeTableLayoutComponent,
 
     ToastModule,
+
+    FormsModule,
+    DialogModule,
+    SelectModule,
   ],
   templateUrl: './directory-layout.component.html',
   styleUrl: './directory-layout.component.css',
@@ -60,7 +68,7 @@ interface Column {
 export class DirectoryLayoutComponent implements OnInit {
   dataKeyName: string = 'directoryId';
 
-  selectionKeys: SelectedNodesType = {};
+  selectionKeys: SelectedNodesType<DirectoryModel> = [];
 
   files!: TreeNode[];
 
@@ -84,6 +92,11 @@ export class DirectoryLayoutComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
   private destroyRef = inject(DestroyRef);
+
+  attachToParentDialogVisible: boolean = false;
+  selectedParentDirectoryId: string | undefined = undefined;
+  parentDirectoriesList: DirectoryModel[] = [];
+  filteringParents: Boolean = false;
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -149,6 +162,10 @@ export class DirectoryLayoutComponent implements OnInit {
     });
 
     return nodes;
+  }
+
+  selectionChanged(selectedNodes: SelectedNodesType<DirectoryModel>) {
+    this.selectionKeys = selectedNodes;
   }
 
   loadNodes(event: any) {
@@ -258,8 +275,8 @@ export class DirectoryLayoutComponent implements OnInit {
   }
 
   processDirectory() {
-    const selectedDirectoryGuids = Object.keys(this.selectionKeys).filter(
-      (guid) => this.selectionKeys[guid].checked,
+    const selectedDirectoryGuids = this.selectionKeys.map(
+      (node) => node.data?.directoryId ?? '',
     );
 
     this.directoryService
@@ -288,10 +305,8 @@ export class DirectoryLayoutComponent implements OnInit {
 
     const directories: GenerateMemoriesRequestDto['directories'] = [];
 
-    Object.keys(this.selectionKeys).forEach((directoryId) => {
-      if (this.selectionKeys[directoryId].checked) {
-        directories.push({ directoryId });
-      }
+    this.selectionKeys.forEach((node) => {
+      directories.push({ directoryId: node.data?.directoryId ?? '' });
     });
 
     this.memoriesService
@@ -309,5 +324,70 @@ export class DirectoryLayoutComponent implements OnInit {
       console.log(data);
       this.loadNodes(null);
     });
+  }
+
+  attachToParentDialog() {
+    this.attachToParentDialogVisible = true;
+  }
+  hideAttachToParentDialog() {
+    this.attachToParentDialogVisible = false;
+  }
+  onParentsListFilter($event: { filter: string }) {
+    this.dataService.setSearchValue($event.filter);
+    if (this.filteringParents) {
+      return;
+    }
+    this.filteringParents = true;
+    setTimeout(() => {
+      this.directoryService
+        .getDirectory({ isFolder: true }, { offset: 0, limit: 5 })
+        .subscribe((data) => {
+          this.parentDirectoriesList = data;
+        });
+      this.filteringParents = false;
+      this.dataService.setSearchValue('');
+    }, 1500);
+  }
+  onSelectParentClick($event: MouseEvent) {
+    if (this.parentDirectoriesList.length) {
+      return;
+    }
+    this.directoryService
+      .getDirectory({}, { offset: 0, limit: 5 })
+      .subscribe((data) => {
+        this.parentDirectoriesList = data;
+      });
+  }
+  attachToParent() {
+    console.dir(this.selectionKeys, { depth: null });
+    const selectedDirectoryGuids = this.selectionKeys.map(
+      (node) => node.data?.directoryId ?? '',
+    );
+
+    const selectedParentNoteGuid = this.selectedParentDirectoryId ?? null;
+
+    if (!selectedDirectoryGuids.length) {
+      this.attachToParentDialogVisible = false;
+      return;
+    }
+
+    const updateDirectoryData: Pick<
+      DirectoryModel,
+      'directoryId' | 'parentId'
+    >[] = selectedDirectoryGuids.map((selectedDirectoryGuid) => {
+      return {
+        directoryId: selectedDirectoryGuid,
+        parentId: selectedParentNoteGuid,
+      };
+    });
+
+    this.directoryService.update(updateDirectoryData).subscribe((data) => {
+      this.attachToParentDialogVisible = false;
+      this.loadNodes(null);
+    });
+
+    this.selectionKeys = [];
+
+    this.attachToParentDialogVisible = false;
   }
 }
