@@ -8,10 +8,7 @@ import {
   Output,
 } from '@angular/core';
 
-import {
-  TreeTableHeaderCheckboxToggleEvent,
-  TreeTableModule,
-} from 'primeng/treetable';
+import { TreeTableModule } from 'primeng/treetable';
 import { ConfirmationService, TreeNode, TreeTableNode } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { SelectedNodesType } from '../../core/types';
@@ -79,6 +76,11 @@ export class TreeTableLayoutComponent implements OnInit {
 
   onNodeExpand(event: TreeNodeExpandEvent) {
     this.nodeExpandEvent.emit(event.node);
+    event.originalEvent.stopPropagation();
+  }
+
+  onNodeCollapse(event: TreeNodeExpandEvent) {
+    event.originalEvent.stopPropagation();
   }
 
   onNodeSelectHandler(

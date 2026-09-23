@@ -210,7 +210,6 @@ export class DirectoryLayoutComponent implements OnInit {
     this.directoryService
       .getDirectory({ parentId: nodeId }, {})
       .subscribe((nodeChildren) => {
-        console.log(nodeChildren);
         node.children = this.mapDirectoriesToNodes(nodeChildren);
         this.loading = false;
         this.files = [...this.files];
