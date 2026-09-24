@@ -110,6 +110,7 @@ export class NoteRepository implements BaseAbstractRepository<NoteEntity> {
       onConflictFields: ["noteId"],
       onConflictAction: "merge",
       onConflictMergeFields: [
+        "name",
         "description",
         "type",
         "source",

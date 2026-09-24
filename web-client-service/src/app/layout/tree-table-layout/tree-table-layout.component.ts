@@ -95,12 +95,14 @@ export class TreeTableLayoutComponent implements OnInit {
     this.nodesSelectedCount = 0;
   }
 
-  showDialog(event: any) {
-    this.showDialogEvent.emit(event);
+  showDialog(event: MouseEvent, rowData: TreeNode) {
+    this.showDialogEvent.emit(rowData);
+    event.stopPropagation();
   }
 
-  edit(event: any) {
-    this.editEvent.emit(event);
+  edit(event: MouseEvent, rowData: TreeNode) {
+    this.editEvent.emit(rowData);
+    event.stopPropagation();
   }
 
   remove(event: TreeNode['data']) {
