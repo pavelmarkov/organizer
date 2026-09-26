@@ -177,6 +177,8 @@ export class NotesLayoutComponent implements OnInit {
   }
 
   showDialog(note: NoteModel) {
+    this.editMode = false;
+    this.createMode = false;
     this.notesService.view(note.noteId).subscribe((viewData) => {
       this.cardData = viewData;
       this.dialogPanelVisible = true;
@@ -185,6 +187,10 @@ export class NotesLayoutComponent implements OnInit {
 
   nextItem(note: NoteModel) {
     if (!this.cardData.next) {
+      return;
+    }
+
+    if (this.editMode || this.createMode) {
       return;
     }
 
@@ -199,6 +205,10 @@ export class NotesLayoutComponent implements OnInit {
       return;
     }
 
+    if (this.editMode || this.createMode) {
+      return;
+    }
+
     this.notesService.view(this.cardData.previous).subscribe((viewData) => {
       this.cardData = viewData;
       this.dialogPanelVisible = true;
@@ -206,6 +216,8 @@ export class NotesLayoutComponent implements OnInit {
   }
 
   closeDialog() {
+    this.editMode = false;
+    this.createMode = false;
     this.dialogPanelVisible = false;
   }
 
