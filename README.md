@@ -37,8 +37,20 @@ $ docker compose down
 
 ## Run dev commands
 
+Services
+
 ```bash
 $ nest start
 $ fastapi dev main.py
 $ ng serve --open
+```
+
+Runnig Airflow with Astro
+
+```bash
+$ astro dev start
+$ astro dev stop
+$ astro dev restart
+$ astro dev run dags reserialize
+$ astro dev object import
 ```
