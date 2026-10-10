@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  neo4j:
+    image: neo4j:5.26
+    container_name: my-neo4j
+    ports:
+      - "7474:7474" # HTTP Browser
+      - "7687:7687" # Bolt driver
+    environment:
+      # Replace with your own secure password
+      - NEO4J_AUTH=neo4j/neo4jneo4j
+      # Optional: Enable APOC plugin
+      - NEO4J_PLUGINS=["apoc"]
+    volumes:
+      # Named volumes for data persistence
+      - data:/data
+      - logs:/logs
+      - plugins:/plugins
+      - import:/var/lib/neo4j/import
+    restart: unless-stopped
+
+# Declare the named volumes at the bottom
+volumes:
+  data:
+  logs:
+  plugins:
+  import:

@@ -1,13 +1,30 @@
-# ------------------------------------------------------
-# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
-# ------------------------------------------------------
-
-type Author {
-  id: Int!
-  firstName: String
-  lastName: String
+type Tag @node {
+  id: ID! @id
+  name: String!
+  notes: [Note!]! @relationship(type: "TAGS", direction: OUT)
 }
 
-type Query {
-  getAuthor(id: Int!): Author!
+type Note @node {
+  id: ID! @id
+  name: String!
+  tags: [Tag!]! @relationship(type: "TAGGED_WITH", direction: IN)
+}
+
+input TagInput {
+  id: ID!
+  name: String!
+}
+
+input NoteInput {
+  id: ID!
+  name: String!
+  tags: [TagInput!]!
+}
+
+input CreateNoteTagConnectionInput {
+  notes: [NoteInput!]!
+}
+
+type Mutation {
+  resolveUpdateNotesConnections(args: CreateNoteTagConnectionInput!): Boolean
 }
