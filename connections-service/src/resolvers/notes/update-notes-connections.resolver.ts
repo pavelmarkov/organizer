@@ -1,4 +1,5 @@
 import { Driver, Session } from "neo4j-driver";
+import { CreateNoteTagConnectionInput } from "../../schema/schema";
 
 /**
  * @param driver
@@ -32,13 +33,7 @@ import { Driver, Session } from "neo4j-driver";
  */
 export async function resolveUpdateNotesConnections(
   driver: Driver,
-  args: {
-    notes: Array<{
-      id: string;
-      name: string;
-      tags: Array<{ id: string; name: string }>;
-    }>;
-  },
+  args: CreateNoteTagConnectionInput,
 ) {
   const cypher = `
     UNWIND $notes AS noteData

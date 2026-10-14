@@ -1,0 +1,8 @@
+schema: "./src/schema/schema.graphql"
+generates:
+  ./src/schema/schema.ts:
+    plugins:
+      - "typescript"
+    config:
+      useIndexSignature: true
+      contextType: "../index#MyContext"
